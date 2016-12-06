@@ -3,6 +3,7 @@ useradd::manage_useradd: true
 useradd::manage_login_defs: true
 useradd::manage_libuser_conf: true
 useradd::manage_etc_profile: true
+useradd::manage_sysconfig_init: true
 
 # useradd::etc_profile
 useradd::etc_profile::session_timeout: 15
@@ -117,6 +118,19 @@ useradd::login_defs::usergroups_enab: true
 useradd::nss::netid_authoritative: false
 useradd::nss::services_authoritative: false
 useradd::nss::setent_batch_read: true
+
+# useradd::sysconfig_init
+useradd::sysconfig_init::bootup: color
+useradd::sysconfig_init::res_col: 60
+useradd::sysconfig_init::move_to_col: 'echo -en ''\''\033[${RES_COL}G'
+useradd::sysconfig_init::setcolor_success: 'echo -en ''\''\033[0;32m'
+useradd::sysconfig_init::setcolor_failure: 'echo -en ''\''\033[0;31m'
+useradd::sysconfig_init::setcolor_warning: 'echo -en ''\''\033[0;33m'
+useradd::sysconfig_init::setcolor_normal: 'echo -en ''\''\033[0;39m'
+useradd::sysconfig_init::single_user_login: /sbin/sulogin
+useradd::sysconfig_init::loglvl: 3
+useradd::sysconfig_init::prompt: false
+useradd::sysconfig_init::autoswap: false
 
 # useradd::useradd
 useradd::useradd::group: 100

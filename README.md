@@ -41,6 +41,7 @@ This module configures:
   * `/etc/default/nss`
   * `/etc/default/useradd`
   * `/etc/profile.d/`
+  * `/etc/sysconfig/init`
 
 
 ### Beginning with useradd
@@ -61,6 +62,7 @@ Each file can be managed or unmanaged individually, using the following variable
   * useradd::manage_login_defs
   * useradd::manage_libuser_conf
   * useradd::manage_etc_profile
+  * useradd::manage_sysconfig_init
 
 
 ## Reference

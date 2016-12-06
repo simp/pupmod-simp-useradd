@@ -12,12 +12,16 @@
 # @param manage_etc_profile
 #   If true, manage `/etc/profile/simp.*`
 #
+# @param manage_sysconfig_init
+#   If true, manage `/etc/sysconfig/init`
+#
 class useradd (
   # defaults in data/common.yaml
   Boolean $manage_useradd,
   Boolean $manage_login_defs,
   Boolean $manage_libuser_conf,
-  Boolean $manage_etc_profile
+  Boolean $manage_etc_profile,
+  Boolean $manage_sysconfig_init
 ) {
 
   if $manage_useradd {
@@ -34,6 +38,10 @@ class useradd (
 
   if $manage_etc_profile {
     include '::useradd::etc_profile'
+  }
+
+  if $manage_sysconfig_init {
+    include '::useradd::sysconfig_init'
   }
 
 }
