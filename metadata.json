@@ -49,5 +49,6 @@
       "name": "pe",
       "version_requirement": ">= 2016.2.0"
     }
-  ]
+  ],
+  "data_provider": "hiera"
 }

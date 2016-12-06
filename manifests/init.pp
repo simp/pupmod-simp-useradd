@@ -13,10 +13,11 @@
 #   If true, manage `/etc/profile/simp.*`
 #
 class useradd (
-  Boolean $manage_useradd      = true,
-  Boolean $manage_login_defs   = true,
-  Boolean $manage_libuser_conf = true,
-  Boolean $manage_etc_profile  = true
+  # defaults in data/common.yaml
+  Boolean $manage_useradd,
+  Boolean $manage_login_defs,
+  Boolean $manage_libuser_conf,
+  Boolean $manage_etc_profile
 ) {
 
   if $manage_useradd {

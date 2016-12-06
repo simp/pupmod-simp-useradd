@@ -43,12 +43,13 @@
 # @author Trevor Vaughan <tvaughan@onyxpoint.com>
 #
 class useradd::etc_profile (
-  Integer $session_timeout = 15,
-  String $umask            = '0077',
-  Boolean $mesg            = false,
-  Array $user_whitelist    = [],
-  Hash $prepend            = {},
-  Hash $append             = {}
+  # defaults in data/common.yaml
+  Integer $session_timeout,
+  String $umask,
+  Boolean $mesg,
+  Array $user_whitelist,
+  Hash $prepend,
+  Hash $append
 ){
 
   file { '/etc/profile.d/simp.sh':
