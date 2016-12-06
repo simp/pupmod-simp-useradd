@@ -1,143 +1,143 @@
 <%
-  t_bool_xlat = {
+  bool_to_yesno = {
     true => 'yes',
     false => 'no'
   }
 
-  if !@env_hz.empty? then
+  if !@env_hz.nil? then
     t_env_hz = @env_hz.dup
     if t_env_hz !~ /^HZ=/ then
       t_env_hz = "HZ=#{t_env_hz}"
     end
   end
 
-  if !@env_tz.empty? then
+  if !@env_tz.nil? then
     t_env_tz = @env_tz.dup
     if t_env_tz !~ /^(\/|TZ=)/ then
       t_env_tz = "TZ=#{t_env_tz}"
     end
   end
 -%>
-CHFN_AUTH <%= t_bool_xlat[@chfn_auth] %>
+CHFN_AUTH <%= bool_to_yesno[@chfn_auth] %>
 CHFN_RESTRICT <%= @chfn_restrict %>
-CHSH_AUTH <%= t_bool_xlat[@chsh_auth] %>
-<% if !@console.empty? then -%>
+CHSH_AUTH <%= bool_to_yesno[@chsh_auth] %>
+<% if !@console.nil? then -%>
 CONSOLE <%= @console.join(':') %>
 <% end -%>
-<% if !@console_groups.empty? then -%>
+<% if !@console_groups.nil? then -%>
 CONSOLE_GROUPS <%= @console_groups.join(',') %>
 <% end -%>
-CREATE_HOME <%= t_bool_xlat[@create_home] %>
-DEFAULT_HOME <%= t_bool_xlat[@default_home] %>
+CREATE_HOME <%= bool_to_yesno[@create_home] %>
+DEFAULT_HOME <%= bool_to_yesno[@default_home] %>
 ENCRYPT_METHOD <%= @encrypt_method %>
-<% if !@env_hz.empty? then -%>
+<% if !@env_hz.nil? then -%>
 ENV_HZ <%= t_env_hz %>
 <% end -%>
-<% if !@env_path.empty? then -%>
+<% if !@env_path.nil? then -%>
 ENV_PATH <%= @env_path.join(':') %>
 <% end -%>
-<% if !@env_supath.empty? then -%>
+<% if !@env_supath.nil? then -%>
 ENV_SUPATH <%= @env_supath.join(':') %>
 <% end -%>
-<% if !@env_tz.empty? then -%>
+<% if !@env_tz.nil? then -%>
 ENV_TZ <%= t_env_tz %>
 <% end -%>
-<% if !@environ_file.empty? then -%>
+<% if !@environ_file.nil? then -%>
 ENVIRON_FILE <%= @environ_file %>
 <% end -%>
-<% if !@erasechar.empty? then -%>
+<% if !@erasechar.nil? then -%>
 ERASECHAR <%= @erasechar %>
 <% end -%>
 FAIL_DELAY <%= @fail_delay %>
-FAILLOG_ENAB <%= t_bool_xlat[@faillog_enab] %>
-<% if !@fake_shell.empty? then -%>
+FAILLOG_ENAB <%= bool_to_yesno[@faillog_enab] %>
+<% if !@fake_shell.nil? then -%>
 FAKE_SHELL <%= @fake_shell %>
 <% end -%>
-<% if !@ftmp_file.empty? then -%>
+<% if !@ftmp_file.nil? then -%>
 FTMP_FILE <%= @ftmp_file %>
 <% end -%>
 GID_MAX <%= @gid_max %>
 GID_MIN <%= @gid_min %>
-<% if !@hushlogin_file.empty? then -%>
+<% if !@hushlogin_file.nil? then -%>
 HUSHLOGIN_FILE <%= @hushlogin_file %>
 <% end -%>
 ISSUE_FILE <%= @issue_file %>
-<% if !@killchar.empty? then -%>
+<% if !@killchar.nil? then -%>
 KILLCHAR <%= @killchar %>
 <% end -%>
-LASTLOG_ENAB <%= t_bool_xlat[@lastlog_enab] %>
-LOG_OK_LOGINS <%= t_bool_xlat[@log_ok_logins] %>
-LOG_UNKFAIL_ENAB <%= t_bool_xlat[@log_unkfail_enab] %>
+LASTLOG_ENAB <%= bool_to_yesno[@lastlog_enab] %>
+LOG_OK_LOGINS <%= bool_to_yesno[@log_ok_logins] %>
+LOG_UNKFAIL_ENAB <%= bool_to_yesno[@log_unkfail_enab] %>
 LOGIN_RETRIES <%= @login_retries %>
-<% if !@login_string.empty? then -%>
+<% if !@login_string.nil? then -%>
 LOGIN_STRING <%= @login_string %>
 <% end -%>
 LOGIN_TIMEOUT <%= @login_timeout %>
-MAIL_CHECK_ENAB <%= t_bool_xlat[@mail_check_enab] %>
+MAIL_CHECK_ENAB <%= bool_to_yesno[@mail_check_enab] %>
 MAIL_DIR <%= @mail_dir %>
-<% if !@mail_file.empty? then -%>
+<% if !@mail_file.nil? then -%>
 MAIL_FILE <%= @mail_file %>
 <% end -%>
-<% if !@max_members_per_group.empty? then -%>
+<% if !@max_members_per_group.nil? then -%>
 MAX_MEMBERS_PER_GROUP <%= @max_members_per_group %>
 <% end -%>
-<% if !@motd_file.empty? then -%>
+<% if !@motd_file.nil? then -%>
 MOTD_FILE <%= @motd_file.join(':') %>
 <% end -%>
-<% if !@nologins_file.empty? then -%>
+<% if !@nologins_file.nil? then -%>
 NOLOGINS_FILE <%= @nologins_file %>
 <% end -%>
-OBSCURE_CHECKS_ENAB <%= t_bool_xlat[@obscure_checks_enab] %>
-PASS_ALWAYS_WARN <%= t_bool_xlat[@pass_always_warn] %>
+OBSCURE_CHECKS_ENAB <%= bool_to_yesno[@obscure_checks_enab] %>
+PASS_ALWAYS_WARN <%= bool_to_yesno[@pass_always_warn] %>
 PASS_CHANGE_TRIES <%= @pass_change_tries %>
 PASS_MAX_DAYS <%= @pass_max_days %>
 PASS_MIN_DAYS <%= @pass_min_days %>
 PASS_WARN_AGE <%= @pass_warn_age %>
-<% if !@pass_max_len.empty? then -%>
+<% if !@pass_max_len.nil? then -%>
 PASS_MAX_LEN <%= @pass_max_len %>
 <% end -%>
 PASS_MIN_LEN <%= @pass_min_len %>
-PORTTIME_CHECKS_ENAB <%= t_bool_xlat[@porttime_checks_enab] %>
-QUOTAS_ENAB <%= t_bool_xlat[@quotas_enab] %>
+PORTTIME_CHECKS_ENAB <%= bool_to_yesno[@porttime_checks_enab] %>
+QUOTAS_ENAB <%= bool_to_yesno[@quotas_enab] %>
 SHA_CRYPT_MIN_ROUNDS <%= @sha_crypt_min_rounds %>
 SHA_CRYPT_MAX_ROUNDS <%= @sha_crypt_max_rounds %>
-<% if !@sulog_file.empty? then -%>
+<% if !@sulog_file.nil? then -%>
 SULOG_FILE <%= @sulog_file %>
 <% end -%>
 SU_NAME <%= @su_name %>
-SU_WHEEL_ONLY <%= t_bool_xlat[@su_wheel_only] %>
-<% if !@sys_gid_max.empty? then -%>
+SU_WHEEL_ONLY <%= bool_to_yesno[@su_wheel_only] %>
+<% if !@sys_gid_max.nil? then -%>
 SYS_GID_MAX <%= @sys_gid_max %>
 <% end -%>
-<% if !@sys_gid_min.empty? then -%>
+<% if !@sys_gid_min.nil? then -%>
 SYS_GID_MIN <%= @sys_gid_min %>
 <% end -%>
-<% if !@sys_uid_max.empty? then -%>
+<% if !@sys_uid_max.nil? then -%>
 SYS_UID_MAX <%= @sys_uid_max %>
 <% end -%>
-<% if !@sys_uid_min.empty? then -%>
+<% if !@sys_uid_min.nil? then -%>
 SYS_UID_MIN <%= @sys_uid_min %>
 <% end -%>
-SYSLOG_SG_ENAB <% t_bool_xlat[@syslog_sg_enab] %>
-SYSLOG_SU_ENAB <% t_bool_xlat[@syslog_su_enab] %>
-<% if !@ttygroup.empty? then -%>
+SYSLOG_SG_ENAB <%= bool_to_yesno[@syslog_sg_enab] %>
+SYSLOG_SU_ENAB <%= bool_to_yesno[@syslog_su_enab] %>
+<% if !@ttygroup.nil? then -%>
 TTYGROUP <%= @ttygroup %>
 <% end -%>
-<% if !@ttyperm.empty? then -%>
+<% if !@ttyperm.nil? then -%>
 TTYPERM <%= @ttyperm %>
 <% end -%>
-<% if !@ttytype_file.empty? then -%>
+<% if !@ttytype_file.nil? then -%>
 TTYTYPE_FILE <%= @ttytype_file %>
 <% end -%>
 UID_MAX <%= @uid_max %>
-<% if !@uid_min.empty? then -%>
+<% if !@uid_min.nil? then -%>
 UID_MIN <%= @uid_min %>
 <% end -%>
 UMASK <%= @umask %>
-<% if !@ulimit.empty? then -%>
+<% if !@ulimit.nil? then -%>
 ULIMIT <%= @ulimit %>
 <% end -%>
-<% if !@userdel_cmd.empty? then -%>
+<% if !@userdel_cmd.nil? then -%>
 USERDEL_CMD <%= @userdel_cmd %>
 <% end -%>
-USERGROUPS_ENAB <%= t_bool_xlat[@usergroups_enab] %>
+USERGROUPS_ENAB <%= bool_to_yesno[@usergroups_enab] %>

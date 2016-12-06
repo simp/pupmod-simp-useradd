@@ -2,7 +2,7 @@
 GROUP=<%= @group %>
 HOME=<%= @home %>
 INACTIVE=<%= @inactive %>
-<% if !@expire.empty? then -%>
+<% if !@expire.nil? then -%>
 EXPIRE=<%= @expire %>
 <% end -%>
 SHELL=<%= @shell %>

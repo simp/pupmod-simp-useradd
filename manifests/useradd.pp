@@ -5,7 +5,7 @@ class useradd::useradd (
   Integer $group              = 100,
   Stdlib::AbsolutePath $home  = '/home',
   Integer $inactive           = 35,
-  String $expire              = '',
+  Optional[String] $expire    = undef,
   Stdlib::AbsolutePath $shell = '/bin/bash',
   Stdlib::AbsolutePath $skel  = '/etc/skel',
   Boolean $create_mail_spool  = true

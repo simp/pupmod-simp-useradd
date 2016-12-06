@@ -9,7 +9,7 @@ describe 'useradd::useradd' do
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to create_file('/etc/default/useradd').with_content(<<-'EOM'.gsub(/^\s+/,''))
+        it { is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(/^\s+/,''))
                # useradd defaults file
                GROUP=100
                HOME=/home
@@ -22,7 +22,7 @@ describe 'useradd::useradd' do
 
         context 'expire' do
           let(:params){{:expire => '2020-01-10'}}
-          it { is_expected.to create_file('/etc/default/useradd').with_content(<<-'EOM'.gsub(/^\s+/,''))
+          it { is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(/^\s+/,''))
                # useradd defaults file
                GROUP=100
                HOME=/home
