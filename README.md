@@ -63,6 +63,7 @@ Each file can be managed or unmanaged individually, using the following variable
   * useradd::manage_libuser_conf
   * useradd::manage_etc_profile
   * useradd::manage_sysconfig_init
+  * useradd::manage_nss
 
 
 ## Reference
