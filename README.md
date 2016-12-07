@@ -77,7 +77,7 @@ SIMP Puppet modules are generally intended for use on Red Hat Enterprise Linux a
 
 ## Development
 
-Please read our [Contribution Guide](https://simp-project.atlassian.net/wiki/display/SD/Contributing+to+SIMP) and visit our [developer wiki](https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home).
+Please read our [Contribution Guide] (http://simp-doc.readthedocs.io/en/stable/contributors_guide/index.html)
 
 
 ### Acceptance tests

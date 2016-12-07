@@ -4,6 +4,8 @@ useradd::manage_login_defs: true
 useradd::manage_libuser_conf: true
 useradd::manage_etc_profile: true
 useradd::manage_sysconfig_init: true
+useradd::manage_nss: true
+
 
 # useradd::etc_profile
 useradd::etc_profile::session_timeout: 15

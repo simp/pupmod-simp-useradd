@@ -15,13 +15,17 @@
 # @param manage_sysconfig_init
 #   If true, manage `/etc/sysconfig/init`
 #
+# @param manage_nss
+#   If true, manage `/etc/default/nss`
+#
 class useradd (
   # defaults in data/common.yaml
   Boolean $manage_useradd,
   Boolean $manage_login_defs,
   Boolean $manage_libuser_conf,
   Boolean $manage_etc_profile,
-  Boolean $manage_sysconfig_init
+  Boolean $manage_sysconfig_init,
+  Boolean $manage_nss
 ) {
 
   if $manage_useradd {
@@ -42,6 +46,10 @@ class useradd (
 
   if $manage_sysconfig_init {
     include '::useradd::sysconfig_init'
+  }
+
+  if $manage_nss {
+    include '::useradd::nss'
   }
 
 }
