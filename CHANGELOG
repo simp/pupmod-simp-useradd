@@ -1,4 +1,4 @@
-* Mon Dec 5 2016 Nick Miller <nick.miller54@onyxpoint.com> 0.0.1
+* Mon Dec 5 2016 Nick Miller <nick.miller@onyxpoint.com> 0.0.1
 - Initial release of module
 - This module is a collection of conf files regarding users and user creation.
   - Most of the content used to be in simplib
