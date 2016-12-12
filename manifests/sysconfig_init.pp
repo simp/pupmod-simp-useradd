@@ -4,18 +4,17 @@
 #   definitions.
 #
 class useradd::sysconfig_init (
-  # defaults in data/common.yaml
-  Enum['color','verbose','plain'] $bootup,
-  Integer $res_col,
-  String $move_to_col,
-  String $setcolor_success,
-  String $setcolor_failure,
-  String $setcolor_warning,
-  String $setcolor_normal,
-  Stdlib::AbsolutePath $single_user_login,
-  Integer[1,8] $loglvl,
-  Boolean $prompt,
-  Boolean $autoswap
+  Useradd::Bootup      $bootup            = 'color',
+  Integer              $res_col           = 60,
+  String               $move_to_col       = "\"echo -en \\\\033[\${RES_COL}G\"",
+  String               $setcolor_success  = "\"echo -en \\\\033[0;32m\"",
+  String               $setcolor_failure  = "\"echo -en \\\\033[0;31m\"",
+  String               $setcolor_warning  = "\"echo -en \\\\033[0;33m\"",
+  String               $setcolor_normal   = "\"echo -en \\\\033[0;39m\"",
+  Stdlib::AbsolutePath $single_user_login = '/sbin/sulogin',
+  Integer[1,8]         $loglvl            = 3,
+  Boolean              $prompt            = false,
+  Boolean              $autoswap          = false,
 ) {
 
   file { '/etc/sysconfig/init':

@@ -19,13 +19,12 @@
 #   If true, manage `/etc/default/nss`
 #
 class useradd (
-  # defaults in data/common.yaml
-  Boolean $manage_useradd,
-  Boolean $manage_login_defs,
-  Boolean $manage_libuser_conf,
-  Boolean $manage_etc_profile,
-  Boolean $manage_sysconfig_init,
-  Boolean $manage_nss
+  Boolean $manage_useradd        = true,
+  Boolean $manage_login_defs     = true,
+  Boolean $manage_libuser_conf   = true,
+  Boolean $manage_etc_profile    = true,
+  Boolean $manage_sysconfig_init = true,
+  Boolean $manage_nss            = true
 ) {
 
   if $manage_useradd {

@@ -2,10 +2,9 @@
 # See nss(5) for more details.
 #
 class useradd::nss (
-  # defaults in data/common.yaml
-  Boolean $netid_authoritative,
-  Boolean $services_authoritative,
-  Boolean $setent_batch_read
+  Boolean $netid_authoritative    = false,
+  Boolean $services_authoritative = false,
+  Boolean $setent_batch_read      = true,
 ) {
 
   file { '/etc/default/nss':
