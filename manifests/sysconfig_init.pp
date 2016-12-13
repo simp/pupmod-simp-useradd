@@ -3,6 +3,18 @@
 # See /usr/share/doc/initscripts-<version>/sysconfig.txt for variable
 #   definitions.
 #
+# @param bootup
+# @param res_col
+# @param move_to_col
+# @param setcolor_success
+# @param setcolor_failure
+# @param setcolor_warning
+# @param setcolor_normal
+# @param single_user_login
+# @param loglvl
+# @param prompt
+# @param autoswap
+#
 class useradd::sysconfig_init (
   Useradd::Bootup      $bootup            = 'color',
   Integer              $res_col           = 60,

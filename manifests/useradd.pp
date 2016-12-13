@@ -1,6 +1,14 @@
 # Install and configure the useradd default configuration file.
 # See useradd(8) for more details.
 #
+# @param group
+# @param home
+# @param inactive
+# @param expire
+# @param shell
+# @param skel
+# @param create_mail_spool
+#
 class useradd::useradd (
   Integer              $group             = 100,
   Stdlib::AbsolutePath $home              = '/home',

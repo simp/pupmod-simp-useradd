@@ -1,6 +1,34 @@
 # Sets up /etc/libuser.conf.
 # See libuser.conf(5) for information on the various variables.
 #
+# @param defaults_modules
+# @param defaults_create_modules
+# @param defaults_crypt_style
+# @param defaults_hash_rounds_min
+# @param defaults_hash_rounds_max
+# @param defaults_mailspooldir
+# @param defaults_moduledir
+# @param defaults_skeleton
+# @param import_login_defs
+# @param import_default_useradd
+# @param userdefaults
+# @param groupdefaults
+# @param files_directory
+# @param files_nonroot
+# @param shadow_directory
+# @param shadow_nonroot
+# @param ldap_userbranch
+# @param ldap_groupbranch
+# @param ldap_server
+# @param ldap_basedn
+# @param ldap_binddn
+# @param ldap_user
+# @param ldap_password
+# @param ldap_authuser
+# @param ldap_bindtype
+# @param sasl_appname
+# @param sasl_domain
+#
 class useradd::libuser_conf (
   Array[Useradd::LibuserModule]  $defaults_modules         = ['files','shadow'],
   Array[Useradd::LibuserModule]  $defaults_create_modules  = ['files','shadow'],

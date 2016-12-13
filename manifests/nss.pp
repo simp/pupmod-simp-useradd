@@ -1,6 +1,10 @@
 # Install and configure the NSS configuration file.
 # See nss(5) for more details.
 #
+# @param netid_authoritative
+# @param services_authoritative
+# @param setent_batch_read
+#
 class useradd::nss (
   Boolean $netid_authoritative    = false,
   Boolean $services_authoritative = false,
