@@ -34,6 +34,6 @@ class useradd::sysconfig_init (
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => template('simplib/etc/sysconfig/init.erb')
+    content => template('useradd/etc/sysconfig/init.erb')
   }
 }
