@@ -1,0 +1,94 @@
+<%
+  bool_to_yesno = {
+    true => 'yes',
+    false => 'no'
+  }
+-%>
+[import]
+login_defs = <%= @import_login_defs %>
+default_useradd = <%= @import_default_useradd %>
+
+[defaults]
+modules = <%= @defaults_modules.join(',') %>
+create_modules = <%= @defaults_create_modules.join(',') %>
+crypt_style = <%= @defaults_crypt_style %>
+<% if !@defaults_hash_rounds_min.nil? then -%>
+hash_rounds_min = <%= @defaults_hash_rounds_min %>
+<% end -%>
+<% if !@defaults_hash_rounds_max.nil? then -%>
+hash_rounds_max = <%= @defaults_hash_rounds_max %>
+<% end -%>
+<% if !@defaults_mailspooldir.nil? then -%>
+mailspooldir = <%= @defaults_mailspooldir %>
+<% end -%>
+<% if !@defaults_moduledir.nil? then -%>
+moduledir = <%= @defaults_moduledir %>
+<% end -%>
+<% if !@defaults_skeleton.nil? then -%>
+skeleton = <%= @defaults_skeleton %>
+<% end -%>
+
+[userdefaults]
+<%= @userdefaults %>
+
+[groupdefaults]
+<%= @groupdefaults %>
+
+[files]
+<% if @defaults_create_modules.include?('files') and !@defaults_modules.include?('files') then -%>
+<%   if !@files_directory.nil? then -%>
+directory = <%= @files_directory %>
+<%   end -%>
+<%   if !@files_nonroot.nil? then -%>
+nonroot = <%= bool_to_yesno[@files_nonroot] %>
+<%   end -%>
+<% end -%>
+
+[shadow]
+<% if @defaults_create_modules.include?('shadow') and !@defaults_modules.include?('shadow') then -%>
+<%   if !@shadow_directory.nil? then -%>
+directory = <%= @shadow_directory %>
+<%   end -%>
+<%   if !@shadow_nonroot.nil? then -%>
+nonroot = <%= bool_to_yesno[@shadow_nonroot] %>
+<%   end -%>
+<% end -%>
+
+[ldap]
+<% if @defaults_create_modules.include?('ldap') and !@defaults_modules.include?('ldap') then -%>
+<%   if !@ldap_userbranch.nil? then -%>
+userBranch = <%= @ldap_groupbranch %>
+<%   end -%>
+<%   if !@ldap_groupbranch.nil? then -%>
+groupBranch = <%= @ldap_groupbranch %>
+<%   end -%>
+<%   if !@ldap_server.nil? then -%>
+server = <%= @ldap_server %>
+<%   end -%>
+<%   if !@ldap_basedn.nil? then -%>
+basedn = <%= @ldap_basedn %>
+<%   end -%>
+<%   if !@ldap_binddn.nil? then -%>
+binddn = <%= @ldap_binddn %>
+<%   end -%>
+<%   if !@ldap_user.nil? then -%>
+user = <%= @ldap_user %>
+<%   end -%>
+<%   if !@ldap_password.nil? then -%>
+password = <%= @ldap_password %>
+<%   end -%>
+<%   if !@ldap_authuser.nil? then -%>
+authuser = <%= @ldap_authuser %>
+<%   end -%>
+<%   if !@ldap_bindtype.nil? then -%>
+bindtype = <%= @ldap_bindtype %>
+<%   end -%>
+<% end -%>
+
+[sasl]
+<% if !@sasl_appname.nil? then -%>
+appname = <%= @sasl_appname %>
+<% end -%>
+<% if !@sasl_domain.nil? then -%>
+domain = <%= @sasl_domain%>
+<% end -%>

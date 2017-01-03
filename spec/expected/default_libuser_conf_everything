@@ -1,0 +1,43 @@
+[import]
+login_defs = /etc/login.defs
+default_useradd = /etc/default/useradd
+
+[defaults]
+modules = 
+create_modules = files,shadow,ldap
+crypt_style = ["sha512"]
+hash_rounds_min = 10
+hash_rounds_max = 1000
+mailspooldir = /var/mail
+moduledir = /usr/lib/libuser
+skeleton = /etc/skel
+
+[userdefaults]
+LU_USERNAME = %n
+LU_GIDNUMBER = %u
+
+[groupdefaults]
+LU_GROUPNAME = %n
+
+[files]
+directory = /etc
+nonroot = yes
+
+[shadow]
+directory = /etc/shadow
+nonroot = yes
+
+[ldap]
+userBranch = ldapstuff2
+groupBranch = ldapstuff2
+server = ldapstuff3
+basedn = ldapstuff4
+binddn = ldapstuff5
+user = ldapstuff6
+password = ldapstuff7
+authuser = ldapstuff8
+bindtype = ldapstuff9
+
+[sasl]
+appname = saslstuff1
+domain = saslstuff2
