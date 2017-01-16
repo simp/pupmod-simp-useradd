@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'simplib::sysconfig::init' do
+describe 'useradd::sysconfig_init' do
   context 'supported operating systems' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
