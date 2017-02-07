@@ -1,4 +1,8 @@
-* Mon Dec 5 2016 Nick Miller <nick.miller@onyxpoint.com> 0.0.1
+* Tue Feb 7 2017 Nick Miller <nick.miller@onyxpoint.com> - 0.0.1
+- Add useradd::passwd to manage passwd and related files
+- Manages /etc/securetty and /etc/shells
+
+* Mon Dec 5 2016 Nick Miller <nick.miller@onyxpoint.com> - 0.0.1
 - Initial release of module
 - This module is a collection of conf files regarding users and user creation.
   - Most of the content used to be in simplib

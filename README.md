@@ -35,12 +35,23 @@ This module is optimally designed for use within a larger SIMP ecosystem, but it
 
 ### What useradd affects
 
-This module configures:
-  * `/etc/libuser.conf`
-  * `/etc/login.defs`
+This module can configure:
   * `/etc/default/nss`
   * `/etc/default/useradd`
+  * `/etc/group`
+  * `/etc/group-`
+  * `/etc/gshadow`
+  * `/etc/gshadow-`
+  * `/etc/libuser.conf`
+  * `/etc/login.defs`
+  * `/etc/passwd`
+  * `/etc/passwd-`
   * `/etc/profile.d/`
+  * `/etc/securetty`
+  * `/etc/security/opasswd`
+  * `/etc/shadow`
+  * `/etc/shadow-`
+  * `/etc/shells`
   * `/etc/sysconfig/init`
 
 
@@ -52,18 +63,20 @@ To use this module with it's default settings, just instantiate it. The followin
 ---
 classes:
   - useradd
+
 ```
 
 
 ## Usage
 
 Each file can be managed or unmanaged individually, using the following variables:
-  * useradd::manage_useradd
-  * useradd::manage_login_defs
-  * useradd::manage_libuser_conf
   * useradd::manage_etc_profile
-  * useradd::manage_sysconfig_init
+  * useradd::manage_libuser_conf
+  * useradd::manage_login_defs
   * useradd::manage_nss
+  * useradd::manage_passwd_perms
+  * useradd::manage_sysconfig_init
+  * useradd::manage_useradd
 
 
 ## Reference
