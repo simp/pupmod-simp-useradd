@@ -1,7 +1,7 @@
 * Sat Mar 25 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 0.1.0
 - Provided the ability to simply add shells to /etc/shells
 - Removed all entries from /etc/securetty by default to match the latest
-  standard best practices
+  standard best practices. This removed ZSH.
 
 * Tue Feb 7 2017 Nick Miller <nick.miller@onyxpoint.com> - 0.0.1
 - Add useradd::passwd to manage passwd and related files
