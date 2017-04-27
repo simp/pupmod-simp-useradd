@@ -3,11 +3,10 @@ login_defs = /etc/login.defs
 default_useradd = /etc/default/useradd
 
 [defaults]
-modules = 
 create_modules = files,shadow,ldap
-crypt_style = ["sha512"]
-hash_rounds_min = 10
-hash_rounds_max = 1000
+crypt_style = sha512
+hash_rounds_min = 1000
+hash_rounds_max = 9999
 mailspooldir = /var/mail
 moduledir = /usr/lib/libuser
 skeleton = /etc/skel

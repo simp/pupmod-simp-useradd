@@ -5,7 +5,7 @@ default_useradd = /etc/default/useradd
 [defaults]
 modules = files,shadow
 create_modules = files,shadow
-crypt_style = ["sha512"]
+crypt_style = sha512
 
 [userdefaults]
 LU_USERNAME = %n
