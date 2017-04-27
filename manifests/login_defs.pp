@@ -114,7 +114,7 @@ class useradd::login_defs (
   Integer                                 $pass_min_days         = 1,    # CCE-27013-2
   Integer                                 $pass_warn_age         = 14,   # CCE-26998-6
   Optional[Integer]                       $pass_max_len          = undef,
-  Integer                                 $pass_min_len          = 14,   # CCE-27002-5
+  Integer                                 $pass_min_len          = 15,   # CCE-27002-5
   Boolean                                 $porttime_checks_enab  = true,
   Boolean                                 $quotas_enab           = true,
   Integer                                 $sha_crypt_min_rounds  = 5000,

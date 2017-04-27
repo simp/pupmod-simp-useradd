@@ -9,22 +9,24 @@ login_defs = <%= @import_login_defs %>
 default_useradd = <%= @import_default_useradd %>
 
 [defaults]
+<% unless @defaults_modules.empty? -%>
 modules = <%= @defaults_modules.join(',') %>
+<% end -%>
 create_modules = <%= @defaults_create_modules.join(',') %>
 crypt_style = <%= @defaults_crypt_style %>
-<% if !@defaults_hash_rounds_min.nil? then -%>
+<% unless @defaults_hash_rounds_min.nil? -%>
 hash_rounds_min = <%= @defaults_hash_rounds_min %>
 <% end -%>
-<% if !@defaults_hash_rounds_max.nil? then -%>
+<% unless @defaults_hash_rounds_max.nil? -%>
 hash_rounds_max = <%= @defaults_hash_rounds_max %>
 <% end -%>
-<% if !@defaults_mailspooldir.nil? then -%>
+<% unless @defaults_mailspooldir.nil? -%>
 mailspooldir = <%= @defaults_mailspooldir %>
 <% end -%>
-<% if !@defaults_moduledir.nil? then -%>
+<% unless @defaults_moduledir.nil? -%>
 moduledir = <%= @defaults_moduledir %>
 <% end -%>
-<% if !@defaults_skeleton.nil? then -%>
+<% unless @defaults_skeleton.nil? -%>
 skeleton = <%= @defaults_skeleton %>
 <% end -%>
 
@@ -35,60 +37,60 @@ skeleton = <%= @defaults_skeleton %>
 <%= @groupdefaults %>
 
 [files]
-<% if @defaults_create_modules.include?('files') and !@defaults_modules.include?('files') then -%>
-<%   if !@files_directory.nil? then -%>
+<% if @defaults_create_modules.include?('files') && !@defaults_modules.include?('files') -%>
+<%   unless @files_directory.nil? -%>
 directory = <%= @files_directory %>
 <%   end -%>
-<%   if !@files_nonroot.nil? then -%>
+<%   unless @files_nonroot.nil? -%>
 nonroot = <%= bool_to_yesno[@files_nonroot] %>
 <%   end -%>
 <% end -%>
 
 [shadow]
-<% if @defaults_create_modules.include?('shadow') and !@defaults_modules.include?('shadow') then -%>
-<%   if !@shadow_directory.nil? then -%>
+<% if @defaults_create_modules.include?('shadow') && !@defaults_modules.include?('shadow') -%>
+<%   unless @shadow_directory.nil? -%>
 directory = <%= @shadow_directory %>
 <%   end -%>
-<%   if !@shadow_nonroot.nil? then -%>
+<%   unless @shadow_nonroot.nil? -%>
 nonroot = <%= bool_to_yesno[@shadow_nonroot] %>
 <%   end -%>
 <% end -%>
 
 [ldap]
-<% if @defaults_create_modules.include?('ldap') and !@defaults_modules.include?('ldap') then -%>
-<%   if !@ldap_userbranch.nil? then -%>
+<% if @defaults_create_modules.include?('ldap') && !@defaults_modules.include?('ldap') -%>
+<%   unless @ldap_userbranch.nil? -%>
 userBranch = <%= @ldap_groupbranch %>
 <%   end -%>
-<%   if !@ldap_groupbranch.nil? then -%>
+<%   unless @ldap_groupbranch.nil? -%>
 groupBranch = <%= @ldap_groupbranch %>
 <%   end -%>
-<%   if !@ldap_server.nil? then -%>
+<%   unless @ldap_server.nil? -%>
 server = <%= @ldap_server %>
 <%   end -%>
-<%   if !@ldap_basedn.nil? then -%>
+<%   unless @ldap_basedn.nil? -%>
 basedn = <%= @ldap_basedn %>
 <%   end -%>
-<%   if !@ldap_binddn.nil? then -%>
+<%   unless @ldap_binddn.nil? -%>
 binddn = <%= @ldap_binddn %>
 <%   end -%>
-<%   if !@ldap_user.nil? then -%>
+<%   unless @ldap_user.nil? -%>
 user = <%= @ldap_user %>
 <%   end -%>
-<%   if !@ldap_password.nil? then -%>
+<%   unless @ldap_password.nil? -%>
 password = <%= @ldap_password %>
 <%   end -%>
-<%   if !@ldap_authuser.nil? then -%>
+<%   unless @ldap_authuser.nil? -%>
 authuser = <%= @ldap_authuser %>
 <%   end -%>
-<%   if !@ldap_bindtype.nil? then -%>
+<%   unless @ldap_bindtype.nil? -%>
 bindtype = <%= @ldap_bindtype %>
 <%   end -%>
 <% end -%>
 
 [sasl]
-<% if !@sasl_appname.nil? then -%>
+<% unless @sasl_appname.nil? -%>
 appname = <%= @sasl_appname %>
 <% end -%>
-<% if !@sasl_domain.nil? then -%>
+<% unless @sasl_domain.nil? -%>
 domain = <%= @sasl_domain%>
 <% end -%>

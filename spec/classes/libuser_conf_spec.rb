@@ -20,8 +20,8 @@ describe 'useradd::libuser_conf' do
           let(:params) {{
             :defaults_create_modules  => ['files','shadow','ldap'],
             :defaults_modules         => [],
-            :defaults_hash_rounds_min => 10,
-            :defaults_hash_rounds_max => 1000,
+            :defaults_hash_rounds_min => 1000,
+            :defaults_hash_rounds_max => 9999,
             :defaults_mailspooldir    => '/var/mail',
             :defaults_moduledir       => '/usr/lib/libuser',
             :defaults_skeleton        => '/etc/skel',
@@ -46,6 +46,18 @@ describe 'useradd::libuser_conf' do
           it { is_expected.to create_file('/etc/libuser.conf').with_content(expected) }
         end
 
+        context 'with incorrect hash_rounds' do
+          let(:params){{
+            :defaults_hash_rounds_min => 1001,
+            :defaults_hash_rounds_max => 1000
+          }}
+
+          it {
+            expect {
+              is_expected.to compile.with_all_deps
+            }.to raise_error(/must be less than/)
+          }
+        end
       end
     end
   end

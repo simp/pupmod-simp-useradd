@@ -1,3 +1,11 @@
+* Wed Apr 26 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 0.1.1
+- Fixed useradd::libuser::defaults_crypt_style to only be a String of the
+  allowed values
+- Ensure that the 'modules' field is not printed if the passed Array is empty
+- Ensure that defaults_hash_rounds_min is less than defaults_hash_rounds_max
+  and that both are within an allowed range
+- Update useradd::login_defs::pass_min_len to 15 to match the rest of the module updates
+
 * Sat Mar 25 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 0.1.0
 - Provided the ability to simply add shells to /etc/shells
 - Removed all entries from /etc/securetty by default to match the latest
