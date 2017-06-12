@@ -20,9 +20,10 @@
 #
 # @param securetty
 #   List of ttys available to log into
+#   Defaults to ['tty0', 'tty1', 'tty2', 'tty3', 'tty4']
 #
-#   * Set to false to disable management
-#   * If the Array is empty (default) then root will not be able to log into
+#   * If set to false, management of /etc/securetty will be disabled
+#   * If set to true or an empty array, root will not be able to log into
 #     any local device
 #   * If the string 'ANY_SHELL' is found in the Array, then the
 #     ``/etc/securetty`` file will be removed and root will be able to login
