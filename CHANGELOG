@@ -1,3 +1,6 @@
+* Mon Jun 12 2017 Liz Nemsick<lnemsick.simp@gmail.com> - 0.2.0
+- Populate /etc/securetty with tty0-tty4, by default. 
+
 * Wed Apr 26 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 0.1.1
 - Fixed useradd::libuser::defaults_crypt_style to only be a String of the
   allowed values

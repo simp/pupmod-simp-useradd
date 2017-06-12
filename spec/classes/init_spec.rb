@@ -8,24 +8,31 @@ describe 'useradd' do
           facts
         end
 
-        it { is_expected.to compile.with_all_deps }
-        it { is_expected.to create_class('useradd') }
+        context 'with default parameters' do
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to create_class('useradd') }
 
-        it { is_expected.to create_file('/etc/securetty').with_content(<<-EOF.gsub(/^\s+/,'').strip
-        EOF
-        ) }
+          it { is_expected.to create_file('/etc/securetty').with_content(<<-EOF.gsub(/^\s+/,'').strip
+            tty0
+            tty1
+            tty2
+            tty3
+            tty4
+          EOF
+          ) }
 
-        it { is_expected.to create_file('/etc/shells').with_content(<<-EOF.gsub(/^\s+/,'').strip
-          /bin/sh
-          /bin/bash
-          /sbin/nologin
-          /usr/bin/sh
-          /usr/bin/bash
-          /usr/sbin/nologin
-        EOF
-        ) }
+          it { is_expected.to create_file('/etc/shells').with_content(<<-EOF.gsub(/^\s+/,'').strip
+            /bin/sh
+            /bin/bash
+            /sbin/nologin
+            /usr/bin/sh
+            /usr/bin/bash
+            /usr/sbin/nologin
+          EOF
+          ) }
+        end
 
-        context 'when adding a securetty entry' do
+        context 'when setting a securetty entry' do
           let(:params){{
             :securetty => ['console']
           }}
@@ -64,6 +71,13 @@ describe 'useradd' do
         context 'with shells => false' do
           let(:params) {{ :shells => false }}
           it { is_expected.not_to create_file('/etc/shells') }
+        end
+
+        context 'with securetty => true' do
+          let(:params) {{ :securetty => true }}
+          it { is_expected.to create_file('/etc/securetty').with_content(<<-EOF.gsub(/^\s+/,'').strip
+          EOF
+          ) }
         end
 
         context 'with securetty => false' do

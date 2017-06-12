@@ -48,7 +48,7 @@ class useradd (
   Boolean                                      $manage_passwd_perms   = true,
   Boolean                                      $manage_sysconfig_init = true,
   Boolean                                      $manage_useradd        = true,
-  Variant[Boolean,Array[String]]               $securetty             = [],
+  Variant[Boolean,Array[String]]               $securetty             = ['tty0', 'tty1', 'tty2', 'tty3', 'tty4'],
 
   Array[Stdlib::AbsolutePath]                  $shells_default        = [ '/bin/sh','/bin/bash','/sbin/nologin','/usr/bin/sh','/usr/bin/bash','/usr/sbin/nologin' ],
   Variant[Boolean,Array[Stdlib::AbsolutePath]] $shells                = []
@@ -70,12 +70,19 @@ class useradd (
       $_ensure_securetty = 'file'
     }
 
+    if $securetty == true {
+      $_securetty = []
+    }
+    else {
+      $_securetty = $securetty
+    }
+
     file { '/etc/securetty':
       ensure  => $_ensure_securetty,
       owner   => 'root',
       group   => 'root',
       mode    => '0400',
-      content => join($securetty,"\n")
+      content => join($_securetty,"\n")
     }
   }
 
