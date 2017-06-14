@@ -69,7 +69,12 @@
 # @param userdel_cmd
 # @param usergroups_enab
 #
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+#
+# NOTE: pass_min_len and pass_max_len will NOT have any effect on a stock RedHat machine.
+#     * Max length will only affect 3des encryption, which is not used on modern machines.
+#     * Min length should be configured using /etc/pam.d/ or /etc/security/pwquality.conf.
+#
+# author: SIMP Team <simp@simp-project.com>
 #
 class useradd::login_defs (
   Enum['DES','MD5','SHA256','SHA512']     $encrypt_method        = 'SHA512',  # CCE-27228-6

@@ -23,11 +23,12 @@
 #   Defaults to ['tty0', 'tty1', 'tty2', 'tty3', 'tty4']
 #
 #   * If set to false, management of /etc/securetty will be disabled
-#   * If set to true or an empty array, root will not be able to log into
-#     any local device
+#   * If the Array is empty (default) then root will not be able to log into
+#     any physical console. This does not prevent root login from anywhere 
+#     else.
 #   * If the string 'ANY_SHELL' is found in the Array, then the
 #     ``/etc/securetty`` file will be removed and root will be able to login
-#     via any device.
+#     from anywhere.
 #
 # @param shells_default
 #   List of shells that will appear on the system by default
@@ -40,6 +41,8 @@
 #
 #   * Set to false to disable management
 #   * Will be combined with ``shells_default`` in /etc/shells
+#
+# author: SIMP Team <simp@simp-project.com>
 #
 class useradd (
   Boolean                                      $manage_etc_profile    = true,
@@ -65,11 +68,13 @@ class useradd (
 
   if $securetty {
     if 'ANY_SHELL' in $securetty {
-      $_ensure_securetty = 'absent'
+
+      file { '/etc/securetty':
+        ensure  => 'absent',
+      }
     }
+
     else {
-      $_ensure_securetty = 'file'
-    }
 
     if $securetty == true {
       $_securetty = []
@@ -79,14 +84,14 @@ class useradd (
     }
 
     file { '/etc/securetty':
-      ensure  => $_ensure_securetty,
+      ensure  => 'file',
       owner   => 'root',
       group   => 'root',
       mode    => '0400',
       content => join($_securetty,"\n")
+      }
     }
   }
-
   if $shells and !(empty($shells_default) and empty($shells)) {
     file { '/etc/shells':
       owner   => 'root',

@@ -1,5 +1,7 @@
 # Manage the persmissions of shadow and passwd related files
 #
+# author: SIMP Team <simp@simp-project.com>
+#
 class useradd::passwd {
 
   # CCE-26953-0

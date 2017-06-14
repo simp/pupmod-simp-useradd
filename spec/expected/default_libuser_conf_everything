@@ -1,3 +1,5 @@
+# This file managed by Puppet.
+
 [import]
 login_defs = /etc/login.defs
 default_useradd = /etc/default/useradd
@@ -27,7 +29,7 @@ directory = /etc/shadow
 nonroot = yes
 
 [ldap]
-userBranch = ldapstuff2
+userBranch = ldapstuff1
 groupBranch = ldapstuff2
 server = ldapstuff3
 basedn = ldapstuff4

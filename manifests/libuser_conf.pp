@@ -29,6 +29,8 @@
 # @param sasl_appname
 # @param sasl_domain
 #
+# author: SIMP Team <simp@simp-project.com>
+#
 class useradd::libuser_conf (
   Array[Useradd::LibuserModule]     $defaults_modules         = ['files','shadow'],
   Array[Useradd::LibuserModule]     $defaults_create_modules  = ['files','shadow'],
