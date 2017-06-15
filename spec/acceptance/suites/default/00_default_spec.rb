@@ -16,11 +16,11 @@ servers.each do |server|
           manage_libuser_conf   => false,
           manage_login_defs     => false,
           manage_nss            => false,
-        manage_passwd_perms   => false,
-        manage_sysconfig_init => false,
-        manage_useradd        => false,
-        shells_default        => [],
-      }
+          manage_passwd_perms   => false,
+          manage_sysconfig_init => false,
+          manage_useradd        => false,
+          shells_default        => [],
+        }
         EOS
       }
 
@@ -227,7 +227,7 @@ servers.each do |server|
         <<-EOS
       class { 'useradd':
         securetty => ['console', 'tty0', 'tty1', 'tty2'],
-        }
+      }
         EOS
       }
 
@@ -251,7 +251,7 @@ servers.each do |server|
         <<-EOS
       class { 'useradd':
         securetty => ['ANY_SHELL'],
-        }
+      }
         EOS
       }
 
@@ -273,9 +273,9 @@ servers.each do |server|
 
       let(:manifest_with_shells_defined) {
         <<-EOS
-    class { 'useradd':
+      class { 'useradd':
         shells => ['/bin/csh'],
-        }
+      }
         EOS
       }
 
@@ -292,19 +292,19 @@ servers.each do |server|
         expect(stdout).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin', '/bin/csh')
       end
     end
-   
+
     context 'with login.defs set' do
      let(:manifest_logindefs) {
       <<-EOS
 
         class { 'useradd::login_defs':
-          encrypt_method => 'MD5',
-          chfn_auth => true,
+          encrypt_method        => 'MD5',
+          chfn_auth             => true,
           max_members_per_group => 10,
-          nologins_file => '/etc/nologins',
-          pass_min_days => 0,
-          pass_max_days => 100,
-          pass_warn_age => 20,
+          nologins_file         => '/etc/nologins',
+          pass_min_days         => 0,
+          pass_max_days         => 100,
+          pass_warn_age         => 20,
         }
 
         EOS
@@ -339,76 +339,76 @@ servers.each do |server|
         <<-EOS
         class { 'useradd::etc_profile':
           session_timeout => 30,
-          umask => '0777',
-          mesg => true,
-          user_whitelist => ['test', 'test2'],
-          prepend => { 'sh' => 'echo sh prepend', 'csh' => 'echo csh prepend' },
-          append => { 'sh' => 'echo sh append', 'csh' => 'echo csh append' },
+          umask           => '0777',
+          mesg            => true,
+          user_whitelist  => ['test', 'test2'],
+          prepend         => { 'sh' => 'echo sh prepend', 'csh' => 'echo csh prepend' },
+          append          => { 'sh' => 'echo sh append', 'csh' => 'echo csh append' },
         }
 
         class { 'useradd::libuser_conf':
-          defaults_modules => [],
-          defaults_create_modules => ['files','shadow','ldap'],
-          defaults_crypt_style => 'md5',
+          defaults_modules         => [],
+          defaults_create_modules  => ['files','shadow','ldap'],
+          defaults_crypt_style     => 'md5',
           defaults_hash_rounds_min => 1000,
           defaults_hash_rounds_max => 5000,
-          defaults_mailspooldir => '/etc/mailspooldir',
-          defaults_moduledir => '/etc/moduledir',
-          defaults_skeleton => '/etc/skeleton',
-          import_login_defs => '/etc/login.defs.test',
-          import_default_useradd => '/etc/default/useradd.test',
-          files_directory => '/etc/files',
-          files_nonroot => true,
-          shadow_directory => '/etc/shadowdir',
-          shadow_nonroot => true,
-          ldap_userbranch => 'ou=Test_User_Branch',
-          ldap_groupbranch => 'ou=Test_Group_Branch',
-          ldap_server => 'www.example.com',
-          ldap_basedn => 'dc=test,dc=com',
-          ldap_binddn => 'cn=bind_manage,dc=test,dc=com',
-          ldap_user => 'ldap_user',
-          ldap_password => 'ldappasswd',
-          ldap_authuser => 'ldap_authuser',
-          ldap_bindtype => 'sasl,sasl/XOAUTH',
-          sasl_appname => 'test_app',
-          sasl_domain => 'www.testappdomain.com',
+          defaults_mailspooldir    => '/etc/mailspooldir',
+          defaults_moduledir       => '/etc/moduledir',
+          defaults_skeleton        => '/etc/skeleton',
+          import_login_defs        => '/etc/login.defs.test',
+          import_default_useradd   => '/etc/default/useradd.test',
+          files_directory          => '/etc/files',
+          files_nonroot            => true,
+          shadow_directory         => '/etc/shadowdir',
+          shadow_nonroot           => true,
+          ldap_userbranch          => 'ou=Test_User_Branch',
+          ldap_groupbranch         => 'ou=Test_Group_Branch',
+          ldap_server              => 'www.example.com',
+          ldap_basedn              => 'dc=test,dc=com',
+          ldap_binddn              => 'cn=bind_manage,dc=test,dc=com',
+          ldap_user                => 'ldap_user',
+          ldap_password            => 'ldappasswd',
+          ldap_authuser            => 'ldap_authuser',
+          ldap_bindtype            => 'sasl,sasl/XOAUTH',
+          sasl_appname             => 'test_app',
+          sasl_domain              => 'www.testappdomain.com',
         }
 
         class { 'useradd::nss':
-          netid_authoritative => true,
+          netid_authoritative    => true,
           services_authoritative => true,
-          setent_batch_read => false,
+          setent_batch_read      => false,
         }
 
         class { 'useradd::useradd':
-          group => 101,
-          home => '/useradd_home',
-          inactive => 50,
-          expire => '2017-06-26',
-          shell => '/bin/csh',
-          skel => '/etc/skel_test',
+          group             => 101,
+          home              => '/useradd_home',
+          inactive          => 50,
+          expire            => '2017-06-26',
+          shell             => '/bin/csh',
+          skel              => '/etc/skel_test',
           create_mail_spool => false,
         }
 
         class { 'useradd::sysconfig_init':
-          bootup => 'verbose',
-          res_col => 75,
+          bootup            => 'verbose',
+          res_col           => 75,
           single_user_login => '/sbin/sulogin_test',
-          loglvl => 7,
-          prompt => true,
-          autoswap => true,
+          loglvl            => 7,
+          prompt            => true,
+          autoswap          => true,
         }
 
         class { 'useradd::login_defs':
-          encrypt_method => 'MD5',
-          chfn_auth => true,
+          encrypt_method        => 'MD5',
+          chfn_auth             => true,
           max_members_per_group => 10,
-          nologins_file => '/etc/nologins',
-          pass_min_days => 0,
-          pass_max_days => 100,
-          pass_warn_age => 20,
+          nologins_file         => '/etc/nologins',
+          pass_min_days         => 0,
+          pass_max_days         => 100,
+          pass_warn_age         => 20,
         }
-      
+
         EOS
       }
 
