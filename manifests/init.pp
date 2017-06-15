@@ -23,7 +23,7 @@
 #   Defaults to ['tty0', 'tty1', 'tty2', 'tty3', 'tty4']
 #
 #   * If set to false, management of /etc/securetty will be disabled
-#   * If the Array is empty (default) then root will not be able to log into
+#   * If the Array is empty(default) or set to true, root will not be able to log into
 #     any physical console. This does not prevent root login from anywhere 
 #     else.
 #   * If the string 'ANY_SHELL' is found in the Array, then the
