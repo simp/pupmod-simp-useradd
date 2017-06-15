@@ -9,6 +9,8 @@
 # @param skel
 # @param create_mail_spool
 #
+# author: SIMP Team <simp@simp-project.com>
+#
 class useradd::useradd (
   Integer              $group             = 100,
   Stdlib::AbsolutePath $home              = '/home',

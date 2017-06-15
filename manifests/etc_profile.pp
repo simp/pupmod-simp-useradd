@@ -40,7 +40,7 @@
 #   Content that you want appended to the settings scripts.
 #   See $prepend for usage.
 #
-# @author Trevor Vaughan <tvaughan@onyxpoint.com>
+# author: SIMP Team <simp@simp-project.com>
 #
 class useradd::etc_profile (
   Integer $session_timeout = 15,
@@ -67,5 +67,5 @@ class useradd::etc_profile (
     mode    => '0644',
     seltype => 'bin_t',
     content => template('useradd/etc/profile.d/simp.csh.erb')
-  }
+    }
 }

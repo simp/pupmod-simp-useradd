@@ -1,0 +1,455 @@
+require 'spec_helper_acceptance'
+
+test_name 'useradd class'
+
+servers = hosts_with_role(hosts, 'server')
+servers.each do |server|
+
+  describe 'useradd class' do
+
+    context 'parameters set to false (no management)' do
+
+      let(:manifest_with_no_management) {
+        <<-EOS
+        class { 'useradd':
+          manage_etc_profile    => false,
+          manage_libuser_conf   => false,
+          manage_login_defs     => false,
+          manage_nss            => false,
+          manage_passwd_perms   => false,
+          manage_sysconfig_init => false,
+          manage_useradd        => false,
+          shells_default        => [],
+        }
+        EOS
+      }
+
+      it 'should modify files to test management' do
+        on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group- /etc/security/opasswd')
+        on(server, 'echo "management_test" | tee -a /etc/profile.d/simp.sh /etc/profile.d/simp.csh /etc/libuser.conf /etc/default/nss /etc/sysconfig/init /etc/login.defs /etc/default/useradd > /dev/null')
+      end
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest_with_no_management, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest_with_no_management, :catch_changes => true)
+      end
+
+      it 'should not manage /etc/profile.d/simp.sh' do
+        on(server, 'cat /etc/profile.d/simp.sh').output.strip
+        expect(stdout).to include('management_test')
+      end
+
+      it 'should not manage /etc/profile.d/simp.csh' do
+        on(server, 'cat /etc/profile.d/simp.csh').output.strip
+        expect(stdout).to include('management_test')
+      end
+
+      it 'should not manage /etc/libuser.conf' do
+        on(server, 'cat /etc/libuser.conf').output.strip
+        expect(stdout).to include('management_test')
+      end
+
+      it 'should not manage /etc/default/nss' do
+        on(server, 'cat /etc/default/nss').output.strip
+        expect(stdout).to include('management_test')
+      end
+
+      it 'should not manage /etc/sysconfig/init' do
+        on(server, 'cat /etc/sysconfig/init').output.strip
+        expect(stdout).to include('management_test')
+      end
+
+      it 'should not manage /etc/login.defs' do
+        on(server, 'cat /etc/login.defs').output.strip
+        expect(stdout).to include('management_test')
+      end
+
+      it 'should not manage /etc/default/useradd' do
+        on(server, 'cat /etc/default/useradd').output.strip
+        expect(stdout).to include('management_test')
+      end
+
+      it 'should not manage /etc/passwd' do
+        on(server, 'stat -c "%a %n" /etc/passwd').output.strip
+        expect(stdout).to match(%r(777 /etc/passwd))
+      end
+
+      it 'should not manage /etc/passwd-' do
+        on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
+        expect(stdout).to match(%r(777 /etc/passwd-))
+      end
+
+      it 'should not manage /etc/shadow' do
+        on(server, 'stat -c "%a %n" /etc/shadow').output.strip
+        expect(stdout).to match(%r(777 /etc/shadow))
+      end
+
+      it 'should not manage /etc/shadow-' do
+        on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
+        expect(stdout).to match(%r(777 /etc/shadow-))
+      end
+
+      it 'should not manage /etc/gshadow' do
+        on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
+        expect(stdout).to match(%r(777 /etc/gshadow))
+      end
+
+      it 'should not manage /etc/gshadow-' do
+        on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
+        expect(stdout).to match(%r(777 /etc/gshadow-))
+      end
+
+      it 'should not manage /etc/group' do
+        on(server, 'stat -c "%a %n" /etc/group').output.strip
+        expect(stdout).to match(%r(777 /etc/group))
+      end
+
+      it 'should not manage /etc/group-' do
+        on(server, 'stat -c "%a %n" /etc/group-').output.strip
+        expect(stdout).to match(%r(777 /etc/group-))
+      end
+
+      it 'should not manage /etc/security/opasswd' do
+        on(server, 'stat -c "%a %n" /etc/security/opasswd').output.strip
+        expect(stdout).to match(%r(777 /etc/security/opasswd))
+      end
+    end
+
+    context 'default parameters (management)' do
+
+      let (:manifest) {
+        <<-EOS
+      class { 'useradd':
+      }
+        EOS
+      }
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest, :catch_changes => true)
+      end
+
+      it 'should manage /etc/profile.d/simp.sh' do
+        on(server, 'cat /etc/profile.d/simp.sh').output.strip
+        expect(stdout).to include('# This file managed by Puppet.')
+      end
+
+      it 'should manage /etc/profile.d/simp.csh' do
+        on(server, 'cat /etc/profile.d/simp.csh').output.strip
+        expect(stdout).to include('# This file managed by Puppet.')
+      end
+
+      it 'should manage /etc/libuser' do
+        on(server, 'cat /etc/libuser.conf').output.strip
+        expect(stdout).to include('# This file managed by Puppet.')
+      end
+
+      it 'should manage /etc/default/nss' do
+        on(server, 'cat /etc/default/nss').output.strip
+        expect(stdout).to include('# This file managed by Puppet.')
+      end
+
+      it 'should manage /etc/login.defs' do
+        on(server, 'cat /etc/login.defs').output.strip
+        expect(stdout).to include('# This file managed by Puppet.')
+      end
+
+      it 'should manage /etc/default/useradd' do
+        on(server, 'cat /etc/default/useradd').output.strip
+        expect(stdout).to include('# This file managed by Puppet.')
+      end
+
+      it 'should manage /etc/passwd' do
+        on(server, 'stat -c "%a %n" /etc/passwd').output.strip
+        expect(stdout).to match(%r(644 /etc/passwd))
+      end
+
+      it 'should manage /etc/passwd-' do
+        on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
+        expect(stdout).to match(%r(644 /etc/passwd-))
+      end
+
+      it 'should manage /etc/shadow' do
+        on(server, 'stat -c "%a %n" /etc/shadow').output.strip
+        expect(stdout).to match(%r(0 /etc/shadow))
+      end
+
+      it 'should manage /etc/shadow-' do
+        on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
+        expect(stdout).to match(%r(0 /etc/shadow-))
+      end
+
+      it 'should manage /etc/gshadow' do
+        on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
+        expect(stdout).to match(%r(0 /etc/gshadow))
+      end
+
+      it 'should manage /etc/gshadow-' do
+        on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
+        expect(stdout).to match(%r(0 /etc/gshadow-))
+      end
+
+      it 'should manage /etc/group' do
+        on(server, 'stat -c "%a %n" /etc/group').output.strip
+        expect(stdout).to match(%r(644 /etc/group))
+      end
+
+      it 'should manage /etc/group-' do
+        on(server, 'stat -c "%a %n" /etc/group-').output.strip
+        expect(stdout).to match(%r(644 /etc/group-))
+      end
+
+      it 'should manage /etc/security/opasswd' do
+        on(server, 'stat -c "%a %n" /etc/security/opasswd').output.strip
+        expect(stdout).to match(%r(600 /etc/security/opasswd))
+      end
+
+      it '/etc/securetty should be empty' do
+        on(server, 'cat /etc/securetty').output.strip
+        expect(stdout).to include('tty0', 'tty1', 'tty2', 'tty3', 'tty4')
+      end
+
+      it 'should contain /etc/shells with content from shells default array' do
+        on(server, 'cat /etc/shells').output.strip
+        expect(stdout).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin')
+      end
+    end
+
+    context 'with securetty defined' do
+
+      let(:manifest_with_securetty_defined) {
+        <<-EOS
+      class { 'useradd':
+        securetty => ['console', 'tty0', 'tty1', 'tty2'],
+      }
+        EOS
+      }
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest_with_securetty_defined, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest_with_securetty_defined, :catch_changes => true)
+      end
+
+      it 'should add content to /etc/securetty' do
+        on(server, 'cat /etc/securetty').output.strip
+        expect(stdout).to include('console', 'tty0', 'tty1', 'tty2')
+      end
+    end
+
+    context 'with securetty set to ANY_SHELL' do
+
+      let(:manifest_with_securetty_absent) {
+        <<-EOS
+      class { 'useradd':
+        securetty => ['ANY_SHELL'],
+      }
+        EOS
+      }
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest_with_securetty_absent, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest_with_securetty_absent, :catch_changes => true)
+      end
+
+      it 'should remove /etc/securetty' do
+        result = on(server, 'test -f /etc/securetty', { :acceptable_exit_codes => [0,1] })
+        expect(result.exit_code).to_not eq(0)
+      end
+    end
+
+    context 'with shells defined' do
+
+      let(:manifest_with_shells_defined) {
+        <<-EOS
+      class { 'useradd':
+        shells => ['/bin/csh'],
+      }
+        EOS
+      }
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest_with_shells_defined, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest_with_shells_defined, :catch_changes => true)
+      end
+
+      it 'should add shell variable content to /etc/shells' do
+        on(server, 'cat /etc/shells').output.strip
+        expect(stdout).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin', '/bin/csh')
+      end
+    end
+
+    context 'with login.defs set' do
+     let(:manifest_logindefs) {
+      <<-EOS
+
+        class { 'useradd::login_defs':
+          encrypt_method        => 'MD5',
+          chfn_auth             => true,
+          max_members_per_group => 10,
+          nologins_file         => '/etc/nologins',
+          pass_min_days         => 0,
+          pass_max_days         => 100,
+          pass_warn_age         => 20,
+        }
+
+        EOS
+     }
+
+     it 'should work with no errors' do
+       apply_manifest_on(server, manifest_logindefs, :catch_failures => true)
+     end
+
+     it 'should be idempotent' do
+       apply_manifest_on(server, manifest_logindefs, :catch_changes => true)
+     end
+
+      it 'should edit /etc/login.defs' do
+        on(server, 'cat /etc/login.defs').output.strip
+        expect(stdout).to include('ENCRYPT_METHOD MD5', 'CHFN_AUTH yes', 'MAX_MEMBERS_PER_GROUP 10', 'NOLOGINS_FILE /etc/nologins', 'PASS_MIN_DAYS 0', 'PASS_MAX_DAYS 100', 'PASS_WARN_AGE 20')
+      end
+
+      it 'should update new user accounts' do
+        on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group- /etc/security/opasswd')
+        on(server, 'useradd defsuser -p password')
+        on(server, 'chage -l defsuser').output.strip
+        expect(stdout).to match(/^Minimum number of days between password change\s*:\s*0$/)
+        expect(stdout).to match(/^Maximum number of days between password change\s*:\s*100$/)
+        expect(stdout).to match(/^Number of days of warning before password expires\s*:\s*20$/)
+      end
+    end
+
+  context 'with parameters set' do
+
+      let(:manifest_with_parameters_set) {
+        <<-EOS
+        class { 'useradd::etc_profile':
+          session_timeout => 30,
+          umask           => '0777',
+          mesg            => true,
+          user_whitelist  => ['test', 'test2'],
+          prepend         => { 'sh' => 'echo sh prepend', 'csh' => 'echo csh prepend' },
+          append          => { 'sh' => 'echo sh append', 'csh' => 'echo csh append' },
+        }
+
+        class { 'useradd::libuser_conf':
+          defaults_modules         => [],
+          defaults_create_modules  => ['files','shadow','ldap'],
+          defaults_crypt_style     => 'md5',
+          defaults_hash_rounds_min => 1000,
+          defaults_hash_rounds_max => 5000,
+          defaults_mailspooldir    => '/etc/mailspooldir',
+          defaults_moduledir       => '/etc/moduledir',
+          defaults_skeleton        => '/etc/skeleton',
+          import_login_defs        => '/etc/login.defs.test',
+          import_default_useradd   => '/etc/default/useradd.test',
+          files_directory          => '/etc/files',
+          files_nonroot            => true,
+          shadow_directory         => '/etc/shadowdir',
+          shadow_nonroot           => true,
+          ldap_userbranch          => 'ou=Test_User_Branch',
+          ldap_groupbranch         => 'ou=Test_Group_Branch',
+          ldap_server              => 'www.example.com',
+          ldap_basedn              => 'dc=test,dc=com',
+          ldap_binddn              => 'cn=bind_manage,dc=test,dc=com',
+          ldap_user                => 'ldap_user',
+          ldap_password            => 'ldappasswd',
+          ldap_authuser            => 'ldap_authuser',
+          ldap_bindtype            => 'sasl,sasl/XOAUTH',
+          sasl_appname             => 'test_app',
+          sasl_domain              => 'www.testappdomain.com',
+        }
+
+        class { 'useradd::nss':
+          netid_authoritative    => true,
+          services_authoritative => true,
+          setent_batch_read      => false,
+        }
+
+        class { 'useradd::useradd':
+          group             => 101,
+          home              => '/useradd_home',
+          inactive          => 50,
+          expire            => '2017-06-26',
+          shell             => '/bin/csh',
+          skel              => '/etc/skel_test',
+          create_mail_spool => false,
+        }
+
+        class { 'useradd::sysconfig_init':
+          bootup            => 'verbose',
+          res_col           => 75,
+          single_user_login => '/sbin/sulogin_test',
+          loglvl            => 7,
+          prompt            => true,
+          autoswap          => true,
+        }
+
+        class { 'useradd::login_defs':
+          encrypt_method        => 'MD5',
+          chfn_auth             => true,
+          max_members_per_group => 10,
+          nologins_file         => '/etc/nologins',
+          pass_min_days         => 0,
+          pass_max_days         => 100,
+          pass_warn_age         => 20,
+        }
+
+        EOS
+      }
+
+      it 'should work with no errors' do
+        apply_manifest_on(server, manifest_with_parameters_set, :catch_failures => true)
+      end
+
+      it 'should be idempotent' do
+        apply_manifest_on(server, manifest_with_parameters_set, :catch_changes => true)
+      end
+
+      it 'should edit /etc/profile.d/simp.sh' do
+        on(server, 'cat /etc/profile.d/simp.sh').output.strip
+        expect(stdout).to include('TMOUT=1800', 'umask 0777', 'mesg y', 'for user in test test2; do', 'echo sh prepend', 'echo sh append')
+      end
+
+      it 'should edit /etc/profile.d/simp.csh' do
+        on(server, 'cat /etc/profile.d/simp.csh').output.strip
+        expect(stdout).to include('set autologout=30', 'umask 0777', 'mesg y', 'foreach user (test test2)', 'echo csh prepend', 'echo csh append')
+      end
+
+      it 'should edit /etc/libuser.conf' do
+        on(server, 'cat /etc/libuser.conf').output.strip
+        expect(stdout).to include(
+          "[import]\nlogin_defs = /etc/login.defs.test\ndefault_useradd = /etc/default/useradd.test", "[defaults]\ncreate_modules = files,shadow,ldap\ncrypt_style = md5\nhash_rounds_min = 1000\nhash_rounds_max = 5000\nmailspooldir = /etc/mailspooldir\nmoduledir = /etc/moduledir\nskeleton = /etc/skeleton", "[files]\ndirectory = /etc/files\nnonroot = yes", "[shadow]\ndirectory = /etc/shadowdir\nnonroot = yes", "[ldap]\nuserBranch = ou=Test_User_Branch\ngroupBranch = ou=Test_Group_Branch\nserver = www.example.com\nbasedn = dc=test,dc=com\nbinddn = cn=bind_manage,dc=test,dc=com\nuser = ldap_user\npassword = ldappasswd\nauthuser = ldap_authuser\nbindtype = sasl,sasl/XOAUTH", "[sasl]\nappname = test_app\ndomain = www.testappdomain.com")
+      end
+
+      it 'should edit /etc/default/nss' do
+        on(server, 'cat /etc/default/nss').output.strip
+        expect(stdout).to include('NETID_AUTHORITATIVE=TRUE', 'SERVICES_AUTHORITATIVE=TRUE', 'SETENT_BATCH_READ=FALSE')
+      end
+
+      it 'should edit /etc/default/useradd' do
+        on(server, 'cat /etc/default/useradd').output.strip
+        expect(stdout).to include('GROUP=101', 'HOME=/useradd_home', 'INACTIVE=50', 'EXPIRE=2017-06-26', 'SHELL=/bin/csh', 'SKEL=/etc/skel_test', 'CREATE_MAIL_SPOOL=no')
+      end
+
+      it 'should edit /etc/sysconfig/init' do
+        on(server, 'cat /etc/sysconfig/init').output.strip
+        expect(stdout).to include('BOOTUP=verbose', 'RES_COL=75', 'MOVE_TO_COL="echo -en \\\\033[${RES_COL}G"', 'SINGLE=/sbin/sulogin_test', 'LOGLEVEL=7', 'PROMPT=yes', 'AUTOSWAP=yes')
+      end
+    end
+  end
+end

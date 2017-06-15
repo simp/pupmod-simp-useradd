@@ -5,6 +5,8 @@
 # @param services_authoritative
 # @param setent_batch_read
 #
+# author: SIMP Team <simp@simp-project.com>
+#
 class useradd::nss (
   Boolean $netid_authoritative    = false,
   Boolean $services_authoritative = false,

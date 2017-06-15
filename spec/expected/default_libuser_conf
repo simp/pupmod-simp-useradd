@@ -1,3 +1,5 @@
+# This file managed by Puppet.
+
 [import]
 login_defs = /etc/login.defs
 default_useradd = /etc/default/useradd

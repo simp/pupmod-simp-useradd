@@ -1,3 +1,5 @@
+# This file managed by Puppet.
+
 <%
   bool_to_yesno = {
     true => 'yes',
@@ -59,7 +61,7 @@ nonroot = <%= bool_to_yesno[@shadow_nonroot] %>
 [ldap]
 <% if @defaults_create_modules.include?('ldap') && !@defaults_modules.include?('ldap') -%>
 <%   unless @ldap_userbranch.nil? -%>
-userBranch = <%= @ldap_groupbranch %>
+userBranch = <%= @ldap_userbranch %>
 <%   end -%>
 <%   unless @ldap_groupbranch.nil? -%>
 groupBranch = <%= @ldap_groupbranch %>

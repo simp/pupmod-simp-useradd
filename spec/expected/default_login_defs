@@ -1,3 +1,5 @@
+# This file managed by Puppet.
+
 CHFN_AUTH no
 CHFN_RESTRICT frwh
 CHSH_AUTH no
