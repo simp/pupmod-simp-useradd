@@ -76,19 +76,19 @@ class useradd (
 
     else {
 
-    if $securetty == true {
-      $_securetty = []
-    }
-    else {
-      $_securetty = $securetty
-    }
+      if $securetty == true {
+        $_securetty = []
+      }
+      else {
+        $_securetty = $securetty
+      }
 
-    file { '/etc/securetty':
-      ensure  => 'file',
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0400',
-      content => join($_securetty,"\n")
+      file { '/etc/securetty':
+        ensure  => 'file',
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0400',
+        content => join($_securetty,"\n")
       }
     }
   }
