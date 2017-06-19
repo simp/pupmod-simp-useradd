@@ -32,17 +32,17 @@
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::sysconfig_init (
-  Useradd::Bootup         $bootup            = 'color',
-  Integer                 $res_col           = 60,
-  Optional[String]        $move_to_col       = undef,
-  String                  $setcolor_success  = 'green',
-  String                  $setcolor_failure  = 'red',
-  String                  $setcolor_warning  = 'yellow',
-  String                  $setcolor_normal   = 'default',
-  Stdlib::AbsolutePath    $single_user_login = '/sbin/sulogin',
-  Integer[1,8]            $loglvl            = 3,
-  Boolean                 $prompt            = false,
-  Boolean                 $autoswap          = false,
+  Useradd::Bootup      $bootup            = 'color',
+  Integer              $res_col           = 60,
+  Optional[String]     $move_to_col       = undef,
+  String               $setcolor_success  = 'green',
+  String               $setcolor_failure  = 'red',
+  String               $setcolor_warning  = 'yellow',
+  String               $setcolor_normal   = 'default',
+  Stdlib::AbsolutePath $single_user_login = '/sbin/sulogin',
+  Integer[1,8]         $loglvl            = 3,
+  Boolean              $prompt            = false,
+  Boolean              $autoswap          = false,
 ) {
 
   file { '/etc/sysconfig/init':
