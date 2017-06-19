@@ -396,7 +396,7 @@ servers.each do |server|
           setcolor_success  => 'cyan',
           setcolor_failure  => 'magenta',
           setcolor_warning  => 'blue',
-          setcolor_normal   => 'red',
+          setcolor_normal   => '"echo -en \\\\\\033[0;31m"',
           single_user_login => '/sbin/sulogin_test',
           loglvl            => 7,
           prompt            => true,

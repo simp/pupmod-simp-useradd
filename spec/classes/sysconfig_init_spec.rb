@@ -9,7 +9,7 @@ describe 'useradd::sysconfig_init' do
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file('/etc/sysconfig/init').with_content(<<-EOM
+        it { is_expected.to contain_file('/etc/sysconfig/init').with_content(<<-EOF
 # This file managed by Puppet.
 
 
@@ -24,7 +24,7 @@ SINGLE=/sbin/sulogin
 LOGLEVEL=3
 PROMPT=no
 AUTOSWAP=no
-            EOM
+            EOF
           )
         }
       end
