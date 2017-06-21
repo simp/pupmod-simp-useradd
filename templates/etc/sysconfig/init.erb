@@ -1,10 +1,44 @@
+# This file managed by Puppet.
+
+<% ansi = {
+  "black" => '"echo -en \\\\033[0;30m"',
+  "red" => '"echo -en \\\\033[0;31m"',
+  "green" => '"echo -en \\\\033[0;32m"',
+  "yellow" => '"echo -en \\\\033[0;33m"',
+  "blue" => '"echo -en \\\\033[0;34m"',
+  "magenta" => '"echo -en \\\\033[0;35m"',
+  "cyan" => '"echo -en \\\\033[0;36m"',
+  "white" => '"echo -en \\\\033[0;37m"',
+  "default" => '"echo -en \\\\033[0;39m"',
+} -%>
+
 BOOTUP=<%= @bootup %>
 RES_COL=<%= @res_col %>
+<% if @move_to_col.nil? then -%>
+MOVE_TO_COL="echo -en \\033[${RES_COL}G"
+<% else -%>
 MOVE_TO_COL=<%= @move_to_col %>
+<% end -%>
+<% if ansi.include? @setcolor_success -%>
+SETCOLOR_SUCCESS=<%= ansi[@setcolor_success] %>
+<% else -%>
 SETCOLOR_SUCCESS=<%= @setcolor_success %>
+<% end -%>
+<% if ansi.include? @setcolor_failure -%>
+SETCOLOR_FAILURE=<%= ansi[@setcolor_failure] %>
+<% else -%>
 SETCOLOR_FAILURE=<%= @setcolor_failure %>
+<% end -%>
+<% if ansi.include? @setcolor_warning -%>
+SETCOLOR_WARNING=<%= ansi[@setcolor_warning] %>
+<% else -%>
 SETCOLOR_WARNING=<%= @setcolor_warning %>
+<% end -%>
+<% if ansi.include? @setcolor_normal -%>
+SETCOLOR_NORMAL=<%= ansi[@setcolor_normal] %>
+<% else -%>
 SETCOLOR_NORMAL=<%= @setcolor_normal %>
+<% end -%>
 SINGLE=<%= @single_user_login %>
 LOGLEVEL=<%= @loglvl %>
 PROMPT=<%= @prompt ? 'yes' : 'no' %>
