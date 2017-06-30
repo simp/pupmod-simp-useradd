@@ -35,8 +35,6 @@ before_deploy:
   - 'bundle exec rake metadata_lint'
   - 'bundle exec rake clobber'
   - 'bundle exec rake spec_clean'
-  - 'bundle exec puppet module build'
-  - 'tar -tzf pkg/simp-useradd-0.2.0.tar.gz'
   - "export PUPMOD_METADATA_VERSION=`ruby -r json -e \"puts JSON.parse(File.read('metadata.json')).fetch('version')\"`"
   - '[[ $TRAVIS_TAG =~ ^${PUPMOD_METADATA_VERSION}$ ]]'
 deploy:
