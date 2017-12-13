@@ -95,8 +95,8 @@ class useradd::login_defs (
   Boolean                                 $faillog_enab          = true,
   Optional[Stdlib::AbsolutePath]          $fake_shell            = undef,
   Optional[Stdlib::AbsolutePath]          $ftmp_file             = undef,
-  Integer                                 $gid_max               = 500000,
-  Integer                                 $gid_min               = 500,
+  Integer[0]                              $gid_min               = simplib::lookup('simp_options::gid::min', { 'default_value' => pick(fact('login_defs.gid_min'), 1000 ) }),
+  Integer[1]                              $gid_max               = simplib::lookup('simp_options::gid::max', { 'default_value' => pick(fact('login_defs.gid_max'), 500000 ) }),
   Optional[Stdlib::AbsolutePath]          $hushlogin_file        = undef,
   Stdlib::AbsolutePath                    $issue_file            = '/etc/issue',
   Optional[Integer]                       $killchar              = undef,
@@ -136,8 +136,8 @@ class useradd::login_defs (
   Optional[String]                        $ttygroup              = undef,
   Optional[String]                        $ttyperm               = undef,
   Optional[Stdlib::AbsolutePath]          $ttytype_file          = undef,
-  Integer                                 $uid_max               = 1000000,
-  Optional[Integer]                       $uid_min               = undef,
+  Integer[0]                              $uid_min               = simplib::lookup('simp_options::uid::min', { 'default_value' => pick(fact('login_defs.uid_min'), 1000 ) }),
+  Integer[1]                              $uid_max               = simplib::lookup('simp_options::uid::max', { 'default_value' => pick(fact('login_defs.uid_max'), 1000000 ) }),
   String                                  $umask                 = '007',  # CCE-26371-5
   Optional[Integer]                       $ulimit                = undef,  # The maximum file size in 512 byte units. Noted here since the man page isn't helpful.
   Optional[Stdlib::AbsolutePath]          $userdel_cmd           = undef,

@@ -17,7 +17,7 @@ FAILLOG_ENAB yes
 FAKE_SHELL /usr/sbin/nologin
 FTMP_FILE /tmp/ftmp
 GID_MAX 500000
-GID_MIN 500
+GID_MIN 1000
 HUSHLOGIN_FILE /tmp/hushlogin
 ISSUE_FILE /etc/issue
 KILLCHAR 100

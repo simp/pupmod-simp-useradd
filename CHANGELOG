@@ -1,3 +1,8 @@
+* Wed Dec 13 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 0.2.1
+- Set the minimum and maximum UID and GID allowed onto the system to the
+  default defined in /etc/login.defs or a sensible default if not otherwise
+  specified
+
 * Wed Jun 14 2017 Brandon Riden <brandon.riden@onyxpoint.com - 0.2.0
 - Allow users to specify colors as strings instead of ansi codes in sysconfig/init
 - Updated sysconfig_init.pp to reflect these changes as well as add notes
