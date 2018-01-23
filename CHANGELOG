@@ -3,7 +3,7 @@
   default defined in /etc/login.defs or a sensible default if not otherwise
   specified
 
-* Wed Jun 14 2017 Brandon Riden <brandon.riden@onyxpoint.com - 0.2.0
+* Wed Jun 14 2017 Brandon Riden <brandon.riden@onyxpoint.com> - 0.2.0
 - Allow users to specify colors as strings instead of ansi codes in sysconfig/init
 - Updated sysconfig_init.pp to reflect these changes as well as add notes
 - Updated template to convert color strings to ansi code
