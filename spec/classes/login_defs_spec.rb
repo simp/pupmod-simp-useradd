@@ -9,7 +9,7 @@ describe 'useradd::login_defs' do
         end
 
         context 'with default parameters' do
-          let(:expected) { File.read('spec/expected/default_login_defs') }
+          let(:expected) { File.read("spec/expected/default_login_defs_#{os}") }
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to create_class('useradd::login_defs') }
           it { is_expected.to create_file('/etc/login.defs').with_content(expected) }
@@ -28,9 +28,12 @@ describe 'useradd::login_defs' do
             :pass_min_len          => 100,
             :sys_gid_max           => 100,
             :sys_gid_min           => 100,
+            :gid_min               => 100,
+            :gid_max               => 100,
             :sys_uid_max           => 100,
             :sys_uid_min           => 100,
             :uid_min               => 100,
+            :uid_max               => 100,
             :ulimit                => 100,
             :env_hz                => 'HZ=100',
             :env_tz                => 'TZ=CST6CDT',
