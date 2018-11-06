@@ -1,5 +1,6 @@
 * Fri Aug 24 2018 Nick Miller <nick.miller@onyxpoint.com> - 0.2.2
 - Add support for Puppet 5 and OEL
+- Update badges in README.md
 
 * Wed Dec 13 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 0.2.1
 - Set the minimum and maximum UID and GID allowed onto the system to the
