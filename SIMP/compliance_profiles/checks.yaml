@@ -1,0 +1,1101 @@
+---
+version: 2.0.0
+checks:
+  oval:com.puppet.forge.simp.useradd.etc_profile.append:
+    settings:
+      parameter: useradd::etc_profile::append
+      value: {}
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.etc_profile.mesg:
+    settings:
+      parameter: useradd::etc_profile::mesg
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-6
+  oval:com.puppet.forge.simp.useradd.etc_profile.prepend:
+    settings:
+      parameter: useradd::etc_profile::prepend
+      value: {}
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.etc_profile.umask:
+    settings:
+      parameter: useradd::etc_profile::umask
+      value: '0077'
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-2: true
+      nist_800_53_rev4:AC-2:4: true
+      nist_800_53_rev4:AC-6: true
+      disa_stig: true
+      RHEL-07-020230: true
+      RHEL-07-021060: true
+      SRG-OS-000480-GPOS-00227: true
+      SRG-OS-000480-GPOS-00228: true
+      cci:CCI-000366: true
+      cci:CCI-000368: true
+      cci:CCI-000318: true
+      cci:CCI-001812: true
+      cci:CCI-001813: true
+      cci:CCI-001814: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-2
+      - AC-2:4
+      - AC-6
+      disa_stig:
+      - RHEL-07-020230
+      - RHEL-07-021060
+      - SRG-OS-000480-GPOS-00227
+      - SRG-OS-000480-GPOS-00228
+      - CCI-000366
+      - CCI-000368
+      - CCI-000318
+      - CCI-001812
+      - CCI-001813
+      - CCI-001814
+  oval:com.puppet.forge.simp.useradd.etc_profile.user_whitelist:
+    settings:
+      parameter: useradd::etc_profile::user_whitelist
+      value: []
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.libuser_conf.defaults_create_modules:
+    settings:
+      parameter: useradd::libuser_conf::defaults_create_modules
+      value:
+      - files
+      - shadow
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+      disa_stig: true
+      RHEL-07-010170: true
+      SRG-OS-000073-GPOS-00041: true
+      cci:CCI-000196: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+      disa_stig:
+      - RHEL-07-010170
+      - SRG-OS-000073-GPOS-00041
+      - CCI-000196
+  oval:com.puppet.forge.simp.useradd.libuser_conf.defaults_crypt_style:
+    settings:
+      parameter: useradd::libuser_conf::defaults_crypt_style
+      value: sha512
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:h: true
+      disa_stig: true
+      RHEL-07-010170: true
+      SRG-OS-000073-GPOS-00041: true
+      cci:CCI-000196: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:h
+      disa_stig:
+      - RHEL-07-010170
+      - SRG-OS-000073-GPOS-00041
+      - CCI-000196
+  oval:com.puppet.forge.simp.useradd.libuser_conf.defaults_hash_rounds_max:
+    settings:
+      parameter: useradd::libuser_conf::defaults_hash_rounds_max
+      value: 
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:h: true
+      disa_stig: true
+      RHEL-07-010170: true
+      SRG-OS-000073-GPOS-00041: true
+      cci:CCI-000196: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:h
+      disa_stig:
+      - RHEL-07-010170
+      - SRG-OS-000073-GPOS-00041
+      - CCI-000196
+  oval:com.puppet.forge.simp.useradd.libuser_conf.defaults_hash_rounds_min:
+    settings:
+      parameter: useradd::libuser_conf::defaults_hash_rounds_min
+      value: 
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:h: true
+      disa_stig: true
+      RHEL-07-010170: true
+      SRG-OS-000073-GPOS-00041: true
+      cci:CCI-000196: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:h
+      disa_stig:
+      - RHEL-07-010170
+      - SRG-OS-000073-GPOS-00041
+      - CCI-000196
+  oval:com.puppet.forge.simp.useradd.libuser_conf.defaults_modules:
+    settings:
+      parameter: useradd::libuser_conf::defaults_modules
+      value:
+      - files
+      - shadow
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+      disa_stig: true
+      RHEL-07-010170: true
+      SRG-OS-000073-GPOS-00041: true
+      cci:CCI-000196: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+      disa_stig:
+      - RHEL-07-010170
+      - SRG-OS-000073-GPOS-00041
+      - CCI-000196
+  oval:com.puppet.forge.simp.useradd.libuser_conf.defaults_skeleton:
+    settings:
+      parameter: useradd::libuser_conf::defaults_skeleton
+      value: 
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.libuser_conf.groupdefaults:
+    settings:
+      parameter: useradd::libuser_conf::groupdefaults
+      value: LU_GROUPNAME = %n
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-2: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-2
+  oval:com.puppet.forge.simp.useradd.libuser_conf.import_default_useradd:
+    settings:
+      parameter: useradd::libuser_conf::import_default_useradd
+      value: "/etc/default/useradd"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.libuser_conf.import_login_defs:
+    settings:
+      parameter: useradd::libuser_conf::import_login_defs
+      value: "/etc/login.defs"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.libuser_conf.userdefaults:
+    settings:
+      parameter: useradd::libuser_conf::userdefaults
+      value: |-
+        LU_USERNAME = %n
+        LU_GIDNUMBER = %u
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-2: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-2
+  oval:com.puppet.forge.simp.useradd.login_defs.chfn_auth:
+    settings:
+      parameter: useradd::login_defs::chfn_auth
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.login_defs.chfn_restrict:
+    settings:
+      parameter: useradd::login_defs::chfn_restrict
+      value: frwh
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-1: true
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-1
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.login_defs.chsh_auth:
+    settings:
+      parameter: useradd::login_defs::chsh_auth
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.login_defs.console:
+    settings:
+      parameter: useradd::login_defs::console
+      value: 
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-6:5: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-6:5
+  oval:com.puppet.forge.simp.useradd.login_defs.console_groups:
+    settings:
+      parameter: useradd::login_defs::console_groups
+      value: 
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-6:5: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-6:5
+  oval:com.puppet.forge.simp.useradd.login_defs.create_home:
+    settings:
+      parameter: useradd::login_defs::create_home
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-3: true
+      disa_stig: true
+      RHEL-07-020630: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-3
+      disa_stig:
+      - RHEL-07-020630
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_have_homedir_login_defs
+    - accounts_have_homedir_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.default_home:
+    settings:
+      parameter: useradd::login_defs::default_home
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-3: true
+      disa_stig: true
+      RHEL-07-020630: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-3
+      disa_stig:
+      - RHEL-07-020630
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.login_defs.encrypt_method:
+    settings:
+      parameter: useradd::login_defs::encrypt_method
+      value: SHA512
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:h: true
+      disa_stig: true
+      RHEL-07-010170: true
+      RHEL-07-010180: true
+      SRG-OS-000073-GPOS-00041: true
+      cci:CCI-000196: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:h
+      disa_stig:
+      - RHEL-07-010170
+      - RHEL-07-010180
+      - SRG-OS-000073-GPOS-00041
+      - SRG-OS-000073-GPOS-00041
+      - CCI-000196
+  oval:com.puppet.forge.simp.useradd.login_defs.fail_delay:
+    settings:
+      parameter: useradd::login_defs::fail_delay
+      value: 4
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-7: true
+      nist_800_53_rev4:IA-11: true
+      disa_stig: true
+      RHEL-07-010420: true
+      SRG-OS-000480-GPOS-00226: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-7
+      - IA-11
+      disa_stig:
+      - RHEL-07-010420
+      - SRG-OS-000480-GPOS-00226
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.login_defs.faillog_enab:
+    settings:
+      parameter: useradd::login_defs::faillog_enab
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-2: true
+      disa_stig: true
+      SRG-OS-000472-GPOS-00217: true
+      cci:CCI-000172: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-2
+      disa_stig:
+      - SRG-OS-000472-GPOS-00217
+      - CCI-000172
+  oval:com.puppet.forge.simp.useradd.login_defs.gid_max:
+    settings:
+      parameter: useradd::login_defs::gid_max
+      value: 500000
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+      disa_stig: true
+      RHEL-07-020410: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+      disa_stig:
+      - RHEL-07-020410
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.login_defs.gid_min:
+    settings:
+      parameter: useradd::login_defs::gid_min
+      value: 500
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+      disa_stig: true
+      RHEL-07-020410: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+      disa_stig:
+      - RHEL-07-020410
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.login_defs.issue_file:
+    settings:
+      parameter: useradd::login_defs::issue_file
+      value: "/etc/issue"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-8: true
+      disa_stig: true
+      RHEL-07-010030: true
+      SRG-OS-000023-GPOS-00006: true
+      SRG-OS-000024-GPOS-00007: true
+      cci:CCI-000048: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-8
+      disa_stig:
+      - RHEL-07-010030
+      - SRG-OS-000023-GPOS-00006
+      - SRG-OS-000024-GPOS-00007
+      - CCI-000048
+  oval:com.puppet.forge.simp.useradd.login_defs.lastlog_enab:
+    settings:
+      parameter: useradd::login_defs::lastlog_enab
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-9: true
+      nist_800_53_rev4:AC-9:1: true
+      nist_800_53_rev4:AC-9:2: true
+      disa_stig: true
+      RHEL-07-030490: true
+      SRG-OS-000470-GPOS-00214: true
+      SRG-OS-000392-GPOS-00172: true
+      cci:CCI-000172: true
+      cci:CCI-002884: true
+      cci:CCI-000126: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-9
+      - AC-9:1
+      - AC-9:2
+      disa_stig:
+      - RHEL-07-030490
+      - SRG-OS-000470-GPOS-00214
+      - SRG-OS-000392-GPOS-00172
+      - CCI-000172
+      - CCI-002884
+      - CCI-000126
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_display_login_attempts
+    - display_login_attempts
+  oval:com.puppet.forge.simp.useradd.login_defs.log_ok_logins:
+    settings:
+      parameter: useradd::login_defs::log_ok_logins
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-9: true
+      nist_800_53_rev4:AC-9:1: true
+      nist_800_53_rev4:AC-9:2: true
+      disa_stig: true
+      RHEL-07-030490: true
+      SRG-OS-000470-GPOS-00214: true
+      SRG-OS-000392-GPOS-00172: true
+      cci:CCI-000172: true
+      cci:CCI-002884: true
+      cci:CCI-000126: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-9
+      - AC-9:1
+      - AC-9:2
+      disa_stig:
+      - RHEL-07-030490
+      - SRG-OS-000470-GPOS-00214
+      - SRG-OS-000392-GPOS-00172
+      - CCI-000172
+      - CCI-002884
+      - CCI-000126
+  oval:com.puppet.forge.simp.useradd.login_defs.log_unkfail_enab:
+    settings:
+      parameter: useradd::login_defs::log_unkfail_enab
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-2: true
+      disa_stig: true
+      RHEL-07-030490: true
+      SRG-OS-000470-GPOS-00214: true
+      SRG-OS-000392-GPOS-00172: true
+      cci:CCI-000172: true
+      cci:CCI-002884: true
+      cci:CCI-000126: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-2
+      disa_stig:
+      - RHEL-07-030490
+      - SRG-OS-000470-GPOS-00214
+      - SRG-OS-000392-GPOS-00172
+      - CCI-000172
+      - CCI-002884
+      - CCI-000126
+  oval:com.puppet.forge.simp.useradd.login_defs.login_retries:
+    settings:
+      parameter: useradd::login_defs::login_retries
+      value: 3
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-12: true
+      disa_stig: true
+      RHEL-07-010410: true
+      SRG-OS-000480-GPOS-00225: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-12
+      disa_stig:
+      - RHEL-07-010410
+      - SRG-OS-000480-GPOS-00225
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.login_defs.login_timeout:
+    settings:
+      parameter: useradd::login_defs::login_timeout
+      value: 60
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-12: true
+      disa_stig: true
+      RHEL-07-040160: true
+      SRG-OS-000163-GPOS-00072: true
+      cci:CCI-001133: true
+      cci:CCI-002361: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-12
+      disa_stig:
+      - RHEL-07-040160
+      - SRG-OS-000163-GPOS-00072
+      - CCI-001133
+      - CCI-002361
+  oval:com.puppet.forge.simp.useradd.login_defs.obscure_checks_enab:
+    settings:
+      parameter: useradd::login_defs::obscure_checks_enab
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5: true
+      disa_stig: true
+      RHEL-07-010500: true
+      SRG-OS-000104-GPOS-00051: true
+      cci:CCI-000764: true
+      cci:CCI-000770: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5
+      disa_stig:
+      - RHEL-07-010500
+      - SRG-OS-000104-GPOS-00051
+      - CCI-000764
+      - CCI-000770
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_always_warn:
+    settings:
+      parameter: useradd::login_defs::pass_always_warn
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_change_tries:
+    settings:
+      parameter: useradd::login_defs::pass_change_tries
+      value: 3
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-12: true
+      disa_stig: true
+      RHEL-07-010410: true
+      SRG-OS-000480-GPOS-00225: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-12
+      disa_stig:
+      - RHEL-07-010410
+      - SRG-OS-000480-GPOS-00225
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_len:
+    settings:
+      parameter: useradd::login_defs::pass_max_len
+      value: 
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:1:d: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:1:d
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_min_days:
+    settings:
+      parameter: useradd::login_defs::pass_min_days
+      value: 1
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:f: true
+      nist_800_53_rev4:IA-5:1:d: true
+      disa_stig: true
+      RHEL-07-010210: true
+      SRG-OS-000075-GPOS-00043: true
+      cci:CCI-000198: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:f
+      - IA-5:1:d
+      disa_stig:
+      - RHEL-07-010210
+      - SRG-OS-000075-GPOS-00043
+      - CCI-000198
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_minimum_age_login_defs
+    - accounts_minimum_age_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_min_len:
+    settings:
+      parameter: useradd::login_defs::pass_min_len
+      value: 15
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:1:d: true
+      disa_stig: true
+      RHEL-07-010250: true
+      SRG-OS-000078-GPOS-00046: true
+      cci:CCI-000205: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:1:d
+      disa_stig:
+      - RHEL-07-010250
+      - SRG-OS-000078-GPOS-00046
+      - CCI-000205
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_password_minlen_login_defs
+    - accounts_password_minlen_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_warn_age:
+    settings:
+      parameter: useradd::login_defs::pass_warn_age
+      value: 14
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:f: true
+      nist_800_53_rev4:IA-5:1:d: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:f
+      - IA-5:1:d
+    oval-ids:
+    - accounts_password_warn_age_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.porttime_checks_enab:
+    settings:
+      parameter: useradd::login_defs::porttime_checks_enab
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.login_defs.sha_crypt_max_rounds:
+    settings:
+      parameter: useradd::login_defs::sha_crypt_max_rounds
+      value: 10000
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:h: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:h
+  oval:com.puppet.forge.simp.useradd.login_defs.sha_crypt_min_rounds:
+    settings:
+      parameter: useradd::login_defs::sha_crypt_min_rounds
+      value: 5000
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:c: true
+      nist_800_53_rev4:IA-5:h: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:c
+      - IA-5:h
+  oval:com.puppet.forge.simp.useradd.login_defs.su_name:
+    settings:
+      parameter: useradd::login_defs::su_name
+      value: su
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.login_defs.syslog_sg_enab:
+    settings:
+      parameter: useradd::login_defs::syslog_sg_enab
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-2: true
+      nist_800_53_rev4:AU-3: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-2
+      - AU-3
+  oval:com.puppet.forge.simp.useradd.login_defs.syslog_su_enab:
+    settings:
+      parameter: useradd::login_defs::syslog_su_enab
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AU-2: true
+      nist_800_53_rev4:AU-3: true
+    identifiers:
+      nist_800_53_rev4:
+      - AU-2
+      - AU-3
+  oval:com.puppet.forge.simp.useradd.login_defs.uid_max:
+    settings:
+      parameter: useradd::login_defs::uid_max
+      value: 1000000
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.manage_etc_profile:
+    settings:
+      parameter: useradd::manage_etc_profile
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.manage_libuser_conf:
+    settings:
+      parameter: useradd::manage_libuser_conf
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.manage_login_defs:
+    settings:
+      parameter: useradd::manage_login_defs
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.manage_nss:
+    settings:
+      parameter: useradd::manage_nss
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.manage_sysconfig_init:
+    settings:
+      parameter: useradd::manage_sysconfig_init
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.manage_useradd:
+    settings:
+      parameter: useradd::manage_useradd
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-1
+  oval:com.puppet.forge.simp.useradd.securetty:
+    settings:
+      parameter: useradd::securetty
+      value: []
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-2:1: true
+      nist_800_53_rev4:AC-1:1: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-2:1
+      - AC-1:1
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_securetty_root_login_console_only
+    - securetty_root_login_console_only
+    - xccdf_org:ssgproject:content_rule_restrict_serial_port_logins
+    - restrict_serial_port_logins
+    - no_direct_root_logins
+  oval:com.puppet.forge.simp.useradd.shells:
+    settings:
+      parameter: useradd::shells
+      value: []
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+      nist_800_53_rev4:CM-7: true
+      disa_stig: true
+      RHEL-07-020890: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+      - CM-7
+      disa_stig:
+      - RHEL-07-020890
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.shells_default:
+    settings:
+      parameter: useradd::shells_default
+      value:
+      - "/bin/sh"
+      - "/bin/bash"
+      - "/sbin/nologin"
+      - "/usr/bin/sh"
+      - "/usr/bin/bash"
+      - "/usr/sbin/nologin"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:CM-6: true
+      nist_800_53_rev4:CM-7: true
+      disa_stig: true
+      RHEL-07-020890: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53_rev4:
+      - CM-6
+      - CM-7
+      disa_stig:
+      - RHEL-07-020890
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.useradd.sysconfig_init.single_user_login:
+    settings:
+      parameter: useradd::sysconfig_init::single_user_login
+      value: "/sbin/sulogin"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-2:1: true
+      nist_800_53_rev4:AC-1:1: true
+      disa_stig: true
+      RHEL-07-021770: true
+      SRG-OS-000080-GPOS-00048: true
+      cci:CCI-000213: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-2:1
+      - AC-1:1
+      disa_stig:
+      - RHEL-07-021770
+      - SRG-OS-000080-GPOS-00048
+      - CCI-000213
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.el6:
+    settings:
+      parameter: useradd::etc_profile::session_timeout
+      value: 15
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-11: true
+      nist_800_53_rev4:AC-12: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-11
+      - AC-12
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '6'
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.el6:
+    settings:
+      parameter: useradd::login_defs::pass_max_days
+      value: 180
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:f: true
+      nist_800_53_rev4:IA-5:1:d: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:f
+      - IA-5:1:d
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '6'
+  oval:com.puppet.forge.simp.useradd.login_defs.umask.el6:
+    settings:
+      parameter: useradd::login_defs::umask
+      value: '0077'
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-2: true
+      nist_800_53_rev4:AC-2:4: true
+      nist_800_53_rev4:AC-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-2
+      - AC-2:4
+      - AC-6
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '6'
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout:
+    settings:
+      parameter: useradd::etc_profile::session_timeout
+      value: 10
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-010070: true
+      RHEL-07-040160: true
+      SRG-OS-000029-GPOS-00010: true
+      SRG-OS-000163-GPOS-00072: true
+      cci:CCI-000057: true
+      cci:CCI-000361: true
+      cci:CCI-001133: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-010070
+      - RHEL-07-040160
+      - SRG-OS-000029-GPOS-00010
+      - SRG-OS-000163-GPOS-00072
+      - CCI-000057
+      - CCI-000361
+      - CCI-001133
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_tmout
+    - accounts_tmout
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days:
+    settings:
+      parameter: useradd::login_defs::pass_max_days
+      value: 60
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-010220: true
+      SRG-OS-000076-GPOS-00044: true
+      cci:CCI-000199: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-010220
+      - SRG-OS-000076-GPOS-00044
+      - CCI-000199
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_maximum_age_login_defs
+    - accounts_maximum_age_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.umask:
+    settings:
+      parameter: useradd::login_defs::umask
+      value: '077'
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-020230: true
+      RHEL-07-021060: true
+      SRG-OS-000480-GPOS-00227: true
+      SRG-OS-000480-GPOS-00228: true
+      cci:CCI-000366: true
+      cci:CCI-000368: true
+      cci:CCI-000318: true
+      cci:CCI-001812: true
+      cci:CCI-001813: true
+      cci:CCI-001814: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-020230
+      - RHEL-07-021060
+      - SRG-OS-000480-GPOS-00227
+      - SRG-OS-000480-GPOS-00228
+      - CCI-000366
+      - CCI-000368
+      - CCI-000318
+      - CCI-001812
+      - CCI-001813
+      - CCI-001814
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_umask_etc_login_defs
+    - accounts_umask_etc_login_defs
+  oval:com.puppet.forge.simp.useradd.useradd.inactive:
+    settings:
+      parameter: useradd::useradd::inactive
+      value: 0
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      SRG-OS-000118-GPOS-00060: true
+      cci:CCI-000795: true
+    identifiers:
+      disa_stig:
+      - SRG-OS-000118-GPOS-00060
+      - CCI-000795
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_account_disable_post_pw_expiration
+    - account_disable_post_pw_expiration
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.nist_800_53_rev4:
+    settings:
+      parameter: useradd::etc_profile::session_timeout
+      value: 15
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-11: true
+      nist_800_53_rev4:AC-12: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-11
+      - AC-12
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.nist_800_53_rev4:
+    settings:
+      parameter: useradd::login_defs::pass_max_days
+      value: 180
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:IA-5:f: true
+      nist_800_53_rev4:IA-5:1:d: true
+    identifiers:
+      nist_800_53_rev4:
+      - IA-5:f
+      - IA-5:1:d
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_maximum_age_login_defs
+    - accounts_maximum_age_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.umask.nist_800_53_rev4:
+    settings:
+      parameter: useradd::login_defs::umask
+      value: '0077'
+    type: puppet-class-parameter
+    controls:
+      nist_800_53_rev4:AC-2: true
+      nist_800_53_rev4:AC-2:4: true
+      nist_800_53_rev4:AC-6: true
+    identifiers:
+      nist_800_53_rev4:
+      - AC-2
+      - AC-2:4
+      - AC-6
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
