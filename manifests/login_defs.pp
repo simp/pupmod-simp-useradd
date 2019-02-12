@@ -134,7 +134,7 @@ class useradd::login_defs (
   Boolean                                 $syslog_sg_enab        = true,
   Boolean                                 $syslog_su_enab        = true,
   Optional[String]                        $ttygroup              = undef,
-  Optional[String]                        $ttyperm               = undef,
+  Optional[Simplib::Umask]                $ttyperm               = undef,
   Optional[Stdlib::AbsolutePath]          $ttytype_file          = undef,
   Integer[0]                              $uid_min               = simplib::lookup('simp_options::uid::min', { 'default_value' => pick(fact('login_defs.uid_min'), 1000 ) }),
   Integer[1]                              $uid_max               = simplib::lookup('simp_options::uid::max', { 'default_value' => pick(fact('login_defs.uid_max'), 1000000 ) }),
@@ -143,8 +143,6 @@ class useradd::login_defs (
   Optional[Stdlib::AbsolutePath]          $userdel_cmd           = undef,
   Boolean                                 $usergroups_enab       = true
 ) {
-
-  if $ttyperm { validate_umask($ttyperm) }
 
   file { '/etc/login.defs':
     owner   => 'root',
