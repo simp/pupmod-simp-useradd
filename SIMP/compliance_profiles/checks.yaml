@@ -7,9 +7,10 @@ checks:
       value: {}
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.etc_profile.mesg:
     settings:
@@ -17,9 +18,10 @@ checks:
       value: false
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-6: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-6: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-6
   oval:com.puppet.forge.simp.useradd.etc_profile.prepend:
     settings:
@@ -27,9 +29,10 @@ checks:
       value: {}
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.etc_profile.umask:
     settings:
@@ -37,9 +40,10 @@ checks:
       value: '0077'
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-2: true
-      nist_800_53_rev4:AC-2:4: true
-      nist_800_53_rev4:AC-6: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-2: true
+      nist_800_53:rev4:AC-2:4: true
+      nist_800_53:rev4:AC-6: true
       disa_stig: true
       RHEL-07-020230: true
       RHEL-07-021060: true
@@ -52,7 +56,7 @@ checks:
       cci:CCI-001813: true
       cci:CCI-001814: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-2
       - AC-2:4
       - AC-6
@@ -73,9 +77,10 @@ checks:
       value: []
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.libuser_conf.defaults_create_modules:
     settings:
@@ -85,13 +90,14 @@ checks:
       - shadow
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
       disa_stig: true
       RHEL-07-010170: true
       SRG-OS-000073-GPOS-00041: true
       cci:CCI-000196: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
       disa_stig:
       - RHEL-07-010170
@@ -103,14 +109,15 @@ checks:
       value: sha512
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:h: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:h: true
       disa_stig: true
       RHEL-07-010170: true
       SRG-OS-000073-GPOS-00041: true
       cci:CCI-000196: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:h
       disa_stig:
@@ -123,14 +130,15 @@ checks:
       value: 
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:h: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:h: true
       disa_stig: true
       RHEL-07-010170: true
       SRG-OS-000073-GPOS-00041: true
       cci:CCI-000196: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:h
       disa_stig:
@@ -143,14 +151,15 @@ checks:
       value: 
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:h: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:h: true
       disa_stig: true
       RHEL-07-010170: true
       SRG-OS-000073-GPOS-00041: true
       cci:CCI-000196: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:h
       disa_stig:
@@ -165,13 +174,14 @@ checks:
       - shadow
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
       disa_stig: true
       RHEL-07-010170: true
       SRG-OS-000073-GPOS-00041: true
       cci:CCI-000196: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
       disa_stig:
       - RHEL-07-010170
@@ -183,9 +193,10 @@ checks:
       value: 
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.libuser_conf.groupdefaults:
     settings:
@@ -193,9 +204,10 @@ checks:
       value: LU_GROUPNAME = %n
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-2: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-2: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-2
   oval:com.puppet.forge.simp.useradd.libuser_conf.import_default_useradd:
     settings:
@@ -203,9 +215,10 @@ checks:
       value: "/etc/default/useradd"
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.libuser_conf.import_login_defs:
     settings:
@@ -213,9 +226,10 @@ checks:
       value: "/etc/login.defs"
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.libuser_conf.userdefaults:
     settings:
@@ -225,9 +239,10 @@ checks:
         LU_GIDNUMBER = %u
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-2: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-2: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-2
   oval:com.puppet.forge.simp.useradd.login_defs.chfn_auth:
     settings:
@@ -235,9 +250,10 @@ checks:
       value: false
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.login_defs.chfn_restrict:
     settings:
@@ -245,10 +261,11 @@ checks:
       value: frwh
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-1: true
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-1: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-1
       - IA-1
   oval:com.puppet.forge.simp.useradd.login_defs.chsh_auth:
@@ -257,9 +274,10 @@ checks:
       value: false
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.login_defs.console:
     settings:
@@ -267,9 +285,10 @@ checks:
       value: 
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-6:5: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-6:5: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-6:5
   oval:com.puppet.forge.simp.useradd.login_defs.console_groups:
     settings:
@@ -277,9 +296,10 @@ checks:
       value: 
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-6:5: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-6:5: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-6:5
   oval:com.puppet.forge.simp.useradd.login_defs.create_home:
     settings:
@@ -287,13 +307,14 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-3: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-3: true
       disa_stig: true
       RHEL-07-020630: true
       SRG-OS-000480-GPOS-00227: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-3
       disa_stig:
       - RHEL-07-020630
@@ -308,13 +329,14 @@ checks:
       value: false
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-3: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-3: true
       disa_stig: true
       RHEL-07-020630: true
       SRG-OS-000480-GPOS-00227: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-3
       disa_stig:
       - RHEL-07-020630
@@ -326,15 +348,16 @@ checks:
       value: SHA512
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:h: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:h: true
       disa_stig: true
       RHEL-07-010170: true
       RHEL-07-010180: true
       SRG-OS-000073-GPOS-00041: true
       cci:CCI-000196: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:h
       disa_stig:
@@ -349,14 +372,15 @@ checks:
       value: 4
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-7: true
-      nist_800_53_rev4:IA-11: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-7: true
+      nist_800_53:rev4:IA-11: true
       disa_stig: true
       RHEL-07-010420: true
       SRG-OS-000480-GPOS-00226: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-7
       - IA-11
       disa_stig:
@@ -369,12 +393,13 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-2: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-2: true
       disa_stig: true
       SRG-OS-000472-GPOS-00217: true
       cci:CCI-000172: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-2
       disa_stig:
       - SRG-OS-000472-GPOS-00217
@@ -385,13 +410,14 @@ checks:
       value: 500000
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
       disa_stig: true
       RHEL-07-020410: true
       SRG-OS-000480-GPOS-00227: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
       disa_stig:
       - RHEL-07-020410
@@ -403,13 +429,14 @@ checks:
       value: 500
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
       disa_stig: true
       RHEL-07-020410: true
       SRG-OS-000480-GPOS-00227: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
       disa_stig:
       - RHEL-07-020410
@@ -421,14 +448,15 @@ checks:
       value: "/etc/issue"
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-8: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-8: true
       disa_stig: true
       RHEL-07-010030: true
       SRG-OS-000023-GPOS-00006: true
       SRG-OS-000024-GPOS-00007: true
       cci:CCI-000048: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-8
       disa_stig:
       - RHEL-07-010030
@@ -441,9 +469,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-9: true
-      nist_800_53_rev4:AC-9:1: true
-      nist_800_53_rev4:AC-9:2: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-9: true
+      nist_800_53:rev4:AC-9:1: true
+      nist_800_53:rev4:AC-9:2: true
       disa_stig: true
       RHEL-07-030490: true
       SRG-OS-000470-GPOS-00214: true
@@ -452,7 +481,7 @@ checks:
       cci:CCI-002884: true
       cci:CCI-000126: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-9
       - AC-9:1
       - AC-9:2
@@ -472,9 +501,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-9: true
-      nist_800_53_rev4:AC-9:1: true
-      nist_800_53_rev4:AC-9:2: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-9: true
+      nist_800_53:rev4:AC-9:1: true
+      nist_800_53:rev4:AC-9:2: true
       disa_stig: true
       RHEL-07-030490: true
       SRG-OS-000470-GPOS-00214: true
@@ -483,7 +513,7 @@ checks:
       cci:CCI-002884: true
       cci:CCI-000126: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-9
       - AC-9:1
       - AC-9:2
@@ -500,7 +530,8 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-2: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-2: true
       disa_stig: true
       RHEL-07-030490: true
       SRG-OS-000470-GPOS-00214: true
@@ -509,7 +540,7 @@ checks:
       cci:CCI-002884: true
       cci:CCI-000126: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-2
       disa_stig:
       - RHEL-07-030490
@@ -524,13 +555,14 @@ checks:
       value: 3
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-12: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-12: true
       disa_stig: true
       RHEL-07-010410: true
       SRG-OS-000480-GPOS-00225: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-12
       disa_stig:
       - RHEL-07-010410
@@ -542,14 +574,15 @@ checks:
       value: 60
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-12: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-12: true
       disa_stig: true
       RHEL-07-040160: true
       SRG-OS-000163-GPOS-00072: true
       cci:CCI-001133: true
       cci:CCI-002361: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-12
       disa_stig:
       - RHEL-07-040160
@@ -562,14 +595,15 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5: true
       disa_stig: true
       RHEL-07-010500: true
       SRG-OS-000104-GPOS-00051: true
       cci:CCI-000764: true
       cci:CCI-000770: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5
       disa_stig:
       - RHEL-07-010500
@@ -582,9 +616,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.login_defs.pass_change_tries:
     settings:
@@ -592,13 +627,14 @@ checks:
       value: 3
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-12: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-12: true
       disa_stig: true
       RHEL-07-010410: true
       SRG-OS-000480-GPOS-00225: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-12
       disa_stig:
       - RHEL-07-010410
@@ -610,10 +646,11 @@ checks:
       value: 
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:1:d: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:1:d: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:1:d
   oval:com.puppet.forge.simp.useradd.login_defs.pass_min_days:
@@ -622,14 +659,15 @@ checks:
       value: 1
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:f: true
-      nist_800_53_rev4:IA-5:1:d: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:f: true
+      nist_800_53:rev4:IA-5:1:d: true
       disa_stig: true
       RHEL-07-010210: true
       SRG-OS-000075-GPOS-00043: true
       cci:CCI-000198: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:f
       - IA-5:1:d
       disa_stig:
@@ -645,14 +683,15 @@ checks:
       value: 15
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:1:d: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:1:d: true
       disa_stig: true
       RHEL-07-010250: true
       SRG-OS-000078-GPOS-00046: true
       cci:CCI-000205: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:1:d
       disa_stig:
@@ -668,10 +707,11 @@ checks:
       value: 14
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:f: true
-      nist_800_53_rev4:IA-5:1:d: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:f: true
+      nist_800_53:rev4:IA-5:1:d: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:f
       - IA-5:1:d
     oval-ids:
@@ -682,9 +722,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.login_defs.sha_crypt_max_rounds:
     settings:
@@ -692,10 +733,11 @@ checks:
       value: 10000
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:h: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:h: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:h
   oval:com.puppet.forge.simp.useradd.login_defs.sha_crypt_min_rounds:
@@ -704,10 +746,11 @@ checks:
       value: 5000
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:c: true
-      nist_800_53_rev4:IA-5:h: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:c: true
+      nist_800_53:rev4:IA-5:h: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:c
       - IA-5:h
   oval:com.puppet.forge.simp.useradd.login_defs.su_name:
@@ -716,9 +759,10 @@ checks:
       value: su
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.login_defs.syslog_sg_enab:
     settings:
@@ -726,10 +770,11 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-2: true
-      nist_800_53_rev4:AU-3: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-2: true
+      nist_800_53:rev4:AU-3: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-2
       - AU-3
   oval:com.puppet.forge.simp.useradd.login_defs.syslog_su_enab:
@@ -738,10 +783,11 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AU-2: true
-      nist_800_53_rev4:AU-3: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-2: true
+      nist_800_53:rev4:AU-3: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AU-2
       - AU-3
   oval:com.puppet.forge.simp.useradd.login_defs.uid_max:
@@ -750,9 +796,10 @@ checks:
       value: 1000000
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.manage_etc_profile:
     settings:
@@ -760,9 +807,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.manage_libuser_conf:
     settings:
@@ -770,9 +818,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.manage_login_defs:
     settings:
@@ -780,9 +829,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.manage_nss:
     settings:
@@ -790,9 +840,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.manage_sysconfig_init:
     settings:
@@ -800,9 +851,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.manage_useradd:
     settings:
@@ -810,9 +862,10 @@ checks:
       value: true
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-1
   oval:com.puppet.forge.simp.useradd.securetty:
     settings:
@@ -820,10 +873,11 @@ checks:
       value: []
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-2:1: true
-      nist_800_53_rev4:AC-1:1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-2:1: true
+      nist_800_53:rev4:AC-1:1: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-2:1
       - AC-1:1
     oval-ids:
@@ -838,14 +892,15 @@ checks:
       value: []
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:CM-6: true
-      nist_800_53_rev4:CM-7: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:CM-6: true
+      nist_800_53:rev4:CM-7: true
       disa_stig: true
       RHEL-07-020890: true
       SRG-OS-000480-GPOS-00227: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - CM-6
       - CM-7
       disa_stig:
@@ -864,14 +919,15 @@ checks:
       - "/usr/sbin/nologin"
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:CM-6: true
-      nist_800_53_rev4:CM-7: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:CM-6: true
+      nist_800_53:rev4:CM-7: true
       disa_stig: true
       RHEL-07-020890: true
       SRG-OS-000480-GPOS-00227: true
       cci:CCI-000366: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - CM-6
       - CM-7
       disa_stig:
@@ -884,14 +940,15 @@ checks:
       value: "/sbin/sulogin"
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-2:1: true
-      nist_800_53_rev4:AC-1:1: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-2:1: true
+      nist_800_53:rev4:AC-1:1: true
       disa_stig: true
       RHEL-07-021770: true
       SRG-OS-000080-GPOS-00048: true
       cci:CCI-000213: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-2:1
       - AC-1:1
       disa_stig:
@@ -904,10 +961,11 @@ checks:
       value: 15
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-11: true
-      nist_800_53_rev4:AC-12: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-11: true
+      nist_800_53:rev4:AC-12: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-11
       - AC-12
     confine:
@@ -919,10 +977,11 @@ checks:
       value: 180
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:f: true
-      nist_800_53_rev4:IA-5:1:d: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:f: true
+      nist_800_53:rev4:IA-5:1:d: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:f
       - IA-5:1:d
     confine:
@@ -934,11 +993,12 @@ checks:
       value: '0077'
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-2: true
-      nist_800_53_rev4:AC-2:4: true
-      nist_800_53_rev4:AC-6: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-2: true
+      nist_800_53:rev4:AC-2:4: true
+      nist_800_53:rev4:AC-6: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-2
       - AC-2:4
       - AC-6
@@ -1049,31 +1109,33 @@ checks:
     oval-ids:
     - xccdf_org:ssgproject:content_rule_account_disable_post_pw_expiration
     - account_disable_post_pw_expiration
-  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.nist_800_53_rev4:
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.nist_800_53:rev4:
     settings:
       parameter: useradd::etc_profile::session_timeout
       value: 15
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-11: true
-      nist_800_53_rev4:AC-12: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-11: true
+      nist_800_53:rev4:AC-12: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-11
       - AC-12
     confine:
       osfamily: RedHat
       operatingsystemmajrelease: '7'
-  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.nist_800_53_rev4:
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.nist_800_53:rev4:
     settings:
       parameter: useradd::login_defs::pass_max_days
       value: 180
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:IA-5:f: true
-      nist_800_53_rev4:IA-5:1:d: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:f: true
+      nist_800_53:rev4:IA-5:1:d: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - IA-5:f
       - IA-5:1:d
     confine:
@@ -1082,17 +1144,18 @@ checks:
     oval-ids:
     - xccdf_org:ssgproject:content_rule_accounts_maximum_age_login_defs
     - accounts_maximum_age_login_defs
-  oval:com.puppet.forge.simp.useradd.login_defs.umask.nist_800_53_rev4:
+  oval:com.puppet.forge.simp.useradd.login_defs.umask.nist_800_53:rev4:
     settings:
       parameter: useradd::login_defs::umask
       value: '0077'
     type: puppet-class-parameter
     controls:
-      nist_800_53_rev4:AC-2: true
-      nist_800_53_rev4:AC-2:4: true
-      nist_800_53_rev4:AC-6: true
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-2: true
+      nist_800_53:rev4:AC-2:4: true
+      nist_800_53:rev4:AC-6: true
     identifiers:
-      nist_800_53_rev4:
+      nist_800_53:rev4:
       - AC-2
       - AC-2:4
       - AC-6
