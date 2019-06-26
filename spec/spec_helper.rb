@@ -30,8 +30,6 @@ hierarchy:
     lookup_key: compliance_markup::enforcement
     options:
       enabled_sce_versions: [2]
-  - name: Hostname
-    path: "%{facts.hostname}.yaml"
   - name: Custom Test Hiera
     path: "%{custom_hiera}.yaml"
   - name: "%{module_name}"
