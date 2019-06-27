@@ -404,44 +404,6 @@ checks:
       disa_stig:
       - SRG-OS-000472-GPOS-00217
       - CCI-000172
-  oval:com.puppet.forge.simp.useradd.login_defs.gid_max:
-    settings:
-      parameter: useradd::login_defs::gid_max
-      value: 500000
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:IA-1: true
-      disa_stig: true
-      RHEL-07-020410: true
-      SRG-OS-000480-GPOS-00227: true
-      cci:CCI-000366: true
-    identifiers:
-      nist_800_53:rev4:
-      - IA-1
-      disa_stig:
-      - RHEL-07-020410
-      - SRG-OS-000480-GPOS-00227
-      - CCI-000366
-  oval:com.puppet.forge.simp.useradd.login_defs.gid_min:
-    settings:
-      parameter: useradd::login_defs::gid_min
-      value: 500
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:IA-1: true
-      disa_stig: true
-      RHEL-07-020410: true
-      SRG-OS-000480-GPOS-00227: true
-      cci:CCI-000366: true
-    identifiers:
-      nist_800_53:rev4:
-      - IA-1
-      disa_stig:
-      - RHEL-07-020410
-      - SRG-OS-000480-GPOS-00227
-      - CCI-000366
   oval:com.puppet.forge.simp.useradd.login_defs.issue_file:
     settings:
       parameter: useradd::login_defs::issue_file
@@ -790,17 +752,6 @@ checks:
       nist_800_53:rev4:
       - AU-2
       - AU-3
-  oval:com.puppet.forge.simp.useradd.login_defs.uid_max:
-    settings:
-      parameter: useradd::login_defs::uid_max
-      value: 1000000
-    type: puppet-class-parameter
-    controls:
-      nist_800_53:rev4: true
-      nist_800_53:rev4:IA-1: true
-    identifiers:
-      nist_800_53:rev4:
-      - IA-1
   oval:com.puppet.forge.simp.useradd.manage_etc_profile:
     settings:
       parameter: useradd::manage_etc_profile
