@@ -46,6 +46,17 @@ class useradd::sysconfig_init (
   Boolean              $autoswap          = false,
 ) {
 
+  if 'systemd' in $facts['init_systems'] {
+    $_unit_file_content = @("END")
+      [Service]
+      ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
+      | END
+
+    systemd::unit_file { ['emergency.service', 'rescue.service']:
+      content => $_unit_file_content
+    }
+  }
+
   file { '/etc/sysconfig/init':
     ensure  => 'file',
     owner   => 'root',

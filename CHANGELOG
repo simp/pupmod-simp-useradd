@@ -1,3 +1,6 @@
+* Mon Mar 23 2020 Trevor Vaughan <tvaughan@onyxpont.com> - 0.4.1
+- Add explicit support for setting the rescue/emergency shell on systemd systems.
+
 * Thu Jan 09 2020 Liz Nemsick <lnemsick.simp@gmail.com> - 0.4.0
 - Add EL8 support
 - Update the upper bound of simp-simplib to < 5.0.0
