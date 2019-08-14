@@ -8,9 +8,6 @@ describe 'run inspec against the appropriate fixtures for simp audit profile' do
   profiles_to_validate = ['disa_stig']
 
   hosts.each do |host|
-    if host.to_str != 'el7'
-      next
-    end
     profiles_to_validate.each do |profile|
       context "for profile #{profile}" do
         context "on #{host}" do
