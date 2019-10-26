@@ -29,8 +29,19 @@ AUTOSWAP=no
         }
 
         if facts[:init_systems].include?('systemd')
-          it { is_expected.to contain_systemd__unit_file('emergency.service').with_content(/ExecStart=.+sulogin/) }
-          it { is_expected.to contain_systemd__unit_file('rescue.service').with_content(/ExecStart=.+sulogin/) }
+          it { is_expected.to contain_systemd__dropin_file('emergency_exec.conf').with(
+            {
+              :unit    => 'emergency.service',
+              :content => /ExecStart=.+sulogin/
+            })
+          }
+
+          it { is_expected.to contain_systemd__dropin_file('rescue_exec.conf').with(
+            {
+              :unit    => 'rescue.service',
+              :content => /ExecStart=.+sulogin/
+            })
+          }
         else
           it { is_expected.to_not contain_systemd__unit_file('emergency.service') }
           it { is_expected.to_not contain_systemd__unit_file('rescue.service') }
