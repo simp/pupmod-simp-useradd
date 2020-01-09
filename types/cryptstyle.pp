@@ -1,3 +1,4 @@
+# The  algorithm to use for password encryption when creating new passwords
 type Useradd::CryptStyle = Enum[
   'BLOWFISH',
   'DES',

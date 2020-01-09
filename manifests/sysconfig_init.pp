@@ -17,6 +17,7 @@
 # @param loglvl
 # @param prompt
 # @param autoswap
+#   AUTOSWAP option is only useful in el6.  Not present in el7 or later.
 #
 #For all `setcolor` variables, use the following color options as a string:
 #   * default

@@ -22,10 +22,10 @@ describe 'compliance_markup', type: :class do
   ]
 
   allowed_failures = {
-    'documented_missing_parameters' => [
-    ] + expected_classes.map{|c| Regexp.new("^(?!#{c}(::.*)?)")},
-    'documented_missing_resources' => [
-    ] + expected_classes.map{|c| Regexp.new("^(?!#{c}(::.*)?)")}
+    'documented_missing_parameters' =>
+      [ Regexp.new("^(?!(#{expected_classes.join('|')})(::.*)?)") ],
+    'documented_missing_resources'  =>
+      [ Regexp.new("^(?!(#{expected_classes.join('|')})(::.*)?)") ],
   }
 
   on_supported_os.each do |os, os_facts|

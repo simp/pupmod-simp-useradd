@@ -6,12 +6,18 @@
   end
 -%>
 HOSTS:
-  el7:
+  el8:
     roles:
       - server
       - default
+    platform:   el-8-x86_64
+    box:        generic/oracle8
+    hypervisor: <%= hypervisor %>
+  el7:
+    roles:
+      - server
     platform:   el-7-x86_64
-    box:        onyxpoint/oel-7-x86_64
+    box:        generic/oracle7
     hypervisor: <%= hypervisor %>
   el6:
     roles:

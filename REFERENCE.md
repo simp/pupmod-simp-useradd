@@ -10,9 +10,15 @@
 * [`useradd::libuser_conf`](#useraddlibuser_conf): Sets up /etc/libuser.conf. See libuser.conf(5) for information on the various variables.  author: SIMP Team <simp@simp-project.com>
 * [`useradd::login_defs`](#useraddlogin_defs): Set up the /etc/login.defs configuration file. All option values are taken directly from the system documentation.  Any parameter that is a l
 * [`useradd::nss`](#useraddnss): Install and configure the NSS configuration file. See nss(5) for more details.  author: SIMP Team <simp@simp-project.com>
-* [`useradd::passwd`](#useraddpasswd): Manage the persmissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
+* [`useradd::passwd`](#useraddpasswd): Manage the permissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
 * [`useradd::sysconfig_init`](#useraddsysconfig_init): Allow for the configuration of /etc/sysconfig/init  See /usr/share/doc/initscripts-<version>/sysconfig.txt for variable   definitions.  For a
 * [`useradd::useradd`](#useradduseradd): Install and configure the useradd default configuration file. See useradd(8) for more details.  author: SIMP Team <simp@simp-project.com>
+
+**Data types**
+
+* [`Useradd::Bootup`](#useraddbootup): Boot mode sysconfig option
+* [`Useradd::CryptStyle`](#useraddcryptstyle): The  algorithm to use for password encryption when creating new passwords
+* [`Useradd::LibuserModule`](#useraddlibusermodule): Valid libuser modules
 
 ## Classes
 
@@ -74,6 +80,14 @@ If true, manage `/etc/default/nss`
 
 Default value: `true`
 
+##### `manage_passwd_perms`
+
+Data type: `Boolean`
+
+If true, manage the permissions of shadow and passwd related files
+
+Default value: `true`
+
 ##### `securetty`
 
 Data type: `Variant[Boolean,Array[String]]`
@@ -112,14 +126,6 @@ List of shells available to the user to set as default
 * Will be combined with ``shells_default`` in /etc/shells
 
 Default value: []
-
-##### `manage_passwd_perms`
-
-Data type: `Boolean`
-
-
-
-Default value: `true`
 
 ### useradd::etc_profile
 
@@ -904,7 +910,7 @@ Default value: `undef`
 
 ##### `ttyperm`
 
-Data type: `Optional[String]`
+Data type: `Optional[Simplib::Umask]`
 
 
 
@@ -1003,7 +1009,7 @@ Default value: `true`
 
 ### useradd::passwd
 
-Manage the persmissions of shadow and passwd related files
+Manage the permissions of shadow and passwd related files
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -1117,7 +1123,7 @@ Default value: `false`
 
 Data type: `Boolean`
 
-
+AUTOSWAP option is only useful in el6.  Not present in el7 or later.
 
 Default value: `false`
 
@@ -1187,4 +1193,24 @@ Data type: `Boolean`
 
 
 Default value: `true`
+
+## Data types
+
+### Useradd::Bootup
+
+Boot mode sysconfig option
+
+Alias of `Enum['graphical', 'color', 'verbose', 'plain']`
+
+### Useradd::CryptStyle
+
+The  algorithm to use for password encryption when creating new passwords
+
+Alias of `Enum['BLOWFISH', 'DES', 'MD5', 'SHA256', 'SHA512', 'blowfish', 'des', 'md5', 'sha256', 'sha512']`
+
+### Useradd::LibuserModule
+
+Valid libuser modules
+
+Alias of `Enum['files', 'shadow', 'ldap']`
 

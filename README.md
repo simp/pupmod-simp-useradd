@@ -86,7 +86,7 @@ Each file can be managed or unmanaged individually, using the following variable
 
 ## Reference
 
-Please refer to the inline documentation within each source file, or to the module's generated YARD documentation for reference material.
+Please refer to the [REFERENCE.md](./REFERENCE.md).
 
 
 ## Limitations
