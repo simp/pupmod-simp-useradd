@@ -956,7 +956,7 @@ checks:
     confine:
       osfamily: RedHat
       operatingsystemmajrelease: '6'
-  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout:
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.el7:
     settings:
       parameter: useradd::etc_profile::session_timeout
       value: 10
@@ -985,7 +985,7 @@ checks:
     oval-ids:
     - xccdf_org:ssgproject:content_rule_accounts_tmout
     - accounts_tmout
-  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days:
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.el7:
     settings:
       parameter: useradd::login_defs::pass_max_days
       value: 60
@@ -1006,7 +1006,7 @@ checks:
     oval-ids:
     - xccdf_org:ssgproject:content_rule_accounts_maximum_age_login_defs
     - accounts_maximum_age_login_defs
-  oval:com.puppet.forge.simp.useradd.login_defs.umask:
+  oval:com.puppet.forge.simp.useradd.login_defs.umask.el7:
     settings:
       parameter: useradd::login_defs::umask
       value: '077'
@@ -1041,7 +1041,7 @@ checks:
     oval-ids:
     - xccdf_org:ssgproject:content_rule_accounts_umask_etc_login_defs
     - accounts_umask_etc_login_defs
-  oval:com.puppet.forge.simp.useradd.useradd.inactive:
+  oval:com.puppet.forge.simp.useradd.useradd.inactive.el7:
     settings:
       parameter: useradd::useradd::inactive
       value: 0
@@ -1060,7 +1060,7 @@ checks:
     oval-ids:
     - xccdf_org:ssgproject:content_rule_account_disable_post_pw_expiration
     - account_disable_post_pw_expiration
-  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.nist_800_53:rev4:
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.nist_800_53:rev4.el7:
     settings:
       parameter: useradd::etc_profile::session_timeout
       value: 15
@@ -1076,7 +1076,7 @@ checks:
     confine:
       osfamily: RedHat
       operatingsystemmajrelease: '7'
-  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.nist_800_53:rev4:
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.nist_800_53:rev4.el7:
     settings:
       parameter: useradd::login_defs::pass_max_days
       value: 180
@@ -1092,6 +1092,163 @@ checks:
     confine:
       osfamily: RedHat
       operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_maximum_age_login_defs
+    - accounts_maximum_age_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.umask.nist_800_53:rev4.el7:
+    settings:
+      parameter: useradd::login_defs::umask
+      value: '0077'
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-2: true
+      nist_800_53:rev4:AC-2:4: true
+      nist_800_53:rev4:AC-6: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-2
+      - AC-2:4
+      - AC-6
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout:
+    settings:
+      parameter: useradd::etc_profile::session_timeout
+      value: 10
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-010070: true
+      RHEL-07-040160: true
+      SRG-OS-000029-GPOS-00010: true
+      SRG-OS-000163-GPOS-00072: true
+      cci:CCI-000057: true
+      cci:CCI-000361: true
+      cci:CCI-001133: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-010070
+      - RHEL-07-040160
+      - SRG-OS-000029-GPOS-00010
+      - SRG-OS-000163-GPOS-00072
+      - CCI-000057
+      - CCI-000361
+      - CCI-001133
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '8'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_tmout
+    - accounts_tmout
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days:
+    settings:
+      parameter: useradd::login_defs::pass_max_days
+      value: 60
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-010220: true
+      SRG-OS-000076-GPOS-00044: true
+      cci:CCI-000199: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-010220
+      - SRG-OS-000076-GPOS-00044
+      - CCI-000199
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '8'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_maximum_age_login_defs
+    - accounts_maximum_age_login_defs
+  oval:com.puppet.forge.simp.useradd.login_defs.umask:
+    settings:
+      parameter: useradd::login_defs::umask
+      value: '077'
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-020230: true
+      RHEL-07-021060: true
+      SRG-OS-000480-GPOS-00227: true
+      SRG-OS-000480-GPOS-00228: true
+      cci:CCI-000366: true
+      cci:CCI-000368: true
+      cci:CCI-000318: true
+      cci:CCI-001812: true
+      cci:CCI-001813: true
+      cci:CCI-001814: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-020230
+      - RHEL-07-021060
+      - SRG-OS-000480-GPOS-00227
+      - SRG-OS-000480-GPOS-00228
+      - CCI-000366
+      - CCI-000368
+      - CCI-000318
+      - CCI-001812
+      - CCI-001813
+      - CCI-001814
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '8'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_accounts_umask_etc_login_defs
+    - accounts_umask_etc_login_defs
+  oval:com.puppet.forge.simp.useradd.useradd.inactive:
+    settings:
+      parameter: useradd::useradd::inactive
+      value: 0
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      SRG-OS-000118-GPOS-00060: true
+      cci:CCI-000795: true
+    identifiers:
+      disa_stig:
+      - SRG-OS-000118-GPOS-00060
+      - CCI-000795
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '8'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_account_disable_post_pw_expiration
+    - account_disable_post_pw_expiration
+  oval:com.puppet.forge.simp.useradd.etc_profile.session_timeout.nist_800_53:rev4:
+    settings:
+      parameter: useradd::etc_profile::session_timeout
+      value: 15
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-11: true
+      nist_800_53:rev4:AC-12: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-11
+      - AC-12
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '8'
+  oval:com.puppet.forge.simp.useradd.login_defs.pass_max_days.nist_800_53:rev4:
+    settings:
+      parameter: useradd::login_defs::pass_max_days
+      value: 180
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:f: true
+      nist_800_53:rev4:IA-5:1:d: true
+    identifiers:
+      nist_800_53:rev4:
+      - IA-5:f
+      - IA-5:1:d
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '8'
     oval-ids:
     - xccdf_org:ssgproject:content_rule_accounts_maximum_age_login_defs
     - accounts_maximum_age_login_defs
@@ -1112,4 +1269,4 @@ checks:
       - AC-6
     confine:
       osfamily: RedHat
-      operatingsystemmajrelease: '7'
+      operatingsystemmajrelease: '8'

@@ -18,6 +18,9 @@
 # @param manage_nss
 #   If true, manage `/etc/default/nss`
 #
+# @param manage_passwd_perms
+#   If true, manage the permissions of shadow and passwd related files
+#
 # @param securetty
 #   List of ttys available to log into
 #   Defaults to ['tty0', 'tty1', 'tty2', 'tty3', 'tty4']

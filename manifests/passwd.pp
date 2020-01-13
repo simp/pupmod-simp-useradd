@@ -1,4 +1,4 @@
-# Manage the persmissions of shadow and passwd related files
+# Manage the permissions of shadow and passwd related files
 #
 # author: SIMP Team <simp@simp-project.com>
 #
