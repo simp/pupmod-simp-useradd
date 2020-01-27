@@ -1,7 +1,7 @@
 skips = {}
 overrides = []
 subsystems = [ 'libuser_conf', 'user', '/etc/shadow', 'accounts', 'opasswd', 
-'home_dirs', 'user_profile', 'login_defs', 'gshadow' ]
+'home_dirs', 'user_profile', 'login_defs', 'gshadow', 'useradd' ]
 
 require_controls 'disa_stig-el7-baseline' do
   skips.each_pair do |ctrl, reason|
