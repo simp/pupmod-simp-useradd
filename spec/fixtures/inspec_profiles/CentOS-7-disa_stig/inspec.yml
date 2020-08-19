@@ -1,5 +1,5 @@
-name: EL7 Aide STIG
-title: Aide STIG for EL 7
+name: EL7 Useradd STIG
+title: Useradd STIG for EL 7
 supports:
   - os-family: redhat
 maintainer: SIMP Team
