@@ -7,6 +7,12 @@ describe 'useradd STIG enforcement of simp profile' do
   let(:manifest) {
     <<-EOS
       include 'useradd'
+
+      # Settings for vagrant user
+      user { 'vagrant':
+        password_max_age => 60,
+        password_min_age => 1,
+      }
     EOS
   }
 
