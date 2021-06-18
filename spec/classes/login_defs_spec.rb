@@ -2,14 +2,16 @@ require 'spec_helper'
 
 describe 'useradd::login_defs' do
   context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
+    on_supported_os.each do |os, os_facts|
       context "on #{os}" do
         let(:facts) do
-          facts
+          os_facts.merge( {
+            :login_defs => { 'gid_min' => 1000, 'gid_max' => 500000 }
+          } )
         end
 
         context 'with default parameters' do
-          let(:expected) { File.read("spec/expected/default_login_defs_#{os}") }
+          let(:expected) { File.read('spec/expected/default_login_defs') }
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to create_class('useradd::login_defs') }
           it { is_expected.to create_file('/etc/login.defs').with_content(expected) }
