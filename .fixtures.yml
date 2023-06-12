@@ -2,7 +2,7 @@
 fixtures:
   repositories:
     compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup.git
-    stdlib: https://github.com/puppetlabs/puppetlabs-stdlib.git
+    stdlib: https://github.com/simp/puppetlabs-stdlib.git
     simp_options: https://github.com/simp/pupmod-simp-simp_options.git
     simplib: https://github.com/simp/pupmod-simp-simplib.git
     systemd: https://github.com/simp/puppet-systemd.git
