@@ -50,7 +50,7 @@ describe 'useradd::useradd' do
             it {
               expect {
                 is_expected.to compile
-              }.to raise_error(/"#{exp}" does not match/)
+              }.to raise_error(/got '#{exp}'/)
             }
           end
         end

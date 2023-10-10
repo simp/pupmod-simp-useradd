@@ -15,13 +15,13 @@ class useradd::useradd (
   Integer              $group             = 100,
   Stdlib::AbsolutePath $home              = '/home',
   Integer              $inactive          = 35,
-  Optional[String]     $expire            = undef,
+  Optional[
+    Pattern[/^\d{4}-\d{2}-\d{2}$/]
+  ]                    $expire            = undef,
   Stdlib::AbsolutePath $shell             = '/bin/bash',
   Stdlib::AbsolutePath $skel              = '/etc/skel',
   Boolean              $create_mail_spool = true,
 ) {
-  if !empty($expire) { validate_re($expire,'^\d{4}-\d{2}-\d{2}$') }
-
   file { '/etc/default/useradd':
     owner   => 'root',
     group   => 'root',
@@ -29,4 +29,3 @@ class useradd::useradd (
     content => template('useradd/etc/default/useradd.erb')
   }
 }
-

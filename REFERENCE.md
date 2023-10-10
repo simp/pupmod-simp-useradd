@@ -1301,7 +1301,13 @@ Default value: `35`
 
 ##### <a name="-useradd--useradd--expire"></a>`expire`
 
-Data type: `Optional[String]`
+Data type:
+
+```puppet
+Optional[
+    Pattern[/^\d{4}-\d{2}-\d{2}$/]
+  ]
+```
 
 
 
