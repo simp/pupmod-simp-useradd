@@ -1,3 +1,6 @@
+* Mon Oct 23 2023 Steven Pritchard <steve@sicura.us> - 0.10.0
+- [puppetsync] Add EL9 support
+
 * Tue Oct 10 2023 Steven Pritchard <steve@sicura.us> - 0.9.1
 - Use `gh` instead of `hub` in GHA (see https://github.com/actions/runner-images/issues/8362)
 
