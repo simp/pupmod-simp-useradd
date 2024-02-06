@@ -29,11 +29,6 @@ describe 'useradd::passwd' do
         is_expected.to create_file('/etc/gshadow').with(expected_params)
         is_expected.to create_file('/etc/gshadow-').with(expected_params)
       }
-      it { is_expected.to create_file('/etc/security/opasswd').with(
-        :owner => 'root',
-        :group => 'root',
-        :mode  => '0600'
-      ) }
 
     end
   end

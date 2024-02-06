@@ -13,7 +13,8 @@
 3. [Usage - Configuration options and additional functionality](#usage)
 4. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 5. [Limitations - OS compatibility, etc.](#limitations)
-6. [Development - Guide for contributing to the module](#development)
+6. [Deprecations](#deprecations)
+7. [Development - Guide for contributing to the module](#development)
     * [Acceptance Tests - Beaker env variables](#acceptance-tests)
 
 
@@ -53,7 +54,6 @@ This module can configure:
   * `/etc/passwd-`
   * `/etc/profile.d/`
   * `/etc/securetty`
-  * `/etc/security/opasswd`
   * `/etc/shadow`
   * `/etc/shadow-`
   * `/etc/shells`
@@ -88,6 +88,9 @@ Each file can be managed or unmanaged individually, using the following variable
 
 Please refer to the [REFERENCE.md](./REFERENCE.md).
 
+## Deprecations
+
+As of version 1.0.0, this module will no longer manage `/etc/security/opasswd`. Version 7.0.0 and above of the [SIMP PAM Module](https://github.com/simp/pupmod-simp-pam) will allow users to specify the file they wish to store historical passwords in.
 
 ## Limitations
 
