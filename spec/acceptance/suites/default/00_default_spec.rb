@@ -25,7 +25,7 @@ servers.each do |server|
       }
 
       it 'should modify files to test management' do
-        on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group- /etc/security/opasswd')
+        on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group-')
         on(server, 'echo "management_test" | tee -a /etc/profile.d/simp.sh /etc/profile.d/simp.csh /etc/libuser.conf /etc/default/nss /etc/sysconfig/init /etc/login.defs /etc/default/useradd > /dev/null')
       end
 
@@ -110,11 +110,6 @@ servers.each do |server|
       it 'should not manage /etc/group-' do
         on(server, 'stat -c "%a %n" /etc/group-').output.strip
         expect(stdout).to match(%r(777 /etc/group-))
-      end
-
-      it 'should not manage /etc/security/opasswd' do
-        on(server, 'stat -c "%a %n" /etc/security/opasswd').output.strip
-        expect(stdout).to match(%r(777 /etc/security/opasswd))
       end
     end
 
@@ -203,11 +198,6 @@ servers.each do |server|
       it 'should manage /etc/group-' do
         on(server, 'stat -c "%a %n" /etc/group-').output.strip
         expect(stdout).to match(%r(644 /etc/group-))
-      end
-
-      it 'should manage /etc/security/opasswd' do
-        on(server, 'stat -c "%a %n" /etc/security/opasswd').output.strip
-        expect(stdout).to match(%r(600 /etc/security/opasswd))
       end
 
       it '/etc/securetty should be empty' do
@@ -324,7 +314,7 @@ servers.each do |server|
       end
 
       it 'should update new user accounts' do
-        on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group- /etc/security/opasswd')
+        on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group-')
         on(server, 'useradd defsuser -p password')
         on(server, 'chage -l defsuser').output.strip
         expect(stdout).to match(/^Minimum number of days between password change\s*:\s*0$/)
