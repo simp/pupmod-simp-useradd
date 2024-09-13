@@ -1,6 +1,6 @@
 {
   "name": "simp-useradd",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "SIMP Team",
   "summary": "A SIMP puppet module for managing settings regarding users and user creation",
   "license": "Apache-2.0",
@@ -31,7 +31,7 @@
     },
     {
       "name": "puppet/systemd",
-      "version_requirement": ">= 4.0.2 < 7.0.0"
+      "version_requirement": ">= 4.0.2 < 8.0.0"
     }
   ],
   "operatingsystem_support": [
