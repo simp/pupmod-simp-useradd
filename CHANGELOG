@@ -1,3 +1,6 @@
+* Fri Sep 13 2024 Steven Pritchard <steve@sicura.us> - 1.1.0
+- [puppetsync] Update module dependencies to support simp-iptables 7.x
+
 * Tue Feb 06 2024 Mike Riddle <mike@sicura.us> - 1.0.0
 - Stopped controlling /etc/security/opasswd through this module in favor of the SIMP PAM module
 
