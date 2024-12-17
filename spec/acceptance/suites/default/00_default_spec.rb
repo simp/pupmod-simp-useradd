@@ -4,12 +4,9 @@ test_name 'useradd class'
 
 servers = hosts_with_role(hosts, 'server')
 servers.each do |server|
-
   describe 'useradd class' do
-
     context 'parameters set to false (no management)' do
-
-      let(:manifest_with_no_management) {
+      let(:manifest_with_no_management) do
         <<-EOS
         class { 'useradd':
           manage_etc_profile    => false,
@@ -22,182 +19,182 @@ servers.each do |server|
           shells_default        => [],
         }
         EOS
-      }
+      end
 
-      it 'should modify files to test management' do
+      it 'modifies files to test management' do
         on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group-')
-        on(server, 'echo "management_test" | tee -a /etc/profile.d/simp.sh /etc/profile.d/simp.csh /etc/libuser.conf /etc/default/nss /etc/sysconfig/init /etc/login.defs /etc/default/useradd > /dev/null')
+        on(server,
+'echo "management_test" | tee -a /etc/profile.d/simp.sh /etc/profile.d/simp.csh /etc/libuser.conf /etc/default/nss /etc/sysconfig/init /etc/login.defs /etc/default/useradd > /dev/null')
       end
 
-      it 'should work with no errors' do
-        apply_manifest_on(server, manifest_with_no_management, :catch_failures => true)
+      it 'works with no errors' do
+        apply_manifest_on(server, manifest_with_no_management, catch_failures: true)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(server, manifest_with_no_management, :catch_changes => true)
+      it 'is idempotent' do
+        apply_manifest_on(server, manifest_with_no_management, catch_changes: true)
       end
 
-      it 'should not manage /etc/profile.d/simp.sh' do
+      it 'does not manage /etc/profile.d/simp.sh' do
         on(server, 'cat /etc/profile.d/simp.sh').output.strip
         expect(stdout).to include('management_test')
       end
 
-      it 'should not manage /etc/profile.d/simp.csh' do
+      it 'does not manage /etc/profile.d/simp.csh' do
         on(server, 'cat /etc/profile.d/simp.csh').output.strip
         expect(stdout).to include('management_test')
       end
 
-      it 'should not manage /etc/libuser.conf' do
+      it 'does not manage /etc/libuser.conf' do
         on(server, 'cat /etc/libuser.conf').output.strip
         expect(stdout).to include('management_test')
       end
 
-      it 'should not manage /etc/default/nss' do
+      it 'does not manage /etc/default/nss' do
         on(server, 'cat /etc/default/nss').output.strip
         expect(stdout).to include('management_test')
       end
 
-      it 'should not manage /etc/sysconfig/init' do
+      it 'does not manage /etc/sysconfig/init' do
         on(server, 'cat /etc/sysconfig/init').output.strip
         expect(stdout).to include('management_test')
       end
 
-      it 'should not manage /etc/login.defs' do
+      it 'does not manage /etc/login.defs' do
         on(server, 'cat /etc/login.defs').output.strip
         expect(stdout).to include('management_test')
       end
 
-      it 'should not manage /etc/default/useradd' do
+      it 'does not manage /etc/default/useradd' do
         on(server, 'cat /etc/default/useradd').output.strip
         expect(stdout).to include('management_test')
       end
 
-      it 'should not manage /etc/passwd' do
+      it 'does not manage /etc/passwd' do
         on(server, 'stat -c "%a %n" /etc/passwd').output.strip
-        expect(stdout).to match(%r(777 /etc/passwd))
+        expect(stdout).to match(%r{777 /etc/passwd})
       end
 
-      it 'should not manage /etc/passwd-' do
+      it 'does not manage /etc/passwd-' do
         on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
-        expect(stdout).to match(%r(777 /etc/passwd-))
+        expect(stdout).to match(%r{777 /etc/passwd-})
       end
 
-      it 'should not manage /etc/shadow' do
+      it 'does not manage /etc/shadow' do
         on(server, 'stat -c "%a %n" /etc/shadow').output.strip
-        expect(stdout).to match(%r(777 /etc/shadow))
+        expect(stdout).to match(%r{777 /etc/shadow})
       end
 
-      it 'should not manage /etc/shadow-' do
+      it 'does not manage /etc/shadow-' do
         on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
-        expect(stdout).to match(%r(777 /etc/shadow-))
+        expect(stdout).to match(%r{777 /etc/shadow-})
       end
 
-      it 'should not manage /etc/gshadow' do
+      it 'does not manage /etc/gshadow' do
         on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
-        expect(stdout).to match(%r(777 /etc/gshadow))
+        expect(stdout).to match(%r{777 /etc/gshadow})
       end
 
-      it 'should not manage /etc/gshadow-' do
+      it 'does not manage /etc/gshadow-' do
         on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
-        expect(stdout).to match(%r(777 /etc/gshadow-))
+        expect(stdout).to match(%r{777 /etc/gshadow-})
       end
 
-      it 'should not manage /etc/group' do
+      it 'does not manage /etc/group' do
         on(server, 'stat -c "%a %n" /etc/group').output.strip
-        expect(stdout).to match(%r(777 /etc/group))
+        expect(stdout).to match(%r{777 /etc/group})
       end
 
-      it 'should not manage /etc/group-' do
+      it 'does not manage /etc/group-' do
         on(server, 'stat -c "%a %n" /etc/group-').output.strip
-        expect(stdout).to match(%r(777 /etc/group-))
+        expect(stdout).to match(%r{777 /etc/group-})
       end
     end
 
     context 'default parameters (management)' do
-
-      let (:manifest) {
+      let(:manifest) do
         <<-EOS
       class { 'useradd':
       }
         EOS
-      }
-
-      it 'should work with no errors' do
-        apply_manifest_on(server, manifest, :catch_failures => true)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(server, manifest, :catch_changes => true)
+      it 'works with no errors' do
+        apply_manifest_on(server, manifest, catch_failures: true)
       end
 
-      it 'should manage /etc/profile.d/simp.sh' do
+      it 'is idempotent' do
+        apply_manifest_on(server, manifest, catch_changes: true)
+      end
+
+      it 'manages /etc/profile.d/simp.sh' do
         on(server, 'cat /etc/profile.d/simp.sh').output.strip
         expect(stdout).to include('# This file managed by Puppet.')
       end
 
-      it 'should manage /etc/profile.d/simp.csh' do
+      it 'manages /etc/profile.d/simp.csh' do
         on(server, 'cat /etc/profile.d/simp.csh').output.strip
         expect(stdout).to include('# This file managed by Puppet.')
       end
 
-      it 'should manage /etc/libuser' do
+      it 'manages /etc/libuser' do
         on(server, 'cat /etc/libuser.conf').output.strip
         expect(stdout).to include('# This file managed by Puppet.')
       end
 
-      it 'should manage /etc/default/nss' do
+      it 'manages /etc/default/nss' do
         on(server, 'cat /etc/default/nss').output.strip
         expect(stdout).to include('# This file managed by Puppet.')
       end
 
-      it 'should manage /etc/login.defs' do
+      it 'manages /etc/login.defs' do
         on(server, 'cat /etc/login.defs').output.strip
         expect(stdout).to include('# This file managed by Puppet.')
       end
 
-      it 'should manage /etc/default/useradd' do
+      it 'manages /etc/default/useradd' do
         on(server, 'cat /etc/default/useradd').output.strip
         expect(stdout).to include('# This file managed by Puppet.')
       end
 
-      it 'should manage /etc/passwd' do
+      it 'manages /etc/passwd' do
         on(server, 'stat -c "%a %n" /etc/passwd').output.strip
-        expect(stdout).to match(%r(644 /etc/passwd))
+        expect(stdout).to match(%r{644 /etc/passwd})
       end
 
-      it 'should manage /etc/passwd-' do
+      it 'manages /etc/passwd-' do
         on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
-        expect(stdout).to match(%r(644 /etc/passwd-))
+        expect(stdout).to match(%r{644 /etc/passwd-})
       end
 
-      it 'should manage /etc/shadow' do
+      it 'manages /etc/shadow' do
         on(server, 'stat -c "%a %n" /etc/shadow').output.strip
-        expect(stdout).to match(%r(0 /etc/shadow))
+        expect(stdout).to match(%r{0 /etc/shadow})
       end
 
-      it 'should manage /etc/shadow-' do
+      it 'manages /etc/shadow-' do
         on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
-        expect(stdout).to match(%r(0 /etc/shadow-))
+        expect(stdout).to match(%r{0 /etc/shadow-})
       end
 
-      it 'should manage /etc/gshadow' do
+      it 'manages /etc/gshadow' do
         on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
-        expect(stdout).to match(%r(0 /etc/gshadow))
+        expect(stdout).to match(%r{0 /etc/gshadow})
       end
 
-      it 'should manage /etc/gshadow-' do
+      it 'manages /etc/gshadow-' do
         on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
-        expect(stdout).to match(%r(0 /etc/gshadow-))
+        expect(stdout).to match(%r{0 /etc/gshadow-})
       end
 
-      it 'should manage /etc/group' do
+      it 'manages /etc/group' do
         on(server, 'stat -c "%a %n" /etc/group').output.strip
-        expect(stdout).to match(%r(644 /etc/group))
+        expect(stdout).to match(%r{644 /etc/group})
       end
 
-      it 'should manage /etc/group-' do
+      it 'manages /etc/group-' do
         on(server, 'stat -c "%a %n" /etc/group-').output.strip
-        expect(stdout).to match(%r(644 /etc/group-))
+        expect(stdout).to match(%r{644 /etc/group-})
       end
 
       it '/etc/securetty should be empty' do
@@ -205,87 +202,84 @@ servers.each do |server|
         expect(stdout).to include('tty0', 'tty1', 'tty2', 'tty3', 'tty4')
       end
 
-      it 'should contain /etc/shells with content from shells default array' do
+      it 'contains /etc/shells with content from shells default array' do
         on(server, 'cat /etc/shells').output.strip
         expect(stdout).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin')
       end
     end
 
     context 'with securetty defined' do
-
-      let(:manifest_with_securetty_defined) {
+      let(:manifest_with_securetty_defined) do
         <<-EOS
       class { 'useradd':
         securetty => ['console', 'tty0', 'tty1', 'tty2'],
       }
         EOS
-      }
-
-      it 'should work with no errors' do
-        apply_manifest_on(server, manifest_with_securetty_defined, :catch_failures => true)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(server, manifest_with_securetty_defined, :catch_changes => true)
+      it 'works with no errors' do
+        apply_manifest_on(server, manifest_with_securetty_defined, catch_failures: true)
       end
 
-      it 'should add content to /etc/securetty' do
+      it 'is idempotent' do
+        apply_manifest_on(server, manifest_with_securetty_defined, catch_changes: true)
+      end
+
+      it 'adds content to /etc/securetty' do
         on(server, 'cat /etc/securetty').output.strip
         expect(stdout).to include('console', 'tty0', 'tty1', 'tty2')
       end
     end
 
     context 'with securetty set to ANY_SHELL' do
-
-      let(:manifest_with_securetty_absent) {
+      let(:manifest_with_securetty_absent) do
         <<-EOS
       class { 'useradd':
         securetty => ['ANY_SHELL'],
       }
         EOS
-      }
-
-      it 'should work with no errors' do
-        apply_manifest_on(server, manifest_with_securetty_absent, :catch_failures => true)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(server, manifest_with_securetty_absent, :catch_changes => true)
+      it 'works with no errors' do
+        apply_manifest_on(server, manifest_with_securetty_absent, catch_failures: true)
       end
 
-      it 'should remove /etc/securetty' do
-        result = on(server, 'test -f /etc/securetty', { :acceptable_exit_codes => [0,1] })
-        expect(result.exit_code).to_not eq(0)
+      it 'is idempotent' do
+        apply_manifest_on(server, manifest_with_securetty_absent, catch_changes: true)
+      end
+
+      it 'removes /etc/securetty' do
+        result = on(server, 'test -f /etc/securetty', { acceptable_exit_codes: [0, 1] })
+        expect(result.exit_code).not_to eq(0)
       end
     end
 
     context 'with shells defined' do
-
-      let(:manifest_with_shells_defined) {
+      let(:manifest_with_shells_defined) do
         <<-EOS
       class { 'useradd':
         shells => ['/bin/csh'],
       }
         EOS
-      }
-
-      it 'should work with no errors' do
-        apply_manifest_on(server, manifest_with_shells_defined, :catch_failures => true)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(server, manifest_with_shells_defined, :catch_changes => true)
+      it 'works with no errors' do
+        apply_manifest_on(server, manifest_with_shells_defined, catch_failures: true)
       end
 
-      it 'should add shell variable content to /etc/shells' do
+      it 'is idempotent' do
+        apply_manifest_on(server, manifest_with_shells_defined, catch_changes: true)
+      end
+
+      it 'adds shell variable content to /etc/shells' do
         on(server, 'cat /etc/shells').output.strip
         expect(stdout).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin', '/bin/csh')
       end
     end
 
     context 'with login.defs set' do
-     let(:manifest_logindefs) {
-      <<-EOS
+      let(:manifest_logindefs) do
+        <<-EOS
 
         class { 'useradd::login_defs':
           encrypt_method        => 'MD5',
@@ -298,34 +292,33 @@ servers.each do |server|
         }
 
         EOS
-     }
+      end
 
-     it 'should work with no errors' do
-       apply_manifest_on(server, manifest_logindefs, :catch_failures => true)
-     end
+      it 'works with no errors' do
+        apply_manifest_on(server, manifest_logindefs, catch_failures: true)
+      end
 
-     it 'should be idempotent' do
-       apply_manifest_on(server, manifest_logindefs, :catch_changes => true)
-     end
+      it 'is idempotent' do
+        apply_manifest_on(server, manifest_logindefs, catch_changes: true)
+      end
 
-      it 'should edit /etc/login.defs' do
+      it 'edits /etc/login.defs' do
         on(server, 'cat /etc/login.defs').output.strip
         expect(stdout).to include('ENCRYPT_METHOD MD5', 'CHFN_AUTH yes', 'MAX_MEMBERS_PER_GROUP 10', 'NOLOGINS_FILE /etc/nologins', 'PASS_MIN_DAYS 0', 'PASS_MAX_DAYS 100', 'PASS_WARN_AGE 20')
       end
 
-      it 'should update new user accounts' do
+      it 'updates new user accounts' do
         on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group-')
         on(server, 'useradd defsuser -p password')
         on(server, 'chage -l defsuser').output.strip
-        expect(stdout).to match(/^Minimum number of days between password change\s*:\s*0$/)
-        expect(stdout).to match(/^Maximum number of days between password change\s*:\s*100$/)
-        expect(stdout).to match(/^Number of days of warning before password expires\s*:\s*20$/)
+        expect(stdout).to match(%r{^Minimum number of days between password change\s*:\s*0$})
+        expect(stdout).to match(%r{^Maximum number of days between password change\s*:\s*100$})
+        expect(stdout).to match(%r{^Number of days of warning before password expires\s*:\s*20$})
       end
     end
 
-  context 'with parameters set' do
-
-      let(:manifest_with_parameters_set) {
+    context 'with parameters set' do
+      let(:manifest_with_parameters_set) do
         <<-EOS
         class { 'useradd::etc_profile':
           session_timeout => 30,
@@ -404,45 +397,47 @@ servers.each do |server|
         }
 
         EOS
-      }
-
-      it 'should work with no errors' do
-        apply_manifest_on(server, manifest_with_parameters_set, :catch_failures => true)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(server, manifest_with_parameters_set, :catch_changes => true)
+      it 'works with no errors' do
+        apply_manifest_on(server, manifest_with_parameters_set, catch_failures: true)
       end
 
-      it 'should edit /etc/profile.d/simp.sh' do
+      it 'is idempotent' do
+        apply_manifest_on(server, manifest_with_parameters_set, catch_changes: true)
+      end
+
+      it 'edits /etc/profile.d/simp.sh' do
         on(server, 'cat /etc/profile.d/simp.sh').output.strip
         expect(stdout).to include('TMOUT=1800', 'umask 0777', 'mesg y', 'for user in test test2; do', 'echo sh prepend', 'echo sh append')
       end
 
-      it 'should edit /etc/profile.d/simp.csh' do
+      it 'edits /etc/profile.d/simp.csh' do
         on(server, 'cat /etc/profile.d/simp.csh').output.strip
         expect(stdout).to include('set autologout=30', 'umask 0777', 'mesg y', 'foreach user (test test2)', 'echo csh prepend', 'echo csh append')
       end
 
-      it 'should edit /etc/libuser.conf' do
+      it 'edits /etc/libuser.conf' do
         on(server, 'cat /etc/libuser.conf').output.strip
         expect(stdout).to include(
-          "[import]\nlogin_defs = /etc/login.defs.test\ndefault_useradd = /etc/default/useradd.test", "[defaults]\ncreate_modules = files,shadow,ldap\ncrypt_style = md5\nhash_rounds_min = 1000\nhash_rounds_max = 5000\nmailspooldir = /etc/mailspooldir\nmoduledir = /etc/moduledir\nskeleton = /etc/skeleton", "[files]\ndirectory = /etc/files\nnonroot = yes", "[shadow]\ndirectory = /etc/shadowdir\nnonroot = yes", "[ldap]\nuserBranch = ou=Test_User_Branch\ngroupBranch = ou=Test_Group_Branch\nserver = www.example.com\nbasedn = dc=test,dc=com\nbinddn = cn=bind_manage,dc=test,dc=com\nuser = ldap_user\npassword = ldappasswd\nauthuser = ldap_authuser\nbindtype = sasl,sasl/XOAUTH", "[sasl]\nappname = test_app\ndomain = www.testappdomain.com")
+          "[import]\nlogin_defs = /etc/login.defs.test\ndefault_useradd = /etc/default/useradd.test", "[defaults]\ncreate_modules = files,shadow,ldap\ncrypt_style = md5\nhash_rounds_min = 1000\nhash_rounds_max = 5000\nmailspooldir = /etc/mailspooldir\nmoduledir = /etc/moduledir\nskeleton = /etc/skeleton", "[files]\ndirectory = /etc/files\nnonroot = yes", "[shadow]\ndirectory = /etc/shadowdir\nnonroot = yes", "[ldap]\nuserBranch = ou=Test_User_Branch\ngroupBranch = ou=Test_Group_Branch\nserver = www.example.com\nbasedn = dc=test,dc=com\nbinddn = cn=bind_manage,dc=test,dc=com\nuser = ldap_user\npassword = ldappasswd\nauthuser = ldap_authuser\nbindtype = sasl,sasl/XOAUTH", "[sasl]\nappname = test_app\ndomain = www.testappdomain.com"
+        )
       end
 
-      it 'should edit /etc/default/nss' do
+      it 'edits /etc/default/nss' do
         on(server, 'cat /etc/default/nss').output.strip
         expect(stdout).to include('NETID_AUTHORITATIVE=TRUE', 'SERVICES_AUTHORITATIVE=TRUE', 'SETENT_BATCH_READ=FALSE')
       end
 
-      it 'should edit /etc/default/useradd' do
+      it 'edits /etc/default/useradd' do
         on(server, 'cat /etc/default/useradd').output.strip
         expect(stdout).to include('GROUP=101', 'HOME=/useradd_home', 'INACTIVE=50', 'EXPIRE=2017-06-26', 'SHELL=/bin/csh', 'SKEL=/etc/skel_test', 'CREATE_MAIL_SPOOL=no')
       end
 
-      it 'should edit /etc/sysconfig/init' do
+      it 'edits /etc/sysconfig/init' do
         on(server, 'cat /etc/sysconfig/init').output.strip
-        expect(stdout).to include('BOOTUP=verbose', 'RES_COL=75', 'MOVE_TO_COL="echo -en \\\\033[${RES_COL}G"', 'SETCOLOR_SUCCESS="echo -en \\\\033[0;36m"', 'SETCOLOR_FAILURE="echo -en \\\\033[0;35m"', 'SETCOLOR_WARNING="echo -en \\\\033[0;34m"', 'SETCOLOR_NORMAL="echo -en \\\\033[0;31m"', 'SINGLE=/sbin/sulogin_test', 'LOGLEVEL=7', 'PROMPT=yes', 'AUTOSWAP=yes')
+        expect(stdout).to include('BOOTUP=verbose', 'RES_COL=75', 'MOVE_TO_COL="echo -en \\\\033[${RES_COL}G"', 'SETCOLOR_SUCCESS="echo -en \\\\033[0;36m"',
+'SETCOLOR_FAILURE="echo -en \\\\033[0;35m"', 'SETCOLOR_WARNING="echo -en \\\\033[0;34m"', 'SETCOLOR_NORMAL="echo -en \\\\033[0;31m"', 'SINGLE=/sbin/sulogin_test', 'LOGLEVEL=7', 'PROMPT=yes', 'AUTOSWAP=yes')
       end
     end
   end
