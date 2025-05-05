@@ -419,9 +419,11 @@ servers.each do |server|
 
       it 'edits /etc/libuser.conf' do
         on(server, 'cat /etc/libuser.conf').output.strip
+        # rubocop:disable Layout/LineLength
         expect(stdout).to include(
           "[import]\nlogin_defs = /etc/login.defs.test\ndefault_useradd = /etc/default/useradd.test", "[defaults]\ncreate_modules = files,shadow,ldap\ncrypt_style = md5\nhash_rounds_min = 1000\nhash_rounds_max = 5000\nmailspooldir = /etc/mailspooldir\nmoduledir = /etc/moduledir\nskeleton = /etc/skeleton", "[files]\ndirectory = /etc/files\nnonroot = yes", "[shadow]\ndirectory = /etc/shadowdir\nnonroot = yes", "[ldap]\nuserBranch = ou=Test_User_Branch\ngroupBranch = ou=Test_Group_Branch\nserver = www.example.com\nbasedn = dc=test,dc=com\nbinddn = cn=bind_manage,dc=test,dc=com\nuser = ldap_user\npassword = ldappasswd\nauthuser = ldap_authuser\nbindtype = sasl,sasl/XOAUTH", "[sasl]\nappname = test_app\ndomain = www.testappdomain.com"
         )
+        # rubocop:enable Layout/LineLength
       end
 
       it 'edits /etc/default/nss' do
