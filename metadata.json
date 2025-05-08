@@ -1,6 +1,6 @@
 {
   "name": "simp-useradd",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "author": "SIMP Team",
   "summary": "A SIMP puppet module for managing settings regarding users and user creation",
   "license": "Apache-2.0",
@@ -38,15 +38,12 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "7",
-        "8",
         "9"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "7",
         "8",
         "9"
       ]
@@ -54,7 +51,6 @@
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
-        "7",
         "8",
         "9"
       ]
