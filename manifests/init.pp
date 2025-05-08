@@ -73,7 +73,7 @@ class useradd (
     if 'ANY_SHELL' in $securetty {
 
       file { '/etc/securetty':
-        ensure  => 'absent',
+        ensure => 'absent',
       }
     }
 
