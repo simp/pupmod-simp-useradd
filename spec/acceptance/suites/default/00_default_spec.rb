@@ -439,7 +439,8 @@ servers.each do |server|
       it 'edits /etc/sysconfig/init' do
         on(server, 'cat /etc/sysconfig/init').output.strip
         expect(stdout).to include('BOOTUP=verbose', 'RES_COL=75', 'MOVE_TO_COL="echo -en \\\\033[${RES_COL}G"', 'SETCOLOR_SUCCESS="echo -en \\\\033[0;36m"',
-'SETCOLOR_FAILURE="echo -en \\\\033[0;35m"', 'SETCOLOR_WARNING="echo -en \\\\033[0;34m"', 'SETCOLOR_NORMAL="echo -en \\\\033[0;31m"', 'SINGLE=/sbin/sulogin_test', 'LOGLEVEL=7', 'PROMPT=yes', 'AUTOSWAP=yes')
+                                  'SETCOLOR_FAILURE="echo -en \\\\033[0;35m"', 'SETCOLOR_WARNING="echo -en \\\\033[0;34m"', 'SETCOLOR_NORMAL="echo -en \\\\033[0;31m"',
+                                  'SINGLE=/sbin/sulogin_test', 'LOGLEVEL=7', 'PROMPT=yes', 'AUTOSWAP=yes')
       end
     end
   end
