@@ -9,7 +9,8 @@ describe 'useradd::sysconfig_init' do
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to contain_file('/etc/sysconfig/init').with_content(<<-EOF
+        it {
+          is_expected.to contain_file('/etc/sysconfig/init').with_content(<<-EOF,
 # This file managed by Puppet.
 
 
@@ -25,26 +26,30 @@ LOGLEVEL=3
 PROMPT=no
 AUTOSWAP=no
             EOF
-          )
+                                                                         )
         }
 
         if facts[:init_systems].include?('systemd')
-          it { is_expected.to contain_systemd__dropin_file('emergency_exec.conf').with(
+          it {
+            is_expected.to contain_systemd__dropin_file('emergency_exec.conf').with(
             {
-              :unit    => 'emergency.service',
-              :content => /ExecStart=.+sulogin/
-            })
+              unit: 'emergency.service',
+              content: %r{ExecStart=.+sulogin}
+            },
+          )
           }
 
-          it { is_expected.to contain_systemd__dropin_file('rescue_exec.conf').with(
+          it {
+            is_expected.to contain_systemd__dropin_file('rescue_exec.conf').with(
             {
-              :unit    => 'rescue.service',
-              :content => /ExecStart=.+sulogin/
-            })
+              unit: 'rescue.service',
+              content: %r{ExecStart=.+sulogin}
+            },
+          )
           }
         else
-          it { is_expected.to_not contain_systemd__unit_file('emergency.service') }
-          it { is_expected.to_not contain_systemd__unit_file('rescue.service') }
+          it { is_expected.not_to contain_systemd__unit_file('emergency.service') }
+          it { is_expected.not_to contain_systemd__unit_file('rescue.service') }
         end
       end
     end

@@ -11,7 +11,8 @@ describe 'useradd::nss' do
         context 'with default parameters' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to create_class('useradd::nss') }
-          it { is_expected.to create_file('/etc/default/nss').with_content( <<-EOM)
+          it {
+            is_expected.to create_file('/etc/default/nss').with_content(<<-EOM)
 # This file managed by Puppet.
 
 NETID_AUTHORITATIVE=FALSE
@@ -20,7 +21,6 @@ SETENT_BATCH_READ=TRUE
                EOM
           }
         end
-
       end
     end
   end
