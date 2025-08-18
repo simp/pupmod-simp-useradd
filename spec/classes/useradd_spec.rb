@@ -9,7 +9,8 @@ describe 'useradd::useradd' do
         end
 
         it { is_expected.to compile.with_all_deps }
-        it { is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(/^\s+/,''))
+        it {
+          is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(%r{^\s+}, ''))
                # This file managed by Puppet.
                # useradd defaults file
                GROUP=100
@@ -22,8 +23,10 @@ describe 'useradd::useradd' do
         }
 
         context 'expire' do
-          let(:params){{:expire => '2020-01-10'}}
-          it { is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(/^\s+/,''))
+          let(:params) { { expire: '2020-01-10' } }
+
+          it {
+            is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(%r{^\s+}, ''))
                # This file managed by Puppet.
                # useradd defaults file
                GROUP=100
@@ -41,16 +44,17 @@ describe 'useradd::useradd' do
           '202-01-10',
           '111',
           '2020/01/10',
-          'foo'
+          'foo',
         ]
 
         bad_expires.each do |exp|
           context "bad_expire: #{exp}" do
-            let(:params){{:expire => exp }}
+            let(:params) { { expire: exp } }
+
             it {
               expect {
                 is_expected.to compile
-              }.to raise_error(/got '#{exp}'/)
+              }.to raise_error(%r{got '#{exp}'})
             }
           end
         end
