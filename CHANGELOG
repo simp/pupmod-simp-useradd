@@ -1,3 +1,6 @@
+* Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 2.0.0
+- Remove unmaintained Compliance Engine data
+
 * Mon Aug 18 2025 Steven Pritchard <steve@sicura.us> - 1.1.1
 - Cleanup for rubocop
 - Support puppet-systemd 8.x
