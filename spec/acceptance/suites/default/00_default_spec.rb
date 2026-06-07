@@ -72,42 +72,42 @@ servers.each do |server|
 
       it 'does not manage /etc/passwd' do
         on(server, 'stat -c "%a %n" /etc/passwd').output.strip
-        expect(stdout).to match(%r{777 /etc/passwd})
+        expect(stdout).to include('777 /etc/passwd')
       end
 
       it 'does not manage /etc/passwd-' do
         on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
-        expect(stdout).to match(%r{777 /etc/passwd-})
+        expect(stdout).to include('777 /etc/passwd-')
       end
 
       it 'does not manage /etc/shadow' do
         on(server, 'stat -c "%a %n" /etc/shadow').output.strip
-        expect(stdout).to match(%r{777 /etc/shadow})
+        expect(stdout).to include('777 /etc/shadow')
       end
 
       it 'does not manage /etc/shadow-' do
         on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
-        expect(stdout).to match(%r{777 /etc/shadow-})
+        expect(stdout).to include('777 /etc/shadow-')
       end
 
       it 'does not manage /etc/gshadow' do
         on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
-        expect(stdout).to match(%r{777 /etc/gshadow})
+        expect(stdout).to include('777 /etc/gshadow')
       end
 
       it 'does not manage /etc/gshadow-' do
         on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
-        expect(stdout).to match(%r{777 /etc/gshadow-})
+        expect(stdout).to include('777 /etc/gshadow-')
       end
 
       it 'does not manage /etc/group' do
         on(server, 'stat -c "%a %n" /etc/group').output.strip
-        expect(stdout).to match(%r{777 /etc/group})
+        expect(stdout).to include('777 /etc/group')
       end
 
       it 'does not manage /etc/group-' do
         on(server, 'stat -c "%a %n" /etc/group-').output.strip
-        expect(stdout).to match(%r{777 /etc/group-})
+        expect(stdout).to include('777 /etc/group-')
       end
     end
 
@@ -159,42 +159,42 @@ servers.each do |server|
 
       it 'manages /etc/passwd' do
         on(server, 'stat -c "%a %n" /etc/passwd').output.strip
-        expect(stdout).to match(%r{644 /etc/passwd})
+        expect(stdout).to include('644 /etc/passwd')
       end
 
       it 'manages /etc/passwd-' do
         on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
-        expect(stdout).to match(%r{644 /etc/passwd-})
+        expect(stdout).to include('644 /etc/passwd-')
       end
 
       it 'manages /etc/shadow' do
         on(server, 'stat -c "%a %n" /etc/shadow').output.strip
-        expect(stdout).to match(%r{0 /etc/shadow})
+        expect(stdout).to include('0 /etc/shadow')
       end
 
       it 'manages /etc/shadow-' do
         on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
-        expect(stdout).to match(%r{0 /etc/shadow-})
+        expect(stdout).to include('0 /etc/shadow-')
       end
 
       it 'manages /etc/gshadow' do
         on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
-        expect(stdout).to match(%r{0 /etc/gshadow})
+        expect(stdout).to include('0 /etc/gshadow')
       end
 
       it 'manages /etc/gshadow-' do
         on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
-        expect(stdout).to match(%r{0 /etc/gshadow-})
+        expect(stdout).to include('0 /etc/gshadow-')
       end
 
       it 'manages /etc/group' do
         on(server, 'stat -c "%a %n" /etc/group').output.strip
-        expect(stdout).to match(%r{644 /etc/group})
+        expect(stdout).to include('644 /etc/group')
       end
 
       it 'manages /etc/group-' do
         on(server, 'stat -c "%a %n" /etc/group-').output.strip
-        expect(stdout).to match(%r{644 /etc/group-})
+        expect(stdout).to include('644 /etc/group-')
       end
 
       it '/etc/securetty should be empty' do
