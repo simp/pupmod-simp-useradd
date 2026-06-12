@@ -12,8 +12,10 @@ done
 <%= @prepend['sh'] %>
 
 <% end -%>
+<% if @manage_tmout then -%>
 [ $TMOUT ] || export TMOUT=<%= @session_timeout.to_i * 60 %>
 readonly TMOUT
+<% end -%>
 
 if tty -s; then
   mesg <%= @mesg ? 'y' : 'n' %>
