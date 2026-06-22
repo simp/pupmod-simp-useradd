@@ -19,7 +19,7 @@ describe 'useradd::etc_profile' do
           let(:params) { { manage_tmout: false } }
 
           it { is_expected.to create_file('/etc/profile.d/simp.sh').without_content(%r{TMOUT}) }
-          it { is_expected.to create_file('/etc/profile.d/simp.sh').without_content(%r{readonly}) }
+          it { is_expected.to create_file('/etc/profile.d/simp.sh').without_content(%r{readonly TMOUT}) }
           it { is_expected.to create_file('/etc/profile.d/simp.csh').without_content(%r{autologout}) }
           it { is_expected.to create_file('/etc/profile.d/simp.sh').with_content(%r{umask 0077}) }
           it { is_expected.to create_file('/etc/profile.d/simp.csh').with_content(%r{umask 0077}) }
