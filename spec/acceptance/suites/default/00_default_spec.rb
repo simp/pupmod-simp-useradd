@@ -36,78 +36,78 @@ servers.each do |server|
       end
 
       it 'does not manage /etc/profile.d/simp.sh' do
-        on(server, 'cat /etc/profile.d/simp.sh').output.strip
-        expect(stdout).to include('management_test')
+        result = on(server, 'cat /etc/profile.d/simp.sh').stdout
+        expect(result).to include('management_test')
       end
 
       it 'does not manage /etc/profile.d/simp.csh' do
-        on(server, 'cat /etc/profile.d/simp.csh').output.strip
-        expect(stdout).to include('management_test')
+        result = on(server, 'cat /etc/profile.d/simp.csh').stdout
+        expect(result).to include('management_test')
       end
 
       it 'does not manage /etc/libuser.conf' do
-        on(server, 'cat /etc/libuser.conf').output.strip
-        expect(stdout).to include('management_test')
+        result = on(server, 'cat /etc/libuser.conf').stdout
+        expect(result).to include('management_test')
       end
 
       it 'does not manage /etc/default/nss' do
-        on(server, 'cat /etc/default/nss').output.strip
-        expect(stdout).to include('management_test')
+        result = on(server, 'cat /etc/default/nss').stdout
+        expect(result).to include('management_test')
       end
 
       it 'does not manage /etc/sysconfig/init' do
-        on(server, 'cat /etc/sysconfig/init').output.strip
-        expect(stdout).to include('management_test')
+        result = on(server, 'cat /etc/sysconfig/init').stdout
+        expect(result).to include('management_test')
       end
 
       it 'does not manage /etc/login.defs' do
-        on(server, 'cat /etc/login.defs').output.strip
-        expect(stdout).to include('management_test')
+        result = on(server, 'cat /etc/login.defs').stdout
+        expect(result).to include('management_test')
       end
 
       it 'does not manage /etc/default/useradd' do
-        on(server, 'cat /etc/default/useradd').output.strip
-        expect(stdout).to include('management_test')
+        result = on(server, 'cat /etc/default/useradd').stdout
+        expect(result).to include('management_test')
       end
 
       it 'does not manage /etc/passwd' do
-        on(server, 'stat -c "%a %n" /etc/passwd').output.strip
-        expect(stdout).to include('777 /etc/passwd')
+        result = on(server, 'stat -c "%a %n" /etc/passwd').stdout
+        expect(result).to include('777 /etc/passwd')
       end
 
       it 'does not manage /etc/passwd-' do
-        on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
-        expect(stdout).to include('777 /etc/passwd-')
+        result = on(server, 'stat -c "%a %n" /etc/passwd-').stdout
+        expect(result).to include('777 /etc/passwd-')
       end
 
       it 'does not manage /etc/shadow' do
-        on(server, 'stat -c "%a %n" /etc/shadow').output.strip
-        expect(stdout).to include('777 /etc/shadow')
+        result = on(server, 'stat -c "%a %n" /etc/shadow').stdout
+        expect(result).to include('777 /etc/shadow')
       end
 
       it 'does not manage /etc/shadow-' do
-        on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
-        expect(stdout).to include('777 /etc/shadow-')
+        result = on(server, 'stat -c "%a %n" /etc/shadow-').stdout
+        expect(result).to include('777 /etc/shadow-')
       end
 
       it 'does not manage /etc/gshadow' do
-        on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
-        expect(stdout).to include('777 /etc/gshadow')
+        result = on(server, 'stat -c "%a %n" /etc/gshadow').stdout
+        expect(result).to include('777 /etc/gshadow')
       end
 
       it 'does not manage /etc/gshadow-' do
-        on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
-        expect(stdout).to include('777 /etc/gshadow-')
+        result = on(server, 'stat -c "%a %n" /etc/gshadow-').stdout
+        expect(result).to include('777 /etc/gshadow-')
       end
 
       it 'does not manage /etc/group' do
-        on(server, 'stat -c "%a %n" /etc/group').output.strip
-        expect(stdout).to include('777 /etc/group')
+        result = on(server, 'stat -c "%a %n" /etc/group').stdout
+        expect(result).to include('777 /etc/group')
       end
 
       it 'does not manage /etc/group-' do
-        on(server, 'stat -c "%a %n" /etc/group-').output.strip
-        expect(stdout).to include('777 /etc/group-')
+        result = on(server, 'stat -c "%a %n" /etc/group-').stdout
+        expect(result).to include('777 /etc/group-')
       end
     end
 
@@ -128,83 +128,83 @@ servers.each do |server|
       end
 
       it 'manages /etc/profile.d/simp.sh' do
-        on(server, 'cat /etc/profile.d/simp.sh').output.strip
-        expect(stdout).to include('# This file managed by Puppet.')
+        result = on(server, 'cat /etc/profile.d/simp.sh').stdout
+        expect(result).to include('# This file managed by Puppet.')
       end
 
       it 'manages /etc/profile.d/simp.csh' do
-        on(server, 'cat /etc/profile.d/simp.csh').output.strip
-        expect(stdout).to include('# This file managed by Puppet.')
+        result = on(server, 'cat /etc/profile.d/simp.csh').stdout
+        expect(result).to include('# This file managed by Puppet.')
       end
 
       it 'manages /etc/libuser' do
-        on(server, 'cat /etc/libuser.conf').output.strip
-        expect(stdout).to include('# This file managed by Puppet.')
+        result = on(server, 'cat /etc/libuser.conf').stdout
+        expect(result).to include('# This file managed by Puppet.')
       end
 
       it 'manages /etc/default/nss' do
-        on(server, 'cat /etc/default/nss').output.strip
-        expect(stdout).to include('# This file managed by Puppet.')
+        result = on(server, 'cat /etc/default/nss').stdout
+        expect(result).to include('# This file managed by Puppet.')
       end
 
       it 'manages /etc/login.defs' do
-        on(server, 'cat /etc/login.defs').output.strip
-        expect(stdout).to include('# This file managed by Puppet.')
+        result = on(server, 'cat /etc/login.defs').stdout
+        expect(result).to include('# This file managed by Puppet.')
       end
 
       it 'manages /etc/default/useradd' do
-        on(server, 'cat /etc/default/useradd').output.strip
-        expect(stdout).to include('# This file managed by Puppet.')
+        result = on(server, 'cat /etc/default/useradd').stdout
+        expect(result).to include('# This file managed by Puppet.')
       end
 
       it 'manages /etc/passwd' do
-        on(server, 'stat -c "%a %n" /etc/passwd').output.strip
-        expect(stdout).to include('644 /etc/passwd')
+        result = on(server, 'stat -c "%a %n" /etc/passwd').stdout
+        expect(result).to include('644 /etc/passwd')
       end
 
       it 'manages /etc/passwd-' do
-        on(server, 'stat -c "%a %n" /etc/passwd-').output.strip
-        expect(stdout).to include('644 /etc/passwd-')
+        result = on(server, 'stat -c "%a %n" /etc/passwd-').stdout
+        expect(result).to include('644 /etc/passwd-')
       end
 
       it 'manages /etc/shadow' do
-        on(server, 'stat -c "%a %n" /etc/shadow').output.strip
-        expect(stdout).to include('0 /etc/shadow')
+        result = on(server, 'stat -c "%a %n" /etc/shadow').stdout
+        expect(result).to include('0 /etc/shadow')
       end
 
       it 'manages /etc/shadow-' do
-        on(server, 'stat -c "%a %n" /etc/shadow-').output.strip
-        expect(stdout).to include('0 /etc/shadow-')
+        result = on(server, 'stat -c "%a %n" /etc/shadow-').stdout
+        expect(result).to include('0 /etc/shadow-')
       end
 
       it 'manages /etc/gshadow' do
-        on(server, 'stat -c "%a %n" /etc/gshadow').output.strip
-        expect(stdout).to include('0 /etc/gshadow')
+        result = on(server, 'stat -c "%a %n" /etc/gshadow').stdout
+        expect(result).to include('0 /etc/gshadow')
       end
 
       it 'manages /etc/gshadow-' do
-        on(server, 'stat -c "%a %n" /etc/gshadow-').output.strip
-        expect(stdout).to include('0 /etc/gshadow-')
+        result = on(server, 'stat -c "%a %n" /etc/gshadow-').stdout
+        expect(result).to include('0 /etc/gshadow-')
       end
 
       it 'manages /etc/group' do
-        on(server, 'stat -c "%a %n" /etc/group').output.strip
-        expect(stdout).to include('644 /etc/group')
+        result = on(server, 'stat -c "%a %n" /etc/group').stdout
+        expect(result).to include('644 /etc/group')
       end
 
       it 'manages /etc/group-' do
-        on(server, 'stat -c "%a %n" /etc/group-').output.strip
-        expect(stdout).to include('644 /etc/group-')
+        result = on(server, 'stat -c "%a %n" /etc/group-').stdout
+        expect(result).to include('644 /etc/group-')
       end
 
       it '/etc/securetty should be empty' do
-        on(server, 'cat /etc/securetty').output.strip
-        expect(stdout).to include('tty0', 'tty1', 'tty2', 'tty3', 'tty4')
+        result = on(server, 'cat /etc/securetty').stdout
+        expect(result).to include('tty0', 'tty1', 'tty2', 'tty3', 'tty4')
       end
 
       it 'contains /etc/shells with content from shells default array' do
-        on(server, 'cat /etc/shells').output.strip
-        expect(stdout).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin')
+        result = on(server, 'cat /etc/shells').stdout
+        expect(result).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin')
       end
     end
 
@@ -226,8 +226,8 @@ servers.each do |server|
       end
 
       it 'adds content to /etc/securetty' do
-        on(server, 'cat /etc/securetty').output.strip
-        expect(stdout).to include('console', 'tty0', 'tty1', 'tty2')
+        result = on(server, 'cat /etc/securetty').stdout
+        expect(result).to include('console', 'tty0', 'tty1', 'tty2')
       end
     end
 
@@ -272,8 +272,8 @@ servers.each do |server|
       end
 
       it 'adds shell variable content to /etc/shells' do
-        on(server, 'cat /etc/shells').output.strip
-        expect(stdout).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin', '/bin/csh')
+        result = on(server, 'cat /etc/shells').stdout
+        expect(result).to include('/bin/sh', '/bin/bash', '/sbin/nologin', '/usr/bin/sh', '/usr/bin/bash', '/usr/sbin/nologin', '/bin/csh')
       end
     end
 
@@ -303,17 +303,17 @@ servers.each do |server|
       end
 
       it 'edits /etc/login.defs' do
-        on(server, 'cat /etc/login.defs').output.strip
-        expect(stdout).to include('ENCRYPT_METHOD MD5', 'CHFN_AUTH yes', 'MAX_MEMBERS_PER_GROUP 10', 'NOLOGINS_FILE /etc/nologins', 'PASS_MIN_DAYS 0', 'PASS_MAX_DAYS 100', 'PASS_WARN_AGE 20')
+        result = on(server, 'cat /etc/login.defs').stdout
+        expect(result).to include('ENCRYPT_METHOD MD5', 'CHFN_AUTH yes', 'MAX_MEMBERS_PER_GROUP 10', 'NOLOGINS_FILE /etc/nologins', 'PASS_MIN_DAYS 0', 'PASS_MAX_DAYS 100', 'PASS_WARN_AGE 20')
       end
 
       it 'updates new user accounts' do
         on(server, 'chmod 777 /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/gshadow /etc/gshadow- /etc/group /etc/group-')
         on(server, 'useradd defsuser -p password')
-        on(server, 'chage -l defsuser').output.strip
-        expect(stdout).to match(%r{^Minimum number of days between password change\s*:\s*0$})
-        expect(stdout).to match(%r{^Maximum number of days between password change\s*:\s*100$})
-        expect(stdout).to match(%r{^Number of days of warning before password expires\s*:\s*20$})
+        result = on(server, 'chage -l defsuser').stdout
+        expect(result).to match(%r{^Minimum number of days between password change\s*:\s*0$})
+        expect(result).to match(%r{^Maximum number of days between password change\s*:\s*100$})
+        expect(result).to match(%r{^Number of days of warning before password expires\s*:\s*20$})
       end
     end
 
@@ -408,37 +408,37 @@ servers.each do |server|
       end
 
       it 'edits /etc/profile.d/simp.sh' do
-        on(server, 'cat /etc/profile.d/simp.sh').output.strip
-        expect(stdout).to include('TMOUT=1800', 'umask 0777', 'mesg y', 'for user in test test2; do', 'echo sh prepend', 'echo sh append')
+        result = on(server, 'cat /etc/profile.d/simp.sh').stdout
+        expect(result).to include('TMOUT=1800', 'umask 0777', 'mesg y', 'for user in test test2; do', 'echo sh prepend', 'echo sh append')
       end
 
       it 'edits /etc/profile.d/simp.csh' do
-        on(server, 'cat /etc/profile.d/simp.csh').output.strip
-        expect(stdout).to include('set autologout=30', 'umask 0777', 'mesg y', 'foreach user (test test2)', 'echo csh prepend', 'echo csh append')
+        result = on(server, 'cat /etc/profile.d/simp.csh').stdout
+        expect(result).to include('set autologout=30', 'umask 0777', 'mesg y', 'foreach user (test test2)', 'echo csh prepend', 'echo csh append')
       end
 
       it 'edits /etc/libuser.conf' do
-        on(server, 'cat /etc/libuser.conf').output.strip
+        result = on(server, 'cat /etc/libuser.conf').stdout
         # rubocop:disable Layout/LineLength
-        expect(stdout).to include(
+        expect(result).to include(
           "[import]\nlogin_defs = /etc/login.defs.test\ndefault_useradd = /etc/default/useradd.test", "[defaults]\ncreate_modules = files,shadow,ldap\ncrypt_style = md5\nhash_rounds_min = 1000\nhash_rounds_max = 5000\nmailspooldir = /etc/mailspooldir\nmoduledir = /etc/moduledir\nskeleton = /etc/skeleton", "[files]\ndirectory = /etc/files\nnonroot = yes", "[shadow]\ndirectory = /etc/shadowdir\nnonroot = yes", "[ldap]\nuserBranch = ou=Test_User_Branch\ngroupBranch = ou=Test_Group_Branch\nserver = www.example.com\nbasedn = dc=test,dc=com\nbinddn = cn=bind_manage,dc=test,dc=com\nuser = ldap_user\npassword = ldappasswd\nauthuser = ldap_authuser\nbindtype = sasl,sasl/XOAUTH", "[sasl]\nappname = test_app\ndomain = www.testappdomain.com"
         )
         # rubocop:enable Layout/LineLength
       end
 
       it 'edits /etc/default/nss' do
-        on(server, 'cat /etc/default/nss').output.strip
-        expect(stdout).to include('NETID_AUTHORITATIVE=TRUE', 'SERVICES_AUTHORITATIVE=TRUE', 'SETENT_BATCH_READ=FALSE')
+        result = on(server, 'cat /etc/default/nss').stdout
+        expect(result).to include('NETID_AUTHORITATIVE=TRUE', 'SERVICES_AUTHORITATIVE=TRUE', 'SETENT_BATCH_READ=FALSE')
       end
 
       it 'edits /etc/default/useradd' do
-        on(server, 'cat /etc/default/useradd').output.strip
-        expect(stdout).to include('GROUP=101', 'HOME=/useradd_home', 'INACTIVE=50', 'EXPIRE=2017-06-26', 'SHELL=/bin/csh', 'SKEL=/etc/skel_test', 'CREATE_MAIL_SPOOL=no')
+        result = on(server, 'cat /etc/default/useradd').stdout
+        expect(result).to include('GROUP=101', 'HOME=/useradd_home', 'INACTIVE=50', 'EXPIRE=2017-06-26', 'SHELL=/bin/csh', 'SKEL=/etc/skel_test', 'CREATE_MAIL_SPOOL=no')
       end
 
       it 'edits /etc/sysconfig/init' do
-        on(server, 'cat /etc/sysconfig/init').output.strip
-        expect(stdout).to include('BOOTUP=verbose', 'RES_COL=75', 'MOVE_TO_COL="echo -en \\\\033[${RES_COL}G"', 'SETCOLOR_SUCCESS="echo -en \\\\033[0;36m"',
+        result = on(server, 'cat /etc/sysconfig/init').stdout
+        expect(result).to include('BOOTUP=verbose', 'RES_COL=75', 'MOVE_TO_COL="echo -en \\\\033[${RES_COL}G"', 'SETCOLOR_SUCCESS="echo -en \\\\033[0;36m"',
                                   'SETCOLOR_FAILURE="echo -en \\\\033[0;35m"', 'SETCOLOR_WARNING="echo -en \\\\033[0;34m"', 'SETCOLOR_NORMAL="echo -en \\\\033[0;31m"',
                                   'SINGLE=/sbin/sulogin_test', 'LOGLEVEL=7', 'PROMPT=yes', 'AUTOSWAP=yes')
       end
