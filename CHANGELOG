@@ -1,3 +1,8 @@
+* Fri Jun 12 2026 Nicholas Markowski <nicholas.markowski@onyxpoint.com> - 2.1.0
+- Add `useradd::etc_profile::manage_tmout` to optionally skip managing
+  `TMOUT`/`autologout` in `/etc/profile.d/simp.*` so that other read-only
+  `TMOUT` settings in `/etc/profile.d` do not produce login warnings.
+
 * Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 2.0.0
 - Remove unmaintained Compliance Engine data
 

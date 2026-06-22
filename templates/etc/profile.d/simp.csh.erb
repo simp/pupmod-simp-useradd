@@ -13,7 +13,9 @@ end
 <%= @prepend['csh'] %>
 
 <% end -%>
+<% if @manage_tmout then -%>
 set autologout=<%= @session_timeout %>
+<% end -%>
 umask <%= @umask %>
 tty -s
 if ( $? == 0 ) mesg <%= @mesg ? 'y' : 'n' %>

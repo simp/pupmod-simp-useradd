@@ -154,6 +154,7 @@ author: SIMP Team <simp@simp-project.com>
 The following parameters are available in the `useradd::etc_profile` class:
 
 * [`session_timeout`](#-useradd--etc_profile--session_timeout)
+* [`manage_tmout`](#-useradd--etc_profile--manage_tmout)
 * [`umask`](#-useradd--etc_profile--umask)
 * [`mesg`](#-useradd--etc_profile--mesg)
 * [`user_whitelist`](#-useradd--etc_profile--user_whitelist)
@@ -171,6 +172,20 @@ a terminal screen lock since we haven't found one that works in
 100% of the authentication scenarios.
 
 Default value: `15`
+
+##### <a name="-useradd--etc_profile--manage_tmout"></a>`manage_tmout`
+
+Data type: `Boolean`
+
+If true, manage the idle session timeout in the SIMP profile.d
+scripts (`TMOUT` for sh, `autologout` for csh).
+
+Set this to false when another file in `/etc/profile.d` already
+manages `TMOUT` as read-only. In that scenario, leaving this enabled
+produces a `TMOUT: readonly variable` warning at every login
+depending on the order in which the profile scripts are sourced.
+
+Default value: `true`
 
 ##### <a name="-useradd--etc_profile--umask"></a>`umask`
 

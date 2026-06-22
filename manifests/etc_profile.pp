@@ -11,6 +11,15 @@
 #   a terminal screen lock since we haven't found one that works in
 #   100% of the authentication scenarios.
 #
+# @param manage_tmout
+#   If true, manage the idle session timeout in the SIMP profile.d
+#   scripts (`TMOUT` for sh, `autologout` for csh).
+#
+#   Set this to false when another file in `/etc/profile.d` already
+#   manages `TMOUT` as read-only. In that scenario, leaving this enabled
+#   produces a `TMOUT: readonly variable` warning at every login
+#   depending on the order in which the profile scripts are sourced.
+#
 # @param umask
 #   The umask that will be applied to the user upon login.
 #   Covers CCE-26917-5, CCE-27034-8, and CCE-26669-2
@@ -44,6 +53,7 @@
 #
 class useradd::etc_profile (
   Integer $session_timeout = 15,
+  Boolean $manage_tmout    = true,
   String  $umask           = '0077',
   Boolean $mesg            = false,
   Array   $user_whitelist  = [],
