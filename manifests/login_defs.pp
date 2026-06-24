@@ -1,4 +1,6 @@
 # Set up the /etc/login.defs configuration file.
+#
+#
 # All option values are taken directly from the system documentation.
 #
 # Any parameter that is a list will require an array to be passed.
@@ -69,10 +71,12 @@
 # @param userdel_cmd
 # @param usergroups_enab
 #
-#
 # NOTE: pass_min_len and pass_max_len will NOT have any effect on a stock RedHat machine.
 #     * Max length will only affect 3des encryption, which is not used on modern machines.
 #     * Min length should be configured using /etc/pam.d/ or /etc/security/pwquality.conf.
+#
+# @param mode
+#   File  mode of the `/etc/login.defs` file
 #
 # author: SIMP Team <simp@simp-project.com>
 #
@@ -111,6 +115,7 @@ class useradd::login_defs (
   Optional[Stdlib::AbsolutePath]          $mail_file             = undef,
   Optional[Integer]                       $max_members_per_group = undef,
   Optional[Array[Stdlib::AbsolutePath,1]] $motd_file             = undef,
+  Stdlib::Filemode                        $mode                  = '0640',
   Optional[Stdlib::AbsolutePath]          $nologins_file         = undef,
   Boolean                                 $obscure_checks_enab   = true,
   Boolean                                 $pass_always_warn      = true,
@@ -147,7 +152,7 @@ class useradd::login_defs (
   file { '/etc/login.defs':
     owner   => 'root',
     group   => 'root',
-    mode    => '0640',
+    mode    => $mode,
     content => template('useradd/etc/login_defs.erb')
   }
 }

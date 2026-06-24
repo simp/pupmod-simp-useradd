@@ -9,7 +9,7 @@
 * [`useradd`](#useradd): Manage settings regarding users and user creation  author: SIMP Team <simp@simp-project.com>
 * [`useradd::etc_profile`](#useradd--etc_profile): This class takes various SIMP security-related settings and applies them to the appropriate /etc/profile.d/simp.* files to enforce them at lo
 * [`useradd::libuser_conf`](#useradd--libuser_conf): Sets up /etc/libuser.conf. See libuser.conf(5) for information on the various variables.  author: SIMP Team <simp@simp-project.com>
-* [`useradd::login_defs`](#useradd--login_defs): Set up the /etc/login.defs configuration file. All option values are taken directly from the system documentation.  Any parameter that is a l
+* [`useradd::login_defs`](#useradd--login_defs): Set up the /etc/login.defs configuration file.   All option values are taken directly from the system documentation.  Any parameter that is a
 * [`useradd::nss`](#useradd--nss): Install and configure the NSS configuration file. See nss(5) for more details.  author: SIMP Team <simp@simp-project.com>
 * [`useradd::passwd`](#useradd--passwd): Manage the permissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
 * [`useradd::sysconfig_init`](#useradd--sysconfig_init): Allow for the configuration of /etc/sysconfig/init  See /usr/share/doc/initscripts-<version>/sysconfig.txt for variable   definitions.  For a
@@ -500,6 +500,8 @@ Default value: `undef`
 ### <a name="useradd--login_defs"></a>`useradd::login_defs`
 
 Set up the /etc/login.defs configuration file.
+
+
 All option values are taken directly from the system documentation.
 
 Any parameter that is a list will require an array to be passed.
@@ -579,6 +581,7 @@ The following parameters are available in the `useradd::login_defs` class:
 * [`ulimit`](#-useradd--login_defs--ulimit)
 * [`userdel_cmd`](#-useradd--login_defs--userdel_cmd)
 * [`usergroups_enab`](#-useradd--login_defs--usergroups_enab)
+* [`mode`](#-useradd--login_defs--mode)
 
 ##### <a name="-useradd--login_defs--encrypt_method"></a>`encrypt_method`
 
@@ -1099,6 +1102,14 @@ Data type: `Boolean`
 
 
 Default value: `true`
+
+##### <a name="-useradd--login_defs--mode"></a>`mode`
+
+Data type: `Stdlib::Filemode`
+
+File  mode of the `/etc/login.defs` file
+
+Default value: `'0640'`
 
 ### <a name="useradd--nss"></a>`useradd::nss`
 
