@@ -175,8 +175,7 @@ OracleLinux 8/9/10; Rocky 8/9/10; AlmaLinux 8/9/10.
   `etc/libuser.conf.erb`, `etc/sysconfig/init.erb`, `etc/profile.d/simp.sh.erb`,
   `etc/profile.d/simp.csh.erb`.
 - `metadata.json` — deps, OS matrix, and the OpenVox runtime requirement.
-- `spec/spec_helper.rb` — `require 'puppetlabs_spec_helper/module_spec_helper'`
-  (line 11).
+- `spec/spec_helper.rb` — `require 'puppetlabs_spec_helper/module_spec_helper'`.
 - `spec/acceptance/suites/default/00_default_spec.rb` — the single beaker
   acceptance suite.
 - No `data/`, `hiera.yaml`, or `lib/` — no module Hiera data and no Ruby
