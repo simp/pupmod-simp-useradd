@@ -59,8 +59,7 @@ class useradd::etc_profile (
   Array   $user_whitelist  = [],
   Hash    $prepend         = {},
   Hash    $append          = {}
-){
-
+) {
   file { '/etc/profile.d/simp.sh':
     ensure  => 'file',
     owner   => 'root',
@@ -77,5 +76,5 @@ class useradd::etc_profile (
     mode    => '0644',
     seltype => 'bin_t',
     content => template('useradd/etc/profile.d/simp.csh.erb')
-    }
+  }
 }

@@ -57,28 +57,25 @@ class useradd (
   Boolean                                      $manage_useradd        = true,
   Variant[Boolean,Array[String]]               $securetty             = ['tty0', 'tty1', 'tty2', 'tty3', 'tty4'],
 
-  Array[Stdlib::AbsolutePath]                  $shells_default        = [ '/bin/sh','/bin/bash','/sbin/nologin','/usr/bin/sh','/usr/bin/bash','/usr/sbin/nologin' ],
+  Array[Stdlib::AbsolutePath]                  $shells_default        = ['/bin/sh','/bin/bash','/sbin/nologin','/usr/bin/sh','/usr/bin/bash','/usr/sbin/nologin'],
   Variant[Boolean,Array[Stdlib::AbsolutePath]] $shells                = []
 ) {
-
-  if $manage_etc_profile    { include '::useradd::etc_profile' }
-  if $manage_libuser_conf   { include '::useradd::libuser_conf' }
-  if $manage_login_defs     { include '::useradd::login_defs' }
-  if $manage_nss            { include '::useradd::nss' }
-  if $manage_passwd_perms   { include '::useradd::passwd' }
-  if $manage_sysconfig_init { include '::useradd::sysconfig_init' }
-  if $manage_useradd        { include '::useradd::useradd' }
+  if $manage_etc_profile { include 'useradd::etc_profile' }
+  if $manage_libuser_conf { include 'useradd::libuser_conf' }
+  if $manage_login_defs { include 'useradd::login_defs' }
+  if $manage_nss { include 'useradd::nss' }
+  if $manage_passwd_perms { include 'useradd::passwd' }
+  if $manage_sysconfig_init { include 'useradd::sysconfig_init' }
+  if $manage_useradd { include 'useradd::useradd' }
 
   if $securetty {
     if 'ANY_SHELL' in $securetty {
-
       file { '/etc/securetty':
         ensure => 'absent',
       }
     }
 
     else {
-
       if $securetty == true {
         $_securetty = []
       }

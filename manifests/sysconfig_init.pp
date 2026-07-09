@@ -45,7 +45,6 @@ class useradd::sysconfig_init (
   Boolean              $prompt            = false,
   Boolean              $autoswap          = false,
 ) {
-
   if 'systemd' in $facts['init_systems'] {
     $_unit_file_content = @("END")
       [Service]
@@ -53,12 +52,12 @@ class useradd::sysconfig_init (
       ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
       | END
 
-    systemd::dropin_file{ 'emergency_exec.conf':
+    systemd::dropin_file { 'emergency_exec.conf':
       unit    => 'emergency.service',
       content => $_unit_file_content
     }
 
-    systemd::dropin_file{ 'rescue_exec.conf':
+    systemd::dropin_file { 'rescue_exec.conf':
       unit    => 'rescue.service',
       content => $_unit_file_content
     }

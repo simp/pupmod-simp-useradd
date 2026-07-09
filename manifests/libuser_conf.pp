@@ -60,7 +60,6 @@ class useradd::libuser_conf (
   Optional[String]                  $sasl_appname             = undef,
   Optional[String]                  $sasl_domain              = undef
 ) {
-
   if ($defaults_hash_rounds_min and $defaults_hash_rounds_max) {
     if ($defaults_hash_rounds_min >= $defaults_hash_rounds_max) {
       fail('$defaults_hash_rounds_min must be less than $defaults_hash_rounds_max')

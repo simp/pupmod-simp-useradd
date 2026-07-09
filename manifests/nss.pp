@@ -12,7 +12,6 @@ class useradd::nss (
   Boolean $services_authoritative = false,
   Boolean $setent_batch_read      = true,
 ) {
-
   file { '/etc/default/nss':
     owner   => 'root',
     group   => 'root',

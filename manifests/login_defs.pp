@@ -148,7 +148,6 @@ class useradd::login_defs (
   Optional[Stdlib::AbsolutePath]          $userdel_cmd           = undef,
   Boolean                                 $usergroups_enab       = true
 ) {
-
   file { '/etc/login.defs':
     owner   => 'root',
     group   => 'root',
