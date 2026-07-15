@@ -5,6 +5,25 @@ test_name 'useradd class'
 servers = hosts_with_role(hosts, 'server')
 servers.each do |server|
   describe 'useradd class' do
+    # On a fresh node the Sicura console previews this module with
+    # `puppet apply --noop`, which must not error. Exercise that here before
+    # the real applies below. No package-removal step: useradd manages config
+    # files only, so noop-only is the representative check. We noop the
+    # default-management manifest (`class { 'useradd': }`), which is what the
+    # console previews for the module class (the no-management manifest below
+    # deliberately manages nothing, so it is not representative).
+    context 'in noop mode from a clean state' do
+      let(:noop_manifest) do
+        <<-EOS
+        class { 'useradd': }
+        EOS
+      end
+
+      it 'applies without errors in noop mode' do
+        apply_manifest_on(server, noop_manifest, catch_failures: true, noop: true)
+      end
+    end
+
     context 'parameters set to false (no management)' do
       let(:manifest_with_no_management) do
         <<-EOS
