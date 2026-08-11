@@ -126,7 +126,7 @@ List of shells that will appear on the system by default
 * These have been set to the usual suspects and users should use the
   ``shells`` parameter to add to the list
 
-Default value: `[ '/bin/sh','/bin/bash','/sbin/nologin','/usr/bin/sh','/usr/bin/bash','/usr/sbin/nologin' ]`
+Default value: `['/bin/sh','/bin/bash','/sbin/nologin','/usr/bin/sh','/usr/bin/bash','/usr/sbin/nologin']`
 
 ##### <a name="-useradd--shells"></a>`shells`
 
