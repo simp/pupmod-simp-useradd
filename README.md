@@ -41,13 +41,32 @@ Values set in site Hiera take precedence over the profile.
 
 ### Files are edited in place
 
-* `/etc/login.defs`, `/etc/default/useradd` and `/etc/libuser.conf` are edited
-  one key per parameter. `absent` removes a key.
+* `/etc/login.defs`, `/etc/default/useradd`, `/etc/default/nss`,
+  `/etc/libuser.conf` and `/etc/sysconfig/init` are edited one key per
+  parameter. `absent` removes a key.
 * `/etc/securetty` and `/etc/shells` are edited one entry at a time, through
   `securetty_entries` and `shells_entries`.
 * Keys and entries the module doesn't set are kept, unless you turn on the
   matching `purge` parameter. `simp:defaults` turns them on.
-* `/etc/default/nss` and `/etc/sysconfig/init` are no longer managed.
+* An empty `login_defs` value (`''`) is skipped with a deprecation warning.
+  `login.defs` can't hold a key with no value.
+
+A `login.defs` that 3.x wrote with an empty value (such as `LOGIN_STRING`
+alone on a line) can't be parsed, so every `login_defs` edit fails on it.
+Remove that line by hand before upgrading.
+
+### Single-user login drop-ins
+
+`useradd::sysconfig_init::single_user_login` writes the emergency and rescue
+drop-ins with plain `file` resources and its own `daemon-reload`.
+
+* The drop-in directories are purged only when `purge_dropins` is `true`, or,
+  with `useradd::sysconfig_init::systemd: true`, when
+  `systemd::purge_dropin_dirs` is. `simp:defaults` sets `systemd: true`, as
+  in 3.x.
+* If another module declares a `systemd::dropin_file` on `emergency.service`
+  or `rescue.service`, set `useradd::sysconfig_init::systemd: true` so both
+  declare the directory the same way.
 
 ### UID/GID ranges
 
@@ -78,10 +97,9 @@ These still work, and warn when set:
 
 * the `manage_*` parameters of `useradd`, where `false` still skips the class;
 * `securetty`, `shells_default` and `shells`, replaced by `securetty_entries`
-  and `shells_entries`;
-* `useradd::etc_profile::manage_tmout`;
-* the `useradd::sysconfig_init` display parameters and `useradd::nss`, which
-  no longer manage anything.
+  and `shells_entries`. As in 3.x, each owns its whole file, and the matching
+  `*_entries` and `purge_*` parameters are ignored;
+* `useradd::etc_profile::manage_tmout`.
 
 See the [CHANGELOG](./CHANGELOG) for the full list.
 

@@ -20,7 +20,7 @@ Every setting is managed only when its parameter is set, with three states:
 - a value: set, replacing the old value;
 - `'absent'` (or `false` for a Boolean): removed.
 
-Lists are `*_ensure` Hashes of entry → `present`/`absent`, merged `deep`
+Lists are `*_entries` Hashes of entry → `Useradd::EntryOptions`, merged `deep`
 (`data/common.yaml`). Purging unmanaged keys or entries is opt-in through
 `purge*` parameters.
 
@@ -37,31 +37,35 @@ itself.
 
 - **`useradd`** — `securetty_entries`, `shells_entries`, `purge_securetty`,
   `purge_shells`, `securetty_mode`, `shells_mode`. Entries map to
-  `Useradd::EntryOptions` (`{}` = present). The deprecated `securetty`,
-  `shells_default` and `shells` Arrays still apply, combined by
-  `useradd::entries` (Array entries win; `--entry` knocks one out), and
-  default the file mode to 3.x's `0400`/`0644`.
+  `Useradd::EntryOptions` (`{}` = present), applied by the private
+  `useradd::entry::list`. The deprecated `securetty`, `shells_default` and
+  `shells` keep their 3.x behavior: set, each owns its whole file (3.x modes
+  `0400`/`0644`) and the matching `*_entries`/`purge_*` are ignored.
   The deprecated `manage_*` Booleans still skip a class when `false`.
 - **`useradd::login_defs`** — per-key augeas (`Login_defs.lns`), `mode`,
   `purge`. The purge always keeps `UID_MIN`, `UID_MAX`, `GID_MIN` and
-  `GID_MAX`.
+  `GID_MAX`. An empty value is deprecated and skipped: the lens can't parse a
+  key with no value.
 - **`useradd::useradd`** — `/etc/default/useradd`, per-key augeas
   (`Shellvars.lns`), `mode`, `purge`.
 - **`useradd::libuser_conf`** — `/etc/libuser.conf`, per-key augeas
   (`Puppet.lns`, keys as `section/key`), `mode`, `purge`. Fails compilation
-  if `defaults_hash_rounds_min >= defaults_hash_rounds_max`.
+  if `defaults_hash_rounds_min >= defaults_hash_rounds_max`. With both
+  module lists set, `[files]`/`[shadow]`/`[ldap]` keys are written only for a
+  module in `defaults_create_modules` and not in `defaults_modules`, as in 3.x.
 - **`useradd::passwd`** — manages only the files listed in
   `useradd::passwd::files` (Hash of path → owner/group/mode).
 - **`useradd::etc_profile`** — one `/etc/profile.d` file per setting via
   `useradd::etc_profile::script` (`simp-b-tmout.sh`, `zz-simp-umask.sh`,
   ...). `legacy_simp_sh: true` writes the 3.x `simp.sh`/`simp.csh` from the
-  templates; `false` removes them.
-- **`useradd::sysconfig_init`** — the emergency/rescue drop-ins when
+  templates, with `prepend`/`append` inside them as in 3.x; `false` removes
+  them.
+- **`useradd::sysconfig_init`** — `/etc/sysconfig/init`, per-key augeas
+  (`Shellvars.lns`), `mode`, `purge`; plus the emergency/rescue drop-ins when
   `single_user_login` is set on systemd hosts, with a refresh-only
-  `daemon-reload` exec. `/etc/sysconfig/init` is no longer written; the
-  display parameters are deprecated and ignored. Includes `systemd` only
-  when `systemd => true`.
-- **`useradd::nss`** — deprecated; manages nothing.
+  `daemon-reload` exec. Includes `systemd` only when `systemd => true`.
+- **`useradd::nss`** — `/etc/default/nss`, per-key augeas (`Shellvars.lns`),
+  `mode`, `purge`.
 
 ### Shared building blocks
 
@@ -87,9 +91,13 @@ itself.
 - **The deprecated Arrays keep their 3.x types**, so `shells`
   (`Array[Stdlib::AbsolutePath]`) can't take a `--` knockout. Use
   `shells_entries`.
-- **Deprecations use `deprecation(key, msg, false)`**, which never fails
-  compilation under `strict=error`. Don't use `warning()` for them. The
-  third argument needs stdlib 9.2.0.
+- **Deprecations use `simplib::deprecation(key, msg)`**, which never fails
+  compilation under `strict=error`. Don't use `warning()` for them.
+- **The drop-in directories are declared with `ensure_resource`** and the
+  same attributes as `systemd::dropin_file`, so both can declare them. Keep
+  them in sync with puppet/systemd.
+- **A type alias can't share a define's name.** `Useradd::Entry` would
+  resolve to the `useradd::entry` resource type, hence `Useradd::ListEntry`.
 - **`useradd::setting` escapes only `"`.** The augeas provider passes `\x`
   through verbatim, so a value with a backslash before `"` or at the end
   fails compilation.
@@ -130,13 +138,13 @@ OracleLinux 8/9/10; Rocky 8/9/10; AlmaLinux 8/9/10.
 ## Repository layout
 
 - `manifests/` — the eight classes above, plus the `useradd::setting`,
-  `settings`, `purge`, `entry`, `entry::purge` and `etc_profile::script`
+  `settings`, `purge`, `entry`, `entry::list`, `entry::purge` and `etc_profile::script`
   defines.
-- `functions/` — `useradd::entries`, `useradd::join`.
-- `types/` — `Useradd::Bootup`, `Useradd::CryptStyle`,
-  `Useradd::LibuserModule`, `Useradd::Tty`.
+- `functions/` — `useradd::join`.
+- `types/` — `Useradd::Bootup`, `Useradd::CryptStyle`, `Useradd::EntryOptions`,
+  `Useradd::LibuserModule`, `Useradd::ListEntry`, `Useradd::Tty`.
 - `data/common.yaml` + `hiera.yaml` — `lookup_options` (deep merge for the
-  `*_ensure` and `passwd::files` Hashes). No default values.
+  `*_entries` and `passwd::files` Hashes). No default values.
 - `lib/facter/useradd_legacy_simp_sh.rb` — the legacy-script fact.
 - `templates/etc/profile.d/simp.{sh,csh}.erb` — used only with
   `legacy_simp_sh: true`.

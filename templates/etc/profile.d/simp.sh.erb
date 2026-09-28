@@ -8,6 +8,10 @@ for user in <%= @user_whitelist.join(' ') %>; do
   fi
 done
 <% end -%>
+<% unless [nil, 'absent'].include?(@prepend['sh']) then -%>
+<%= @prepend['sh'] %>
+
+<% end -%>
 <% if @_session_timeout.is_a?(Integer) then -%>
 [ $TMOUT ] || export TMOUT=<%= @_session_timeout * 60 %>
 readonly TMOUT
@@ -21,4 +25,8 @@ fi
 <% unless [nil, 'absent'].include?(@umask) then -%>
 
 umask <%= @umask %>
+<% end -%>
+<% unless [nil, 'absent'].include?(@append['sh']) then -%>
+
+<%= @append['sh'] %>
 <% end -%>

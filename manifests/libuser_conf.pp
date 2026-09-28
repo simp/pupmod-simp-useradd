@@ -6,6 +6,10 @@
 # leaves its key alone, and `absent` removes the key. Booleans are written as
 # `yes`/`no`.
 #
+# With both `defaults_modules` and `defaults_create_modules` set, as in 3.x,
+# the `files_*`, `shadow_*` and `ldap_*` keys are written only when their
+# section is in `defaults_create_modules` and not in `defaults_modules`.
+#
 # @param defaults_modules
 #   Joined with `,`. `[]` removes the key.
 # @param defaults_create_modules
@@ -137,7 +141,16 @@ class useradd::libuser_conf (
     'ldap/bindtype'           => $ldap_bindtype,
     'sasl/appname'            => $sasl_appname,
     'sasl/domain'             => $sasl_domain,
-  }.filter |$key, $value| { $value =~ NotUndef } + $_free_form
+  }.filter |$key, $value| {
+    $_section = $key.split('/')[0]
+    # 3.x wrote a module's section only for a module used to create new
+    # entries but not otherwise.
+    $value =~ NotUndef and !(
+      $_section in ['files', 'shadow', 'ldap'] and
+      $defaults_modules =~ Array and $defaults_create_modules =~ Array and
+      !($_section in $defaults_create_modules and !($_section in $defaults_modules))
+    )
+  } + $_free_form
 
   useradd::settings { '/etc/libuser.conf':
     lens     => 'Puppet.lns',

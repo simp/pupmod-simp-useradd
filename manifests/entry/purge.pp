@@ -12,8 +12,8 @@
 # @api private
 #
 define useradd::entry::purge (
-  String[1]                                $lens,
-  Array[Pattern[/\A[A-Za-z0-9_.:\/-]+\z/]] $keep = [],
+  String[1]             $lens,
+  Array[Useradd::ListEntry] $keep = [],
 ) {
   assert_private()
 

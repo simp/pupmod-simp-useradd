@@ -53,10 +53,9 @@ describe 'useradd' do
 
     # The deprecated parameters must not be how the profile restores 3.x.
     it 'sets no deprecated parameter' do
-      deprecated = %r{::(manage_\w+|securetty|shells|shells_default|bootup|res_col|move_to_col|setcolor_\w+|loglvl|prompt|autoswap)\z}
+      deprecated = %r{::(manage_\w+|securetty|shells|shells_default)\z}
       params = checks.values.map { |c| c['settings']['parameter'] }
       expect(params.grep(deprecated)).to be_empty
-      expect(params.grep(%r{\Auseradd::nss::})).to be_empty
     end
 
     # simp_options::uid/gid still feed these; a literal would override sites.
@@ -173,6 +172,34 @@ describe 'useradd' do
     it 'leaves the rest of the profile in force' do
       is_expected.to contain_augeas('/etc/login.defs PASS_MIN_DAYS')
       is_expected.to contain_augeas('/etc/securetty purge')
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Enforced + the deprecated 3.x parameters, which keep their 3.x behavior.
+  # ---------------------------------------------------------------------------
+  context 'when the site still sets the deprecated parameters' do
+    let(:facts) { on_supported_os.first[1].merge(custom_hiera: 'simp_defaults_with_legacy', init_systems: ['systemd']) }
+
+    it { is_expected.to compile.with_all_deps }
+
+    it 'owns /etc/securetty as in 3.x' do
+      is_expected.to contain_file('/etc/securetty').with(ensure: 'file', mode: '0400', content: '')
+      expect(catalogue.resources.select { |r| r.type == 'Augeas' && r.title.start_with?('/etc/securetty') }).to be_empty
+    end
+
+    it 'leaves /etc/shells alone' do
+      is_expected.not_to contain_file('/etc/shells')
+      expect(catalogue.resources.select { |r| r.type == 'Augeas' && r.title.start_with?('/etc/shells') }).to be_empty
+    end
+
+    it 'runs prepend inside simp.sh, as in 3.x' do
+      is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{^echo pre$})
+      is_expected.not_to contain_file('/etc/profile.d/simp-a-prepend.sh')
+    end
+
+    it 'leaves the rest of the profile in force' do
+      is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS')
     end
   end
 end

@@ -19,7 +19,7 @@
 define useradd::entry (
   Stdlib::AbsolutePath                  $file,
   String[1]                             $lens,
-  Pattern[/\A[A-Za-z0-9_.:\/-]+\z/]     $entry,
+  Useradd::ListEntry                        $entry,
   Enum['present', 'absent']             $ensure = 'present',
 ) {
   assert_private()

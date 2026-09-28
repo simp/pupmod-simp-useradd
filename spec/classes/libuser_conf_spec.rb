@@ -17,7 +17,7 @@ describe 'useradd::libuser_conf' do
     let(:params) do
       {
         defaults_modules: ['files', 'shadow'],
-        defaults_create_modules: [],
+        defaults_create_modules: ['ldap'],
         defaults_crypt_style: 'sha512',
         import_login_defs: '/etc/login.defs',
         files_nonroot: false,
@@ -38,13 +38,21 @@ describe 'useradd::libuser_conf' do
     end
 
     it { is_expected.to contain_augeas('/etc/libuser.conf defaults/modules').with_changes('set defaults/modules "files,shadow"') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf defaults/create_modules').with_changes('rm defaults/create_modules') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf defaults/create_modules').with_changes('set defaults/create_modules "ldap"') }
     it { is_expected.to contain_augeas('/etc/libuser.conf import/login_defs').with_changes('set import/login_defs "/etc/login.defs"') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf files/nonroot').with_changes('set files/nonroot "no"') }
+    # As in 3.x, a module's section is written only for a module in
+    # create_modules and not in modules.
+    it { is_expected.not_to contain_augeas('/etc/libuser.conf files/nonroot') }
     it { is_expected.to contain_augeas('/etc/libuser.conf ldap/userBranch').with_changes('set ldap/userBranch "ou=People"') }
     it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"') }
     it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER').with_changes('set userdefaults/LU_GIDNUMBER "%u"') }
-    it { expect(augeas_resources.size).to eq(8) }
+    it { expect(augeas_resources.size).to eq(7) }
+  end
+
+  context 'with a section setting and only defaults_modules' do
+    let(:params) { { defaults_modules: ['files', 'shadow'], files_nonroot: false } }
+
+    it { is_expected.to contain_augeas('/etc/libuser.conf files/nonroot').with_changes('set files/nonroot "no"') }
   end
 
   context 'with a free-form line that is not KEY = value' do

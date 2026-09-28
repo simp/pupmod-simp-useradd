@@ -41,19 +41,23 @@
 # @param prepend
 #   Content for a script run before the others, as
 #   `{ 'sh' => <content>, 'csh' => <content> }`. The content is written
-#   exactly as provided, and `absent` removes the script.
+#   exactly as provided, and `absent` removes the script. With
+#   `legacy_simp_sh => true`, the content goes inside `simp.sh` and
+#   `simp.csh` instead, after the `user_whitelist` check, as in 3.x.
 #
 #   Example:
 #     { 'sh' => 'if [ $UID -eq 0 ]; then echo "foo"; fi ' }
 #
 # @param append
 #   Content for a script run after the others. See `prepend` for usage.
+#   With `legacy_simp_sh => true`, it goes at the end of `simp.sh` and
+#   `simp.csh`.
 #
 # @param legacy_simp_sh
 #   Manage `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
 #   scripts useradd 3.x wrote. `true` writes them as 3.x did, from
-#   `session_timeout`, `mesg` and `umask`, while `prepend` and `append` stay
-#   in their own scripts. `false` removes them. Unset leaves them alone.
+#   `session_timeout`, `mesg`, `umask`, `prepend` and `append`. `false`
+#   removes them. Unset leaves them alone.
 #
 # @param manage_tmout
 #   Deprecated: leave `session_timeout` unset instead. `false` stops managing
@@ -62,17 +66,17 @@
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::etc_profile (
-  Optional[Variant[Integer[0], Enum['absent']]]                  $session_timeout = undef,
-  Optional[String[1]]                                            $umask           = undef,
-  Optional[Variant[Boolean, Enum['absent']]]                     $mesg            = undef,
-  Array[String[1]]                                               $user_whitelist  = [],
-  Hash[String[1], String]                                        $prepend         = {},
-  Hash[String[1], String]                                        $append          = {},
-  Optional[Boolean]                                              $legacy_simp_sh  = undef,
-  Optional[Boolean]                                              $manage_tmout    = undef,
+  Optional[Variant[Integer, Enum['absent']]] $session_timeout = undef,
+  Optional[String]                           $umask           = undef,
+  Optional[Variant[Boolean, Enum['absent']]] $mesg            = undef,
+  Array                                      $user_whitelist  = [],
+  Hash                                       $prepend         = {},
+  Hash                                       $append          = {},
+  Optional[Boolean]                          $legacy_simp_sh  = undef,
+  Optional[Boolean]                          $manage_tmout    = undef,
 ) {
   if $manage_tmout =~ NotUndef {
-    deprecation('useradd::etc_profile::manage_tmout', 'useradd::etc_profile::manage_tmout is deprecated and will be removed in a future release. Leave useradd::etc_profile::session_timeout unset instead.', false)
+    simplib::deprecation('useradd::etc_profile::manage_tmout', 'useradd::etc_profile::manage_tmout is deprecated and will be removed in a future release. Leave useradd::etc_profile::session_timeout unset instead.')
   }
 
   $_session_timeout = $manage_tmout ? {
@@ -86,9 +90,18 @@ class useradd::etc_profile (
     default => $mesg,
   }
 
-  $_scripts = {
-    'simp-a-prepend.sh'      => $prepend['sh'],
-    'zz-simp-a-prepend.csh'  => $prepend['csh'],
+  # With the 3.x scripts, prepend and append run inside them, as in 3.x.
+  $_extra = $legacy_simp_sh ? {
+    true    => {},
+    default => {
+      'simp-a-prepend.sh'     => $prepend['sh'],
+      'zz-simp-a-prepend.csh' => $prepend['csh'],
+      'zz-simp-z-append.sh'   => $append['sh'],
+      'zz-simp-z-append.csh'  => $append['csh'],
+    }.filter |$name, $content| { $content =~ NotUndef }.map |$name, $content| { [$name, String($content)] }.convert_to(Hash),
+  }
+
+  $_scripts = $_extra + {
     'simp-b-tmout.sh'        => $_session_timeout ? {
       Integer => "[ \$TMOUT ] || export TMOUT=${$_session_timeout * 60}\nreadonly TMOUT",
       default => $_session_timeout,
@@ -113,8 +126,6 @@ class useradd::etc_profile (
       'absent' => 'absent',
       default  => $umask.then |$u| { "umask ${u}" },
     },
-    'zz-simp-z-append.sh'    => $append['sh'],
-    'zz-simp-z-append.csh'   => $append['csh'],
   }.filter |$name, $content| { $content =~ NotUndef }
 
   $_scripts.each |$name, $content| {
@@ -142,9 +153,9 @@ class useradd::etc_profile (
     }
   }
   elsif $facts['useradd_legacy_simp_sh'] {
-    $_extra = ($prepend + $append).filter |$ext, $content| { $ext in ['sh', 'csh'] and $content != 'absent' }
+    $_twice = ($prepend + $append).filter |$ext, $content| { $ext in ['sh', 'csh'] and $content != 'absent' }
 
-    unless $_extra.empty {
+    unless $_twice.empty {
       warning('useradd::etc_profile: /etc/profile.d/simp.sh or simp.csh from useradd 3.x is still present, so prepend and append content may run twice at login. Set useradd::etc_profile::legacy_simp_sh to false to remove the old scripts.')
     }
   }

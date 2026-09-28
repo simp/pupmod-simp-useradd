@@ -70,10 +70,20 @@ describe 'useradd::login_defs' do
     end
   end
 
+  # 3.x accepted '', but the Login_defs lens can't parse a key with no value.
   context 'with an empty string' do
-    let(:params) { { login_string: '' } }
+    let(:params) { { login_string: '', umask: '', console_groups: ['', 'floppy'] } }
 
-    it { is_expected.to compile.and_raise_error(%r{login_string}) }
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.not_to contain_augeas('/etc/login.defs LOGIN_STRING') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs UMASK') }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes('set CONSOLE_GROUPS "floppy"') }
+
+    context 'with strict=error' do
+      before(:each) { Puppet[:strict] = :error }
+
+      it { is_expected.to compile.with_all_deps }
+    end
   end
 
   context 'with a setting absent' do

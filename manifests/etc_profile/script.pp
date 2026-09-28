@@ -9,8 +9,8 @@
 # @api private
 #
 define useradd::etc_profile::script (
-  String           $content,
-  Array[String[1]] $user_whitelist = [],
+  String $content,
+  Array  $user_whitelist = [],
 ) {
   assert_private()
 

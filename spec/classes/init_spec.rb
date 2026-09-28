@@ -82,16 +82,14 @@ describe 'useradd' do
     end
 
     context 'with the deprecated securetty Array' do
-      let(:params) { { securetty_entries: { 'tty1' => { 'ensure' => 'present' }, 'tty2' => {} }, securetty: ['console', '--tty2'] } }
+      let(:params) { { securetty_entries: { 'tty1' => {} }, purge_securetty: true, securetty: ['console', 'tty+x'] } }
 
-      it 'combines it with securetty_entries, the Array winning' do
-        is_expected.to contain_augeas('/etc/securetty console').with_changes('set 01[last()+1] console')
-        is_expected.to contain_augeas('/etc/securetty tty1').with_changes('set 01[last()+1] tty1')
-        is_expected.to contain_augeas('/etc/securetty tty2').with_changes(%r{\Arm })
+      it 'owns the whole file, as in 3.x' do
+        is_expected.to contain_file('/etc/securetty').with(ensure: 'file', owner: 'root', group: 'root', mode: '0400', content: "console\ntty+x")
       end
 
-      it 'sets the 3.x mode' do
-        is_expected.to contain_file('/etc/securetty').with(owner: 'root', group: 'root', mode: '0400').without_ensure
+      it 'ignores securetty_entries and purge_securetty' do
+        expect(catalogue.resources.select { |r| r.type == 'Augeas' }).to be_empty
       end
     end
 
@@ -119,14 +117,13 @@ describe 'useradd' do
         let(:params) { { securetty: value } }
 
         it 'leaves an empty file' do
-          is_expected.to contain_augeas('/etc/securetty purge').with_changes("rm *[label() != '#comment']")
-          is_expected.to contain_file('/etc/securetty').with(ensure: 'file', mode: '0400')
+          is_expected.to contain_file('/etc/securetty').with(ensure: 'file', mode: '0400', content: '')
         end
       end
     end
 
     context 'with securetty => false' do
-      let(:params) { { securetty: false } }
+      let(:params) { { securetty: false, securetty_entries: { 'tty1' => {} }, purge_securetty: true, securetty_mode: '0400' } }
 
       it { expect(managing_resources).to be_empty }
     end
@@ -150,17 +147,24 @@ describe 'useradd' do
     end
 
     context 'with the deprecated shells_default and shells Arrays' do
-      let(:params) { { shells_entries: { '/bin/zsh' => { 'ensure' => 'absent' }, '/bin/ksh' => {} }, shells_default: ['/bin/sh', '/bin/zsh'], shells: ['/bin/foo'] } }
+      let(:params) { { shells_entries: { '/bin/ksh' => {} }, purge_shells: true, shells_default: ['/bin/sh', '/bin/zsh'], shells: ['/usr/bin/c++sh'] } }
 
-      it 'combines them with shells_entries, the Arrays winning' do
-        is_expected.to contain_augeas('/etc/shells /bin/sh').with_changes(%r{\Aset })
-        is_expected.to contain_augeas('/etc/shells /bin/foo').with_changes(%r{\Aset })
-        is_expected.to contain_augeas('/etc/shells /bin/ksh').with_changes(%r{\Aset })
-        is_expected.to contain_augeas('/etc/shells /bin/zsh').with_changes(%r{\Aset })
+      it 'owns the whole file, as in 3.x' do
+        is_expected.to contain_file('/etc/shells').with(owner: 'root', group: 'root', mode: '0644', content: "/bin/sh\n/bin/zsh\n/usr/bin/c++sh").without_ensure
       end
 
-      it 'sets the 3.x mode' do
-        is_expected.to contain_file('/etc/shells').with(owner: 'root', group: 'root', mode: '0644').without_ensure
+      it 'ignores shells_entries and purge_shells' do
+        expect(catalogue.resources.select { |r| r.type == 'Augeas' }).to be_empty
+      end
+    end
+
+    context 'with only the deprecated shells Array' do
+      let(:params) { { shells: ['/bin/foo'] } }
+
+      it 'lists the 3.x shells_default first' do
+        is_expected.to contain_file('/etc/shells').with_content(
+          "/bin/sh\n/bin/bash\n/sbin/nologin\n/usr/bin/sh\n/usr/bin/bash\n/usr/sbin/nologin\n/bin/foo",
+        )
       end
     end
 
@@ -176,10 +180,15 @@ describe 'useradd' do
     end
 
     context 'with shells => false' do
-      let(:params) { { shells_default: ['/bin/sh'], shells: false } }
+      let(:params) { { shells_default: ['/bin/sh'], shells: false, shells_entries: { '/bin/sh' => {} }, purge_shells: true, shells_mode: '0644' } }
 
-      it { is_expected.not_to contain_augeas('/etc/shells /bin/sh') }
-      it { is_expected.not_to contain_file('/etc/shells') }
+      it { expect(managing_resources).to be_empty }
+    end
+
+    context 'with an entry holding a quote' do
+      let(:params) { { shells_entries: { "/bin/a'b" => {} } } }
+
+      it { is_expected.to compile.and_raise_error(%r{expects a match for Useradd::ListEntry}) }
     end
 
     context 'with manage_login_defs => false' do
@@ -198,5 +207,21 @@ describe 'useradd' do
         expect(managing_resources).to be_empty
       end
     end
+  end
+
+  # Deprecations must warn without failing compilation.
+  context 'with every deprecated parameter and strict=error' do
+    let(:facts) { on_supported_os.first[1] }
+    let(:params) do
+      {
+        securetty: ['tty1'], shells_default: ['/bin/sh'], shells: ['/bin/bash'],
+        manage_etc_profile: true, manage_libuser_conf: true, manage_login_defs: true, manage_nss: true,
+        manage_passwd_perms: true, manage_sysconfig_init: true, manage_useradd: true
+      }
+    end
+
+    before(:each) { Puppet[:strict] = :error }
+
+    it { is_expected.to compile.with_all_deps }
   end
 end

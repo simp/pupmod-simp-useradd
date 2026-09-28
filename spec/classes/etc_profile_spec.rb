@@ -89,6 +89,27 @@ describe 'useradd::etc_profile' do
     it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{umask 0077}) }
   end
 
+  context 'with legacy_simp_sh => true and prepend and append' do
+    let(:params) do
+      {
+        legacy_simp_sh: true,
+        session_timeout: 15,
+        prepend: { 'sh' => 'echo pre', 'csh' => 'echo cpre' },
+        append: { 'sh' => 'echo post', 'csh' => 'absent' },
+      }
+    end
+
+    it 'runs them inside the 3.x scripts' do
+      is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{^echo pre\n\n.*TMOUT=900.*\n\necho post\n\z}m)
+      is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{^echo cpre\n})
+      is_expected.to contain_file('/etc/profile.d/simp.csh').without_content(%r{absent})
+    end
+
+    ['simp-a-prepend.sh', 'zz-simp-a-prepend.csh', 'zz-simp-z-append.sh', 'zz-simp-z-append.csh'].each do |name|
+      it { is_expected.not_to contain_file("/etc/profile.d/#{name}") }
+    end
+  end
+
   context 'with legacy_simp_sh => true and umask unset' do
     let(:params) { { legacy_simp_sh: true, session_timeout: 15 } }
 

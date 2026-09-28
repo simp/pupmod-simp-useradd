@@ -10,9 +10,9 @@
 * [`useradd::etc_profile`](#useradd--etc_profile): Manage login settings for all users with scripts in /etc/profile.d  Each setting is written to its own pair of `sh` and `csh` scripts, so it 
 * [`useradd::libuser_conf`](#useradd--libuser_conf): Manage settings in /etc/libuser.conf  See libuser.conf(5) for information on the various variables. Each parameter manages one key, editing t
 * [`useradd::login_defs`](#useradd--login_defs): Manage settings in /etc/login.defs  Each parameter manages the login.defs key of the same name, upper-cased, editing the file in place. An un
-* [`useradd::nss`](#useradd--nss): Deprecated: no longer manages `/etc/default/nss`  Nothing on EL8 or later reads `/etc/default/nss`. The parameters are kept so existing Hiera
+* [`useradd::nss`](#useradd--nss): Manage settings in /etc/default/nss  Read by `libnss_nis`. Each parameter manages the key of the same name, upper-cased, editing the file in 
 * [`useradd::passwd`](#useradd--passwd): Manage the ownership and permissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
-* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Manage the shell run by the emergency and rescue targets  `/etc/sysconfig/init` is no longer managed: no EL8 or later package ships it, and o
+* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Manage settings in /etc/sysconfig/init, and the shell run by the emergency and rescue targets  Each display parameter manages the key of the 
 * [`useradd::useradd`](#useradd--useradd): Manage settings in /etc/default/useradd  See useradd(8) for more details. Each parameter manages the key of the same name, upper-cased, editi
 
 ### Defined types
@@ -20,6 +20,7 @@
 #### Private Defined types
 
 * `useradd::entry`: Add, or remove, one entry in a one-entry-per-line file with augeas
+* `useradd::entry::list`: Manage the entries of a one-entry-per-line file with augeas
 * `useradd::entry::purge`: Remove every entry from a one-entry-per-line file except the ones listed
 * `useradd::etc_profile::script`: Write, or remove, one login script in /etc/profile.d
 * `useradd::purge`: Remove every key from a configuration file except the ones listed
@@ -27,10 +28,6 @@
 * `useradd::settings`: Manage keys in one configuration file with augeas
 
 ### Functions
-
-#### Public Functions
-
-* [`useradd::entries`](#useradd--entries): Combine a list's `*_entries` Hash with its deprecated Array parameter
 
 #### Private Functions
 
@@ -42,6 +39,7 @@
 * [`Useradd::CryptStyle`](#Useradd--CryptStyle): The  algorithm to use for password encryption when creating new passwords
 * [`Useradd::EntryOptions`](#Useradd--EntryOptions): Options for one entry of a list parameter
 * [`Useradd::LibuserModule`](#Useradd--LibuserModule): Valid libuser modules
+* [`Useradd::ListEntry`](#Useradd--ListEntry): One entry of a one-entry-per-line file, such as `/etc/shells`
 * [`Useradd::Tty`](#Useradd--Tty): A tty name, as listed in `/etc/securetty`
 
 ## Classes
@@ -98,8 +96,7 @@ Default value: `{}`
 Data type: `Boolean`
 
 Remove every entry from `/etc/securetty` that isn't `present` in
-`securetty_entries` (or the deprecated `securetty`). Nothing is purged
-while no entry is `present`.
+`securetty_entries`. Nothing is purged while no entry is `present`.
 
 Default value: `false`
 
@@ -108,8 +105,7 @@ Default value: `false`
 Data type: `Optional[Stdlib::Filemode]`
 
 The mode of `/etc/securetty`, owned by `root:root`. Leaves the mode alone
-when unset, and never creates the file. Defaults to `0400`, as in 3.x,
-while the deprecated `securetty` Array is set.
+when unset, and never creates the file.
 
 Default value: `undef`
 
@@ -131,8 +127,7 @@ Default value: `{}`
 Data type: `Boolean`
 
 Remove every shell from `/etc/shells` that isn't `present` in
-`shells_entries` (or the deprecated `shells_default` and `shells`). Nothing
-is purged while no shell is `present`.
+`shells_entries`. Nothing is purged while no shell is `present`.
 
 Default value: `false`
 
@@ -141,20 +136,22 @@ Default value: `false`
 Data type: `Optional[Stdlib::Filemode]`
 
 The mode of `/etc/shells`, owned by `root:root`. Leaves the mode alone
-when unset, and never creates the file. Defaults to `0644`, as in 3.x,
-while the deprecated `shells_default` or `shells` Array is set.
+when unset, and never creates the file.
 
 Default value: `undef`
 
 ##### <a name="-useradd--securetty"></a>`securetty`
 
-Data type: `Optional[Variant[Boolean, Array[Useradd::Tty]]]`
+Data type: `Optional[Variant[Boolean, Array[String]]]`
 
-Deprecated: use `securetty_entries`. Entries are added to `/etc/securetty`.
+Deprecated: use `securetty_entries`. As in 3.x, owns the whole of
+`/etc/securetty` (mode `securetty_mode`, default `0400`), and
+`securetty_entries` and `purge_securetty` are ignored:
 
-* `true` or `[]`: remove every entry, leaving an empty file.
-* An Array containing `ANY_SHELL`: remove `/etc/securetty`.
-* `false`: ignored.
+* An Array: exactly these ttys.
+* `true` or `[]`: an empty file.
+* An Array containing `ANY_SHELL`: `/etc/securetty` is removed.
+* `false`: `/etc/securetty` is left alone.
 
 Default value: `undef`
 
@@ -162,7 +159,10 @@ Default value: `undef`
 
 Data type: `Optional[Array[Stdlib::AbsolutePath]]`
 
-Deprecated: use `shells_entries`. Shells added to `/etc/shells`.
+Deprecated: use `shells_entries`. As in 3.x, owns the whole of
+`/etc/shells` (mode `shells_mode`, default `0644`), listing these shells
+and then `shells`, and `shells_entries` and `purge_shells` are ignored.
+Defaults to the 3.x list while only `shells` is set.
 
 Default value: `undef`
 
@@ -170,8 +170,8 @@ Default value: `undef`
 
 Data type: `Optional[Variant[Boolean, Array[Stdlib::AbsolutePath]]]`
 
-Deprecated: use `shells_entries`. Shells added to `/etc/shells`, after
-`shells_default`. `false` ignores both.
+Deprecated: use `shells_entries`. Shells listed in `/etc/shells` after
+`shells_default`, as in 3.x. `false` leaves `/etc/shells` alone.
 
 Default value: `undef`
 
@@ -206,7 +206,8 @@ Default value: `undef`
 
 Data type: `Optional[Boolean]`
 
-Deprecated: `useradd::nss` no longer manages anything.
+Deprecated: set the parameters of `useradd::nss` instead. `false` skips
+the class.
 
 Default value: `undef`
 
@@ -273,7 +274,7 @@ The following parameters are available in the `useradd::etc_profile` class:
 
 ##### <a name="-useradd--etc_profile--session_timeout"></a>`session_timeout`
 
-Data type: `Optional[Variant[Integer[0], Enum['absent']]]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 The number of *minutes* that a user may be idle prior to being
 logged out. This is a logical extension of the SCAP Security Guide
@@ -288,7 +289,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--etc_profile--umask"></a>`umask`
 
-Data type: `Optional[String[1]]`
+Data type: `Optional[String]`
 
 The umask that will be applied to the user upon login.
 Covers CCE-26917-5, CCE-27034-8, and CCE-26669-2
@@ -306,7 +307,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--etc_profile--user_whitelist"></a>`user_whitelist`
 
-Data type: `Array[String[1]]`
+Data type: `Array`
 
 A list of users that you don't want to be affected by these
 settings. Every script skips them.
@@ -315,11 +316,13 @@ Default value: `[]`
 
 ##### <a name="-useradd--etc_profile--prepend"></a>`prepend`
 
-Data type: `Hash[String[1], String]`
+Data type: `Hash`
 
 Content for a script run before the others, as
 `{ 'sh' => <content>, 'csh' => <content> }`. The content is written
-exactly as provided, and `absent` removes the script.
+exactly as provided, and `absent` removes the script. With
+`legacy_simp_sh => true`, the content goes inside `simp.sh` and
+`simp.csh` instead, after the `user_whitelist` check, as in 3.x.
 
 Example:
   { 'sh' => 'if [ $UID -eq 0 ]; then echo "foo"; fi ' }
@@ -328,9 +331,11 @@ Default value: `{}`
 
 ##### <a name="-useradd--etc_profile--append"></a>`append`
 
-Data type: `Hash[String[1], String]`
+Data type: `Hash`
 
 Content for a script run after the others. See `prepend` for usage.
+With `legacy_simp_sh => true`, it goes at the end of `simp.sh` and
+`simp.csh`.
 
 Default value: `{}`
 
@@ -340,8 +345,8 @@ Data type: `Optional[Boolean]`
 
 Manage `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
 scripts useradd 3.x wrote. `true` writes them as 3.x did, from
-`session_timeout`, `mesg` and `umask`, while `prepend` and `append` stay
-in their own scripts. `false` removes them. Unset leaves them alone.
+`session_timeout`, `mesg`, `umask`, `prepend` and `append`. `false`
+removes them. Unset leaves them alone.
 
 Default value: `undef`
 
@@ -363,6 +368,10 @@ manages one key, editing the file in place: `defaults_*` the `[defaults]`
 section, `files_*` the `[files]` section, and so on. An unset parameter
 leaves its key alone, and `absent` removes the key. Booleans are written as
 `yes`/`no`.
+
+With both `defaults_modules` and `defaults_create_modules` set, as in 3.x,
+the `files_*`, `shadow_*` and `ldap_*` keys are written only when their
+section is in `defaults_create_modules` and not in `defaults_modules`.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -767,7 +776,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--console_groups"></a>`console_groups`
 
-Data type: `Optional[Variant[Array[String[1],1], Enum['absent']]]`
+Data type: `Optional[Variant[Array[String,1], Enum['absent']]]`
 
 
 
@@ -791,7 +800,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_hz"></a>`env_hz`
 
-Data type: `Optional[Variant[String[1], Enum['absent']]]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -815,7 +824,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_tz"></a>`env_tz`
 
-Data type: `Optional[Variant[String[1], Enum['absent']]]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -919,7 +928,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--login_string"></a>`login_string`
 
-Data type: `Optional[Variant[String[1], Enum['absent']]]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -1111,7 +1120,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--su_name"></a>`su_name`
 
-Data type: `Optional[Variant[String[1], Enum['absent']]]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -1175,7 +1184,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--ttygroup"></a>`ttygroup`
 
-Data type: `Optional[Variant[String[1], Enum['absent']]]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -1215,7 +1224,7 @@ Default value: `simplib::lookup('simp_options::uid::min', { 'default_value' => u
 
 ##### <a name="-useradd--login_defs--umask"></a>`umask`
 
-Data type: `Optional[Variant[String[1], Enum['absent']]]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -1266,10 +1275,11 @@ Default value: `false`
 
 ### <a name="useradd--nss"></a>`useradd::nss`
 
-Deprecated: no longer manages `/etc/default/nss`
+Manage settings in /etc/default/nss
 
-Nothing on EL8 or later reads `/etc/default/nss`. The parameters are kept so
-existing Hiera data still compiles, and warn when set.
+Read by `libnss_nis`. Each parameter manages the key of the same name,
+upper-cased, editing the file in place. An unset parameter leaves its key
+alone, and `absent` removes the key. Booleans are written as `TRUE`/`FALSE`.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -1280,30 +1290,50 @@ The following parameters are available in the `useradd::nss` class:
 * [`netid_authoritative`](#-useradd--nss--netid_authoritative)
 * [`services_authoritative`](#-useradd--nss--services_authoritative)
 * [`setent_batch_read`](#-useradd--nss--setent_batch_read)
+* [`mode`](#-useradd--nss--mode)
+* [`purge`](#-useradd--nss--purge)
 
 ##### <a name="-useradd--nss--netid_authoritative"></a>`netid_authoritative`
 
-Data type: `Optional[Boolean]`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
-Deprecated: ignored.
+
 
 Default value: `undef`
 
 ##### <a name="-useradd--nss--services_authoritative"></a>`services_authoritative`
 
-Data type: `Optional[Boolean]`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
-Deprecated: ignored.
+
 
 Default value: `undef`
 
 ##### <a name="-useradd--nss--setent_batch_read"></a>`setent_batch_read`
 
-Data type: `Optional[Boolean]`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
-Deprecated: ignored.
+
 
 Default value: `undef`
+
+##### <a name="-useradd--nss--mode"></a>`mode`
+
+Data type: `Optional[Stdlib::Filemode]`
+
+The mode of `/etc/default/nss`, owned by `root:root`. Leaves the mode
+alone when unset.
+
+Default value: `undef`
+
+##### <a name="-useradd--nss--purge"></a>`purge`
+
+Data type: `Boolean`
+
+Remove every key the class doesn't set. Comments stay. Nothing is purged
+while no key is set.
+
+Default value: `false`
 
 ### <a name="useradd--passwd"></a>`useradd::passwd`
 
@@ -1346,11 +1376,12 @@ Default value: `{}`
 
 ### <a name="useradd--sysconfig_init"></a>`useradd::sysconfig_init`
 
-Manage the shell run by the emergency and rescue targets
+Manage settings in /etc/sysconfig/init, and the shell run by the emergency
+and rescue targets
 
-`/etc/sysconfig/init` is no longer managed: no EL8 or later package ships
-it, and only the legacy `/etc/rc.d/init.d/functions` reads it. Its
-parameters are kept so existing Hiera data still compiles, and warn when set.
+Each display parameter manages the key of the same name, upper-cased (`loglvl`
+manages `LOGLEVEL`), editing the file in place. An unset parameter leaves its
+key alone, and `absent` removes the key.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -1359,7 +1390,7 @@ author: SIMP Team <simp@simp-project.com>
 The following parameters are available in the `useradd::sysconfig_init` class:
 
 * [`single_user_login`](#-useradd--sysconfig_init--single_user_login)
-* [`purge`](#-useradd--sysconfig_init--purge)
+* [`purge_dropins`](#-useradd--sysconfig_init--purge_dropins)
 * [`systemd`](#-useradd--sysconfig_init--systemd)
 * [`bootup`](#-useradd--sysconfig_init--bootup)
 * [`res_col`](#-useradd--sysconfig_init--res_col)
@@ -1371,24 +1402,34 @@ The following parameters are available in the `useradd::sysconfig_init` class:
 * [`loglvl`](#-useradd--sysconfig_init--loglvl)
 * [`prompt`](#-useradd--sysconfig_init--prompt)
 * [`autoswap`](#-useradd--sysconfig_init--autoswap)
+* [`mode`](#-useradd--sysconfig_init--mode)
+* [`purge`](#-useradd--sysconfig_init--purge)
 
 ##### <a name="-useradd--sysconfig_init--single_user_login"></a>`single_user_login`
 
 Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 The command `emergency.service` and `rescue.service` run, written to a
-systemd drop-in for each. `absent` removes the drop-ins.
+systemd drop-in for each, and to `SINGLE`. `absent` removes the drop-ins
+and the key.
 
 Default value: `undef`
 
-##### <a name="-useradd--sysconfig_init--purge"></a>`purge`
+##### <a name="-useradd--sysconfig_init--purge_dropins"></a>`purge_dropins`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Remove every other drop-in for `emergency.service` and `rescue.service`.
-Acts only while `single_user_login` is set to a command.
+Acts only while `single_user_login` is set to a command. Defaults to
+`systemd::purge_dropin_dirs` with `systemd => true`, and to `false`
+otherwise.
 
-Default value: `false`
+The drop-in directories are declared the way `systemd::dropin_file`
+declares them, so both can add drop-ins to these units as long as they
+agree on the purge. Otherwise the catalog fails with a duplicate
+declaration.
+
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--systemd"></a>`systemd`
 
@@ -1401,17 +1442,17 @@ Default value: `false`
 
 ##### <a name="-useradd--sysconfig_init--bootup"></a>`bootup`
 
-Data type: `Optional[Useradd::Bootup]`
+Data type: `Optional[Variant[Useradd::Bootup, Enum['absent']]]`
 
-Deprecated: ignored.
+
 
 Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--res_col"></a>`res_col`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
-Deprecated: ignored.
+
 
 Default value: `undef`
 
@@ -1419,7 +1460,7 @@ Default value: `undef`
 
 Data type: `Optional[String]`
 
-Deprecated: ignored.
+Written as provided.
 
 Default value: `undef`
 
@@ -1427,7 +1468,9 @@ Default value: `undef`
 
 Data type: `Optional[String]`
 
-Deprecated: ignored.
+An ANSI color name (`black`, `red`, `green`, `yellow`, `blue`, `magenta`,
+`cyan`, `white` or `default`), written as the `echo` command that sets it,
+or any other value, written as provided.
 
 Default value: `undef`
 
@@ -1435,7 +1478,7 @@ Default value: `undef`
 
 Data type: `Optional[String]`
 
-Deprecated: ignored.
+See `setcolor_success`.
 
 Default value: `undef`
 
@@ -1443,7 +1486,7 @@ Default value: `undef`
 
 Data type: `Optional[String]`
 
-Deprecated: ignored.
+See `setcolor_success`.
 
 Default value: `undef`
 
@@ -1451,33 +1494,51 @@ Default value: `undef`
 
 Data type: `Optional[String]`
 
-Deprecated: ignored.
+See `setcolor_success`.
 
 Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--loglvl"></a>`loglvl`
 
-Data type: `Optional[Integer[1,8]]`
+Data type: `Optional[Variant[Integer[1,8], Enum['absent']]]`
 
-Deprecated: ignored.
+
 
 Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--prompt"></a>`prompt`
 
-Data type: `Optional[Boolean]`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
-Deprecated: ignored.
+Written as `yes`/`no`.
 
 Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--autoswap"></a>`autoswap`
 
-Data type: `Optional[Boolean]`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
-Deprecated: ignored.
+Written as `yes`/`no`.
 
 Default value: `undef`
+
+##### <a name="-useradd--sysconfig_init--mode"></a>`mode`
+
+Data type: `Optional[Stdlib::Filemode]`
+
+The mode of `/etc/sysconfig/init`, owned by `root:root`. Leaves the mode
+alone when unset.
+
+Default value: `undef`
+
+##### <a name="-useradd--sysconfig_init--purge"></a>`purge`
+
+Data type: `Boolean`
+
+Remove every key from `/etc/sysconfig/init` the class doesn't set.
+Comments stay. Nothing is purged while no key is set.
+
+Default value: `false`
 
 ### <a name="useradd--useradd"></a>`useradd::useradd`
 
@@ -1577,36 +1638,6 @@ while no key is set.
 
 Default value: `false`
 
-## Functions
-
-### <a name="useradd--entries"></a>`useradd::entries`
-
-Type: Puppet Language
-
-Array entries are applied last, as `present`, so a site's old data still
-wins. An entry written as `--entry` (a Hiera knockout that reached the class)
-becomes `absent`.
-
-#### `useradd::entries(Hash[String[1], Useradd::EntryOptions] $entries, Array[String[1]] $legacy = [])`
-
-Array entries are applied last, as `present`, so a site's old data still
-wins. An entry written as `--entry` (a Hiera knockout that reached the class)
-becomes `absent`.
-
-Returns: `Hash[String[1], Enum['present', 'absent']]`
-
-##### `entries`
-
-Data type: `Hash[String[1], Useradd::EntryOptions]`
-
-The Hash of entry to its options. `ensure` defaults to `present`.
-
-##### `legacy`
-
-Data type: `Array[String[1]]`
-
-The deprecated Array parameter.
-
 ## Data types
 
 ### <a name="Useradd--Bootup"></a>`Useradd::Bootup`
@@ -1634,9 +1665,16 @@ Valid libuser modules
 
 Alias of `Enum['files', 'shadow', 'ldap']`
 
+### <a name="Useradd--ListEntry"></a>`Useradd::ListEntry`
+
+Anything but whitespace, `#`, quotes and backslashes, which the augeas
+lenses and path expressions can't hold.
+
+Alias of `Pattern[/\A[^\s#'"\\]+\z/]`
+
 ### <a name="Useradd--Tty"></a>`Useradd::Tty`
 
 A tty name, as listed in `/etc/securetty`
 
-Alias of `Pattern[/\A[A-Za-z0-9_.:\/-]+\z/]`
+Alias of `Useradd::ListEntry`
 

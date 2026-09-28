@@ -384,3 +384,83 @@ checks:
     settings:
       parameter: useradd::sysconfig_init::systemd
       value: true
+  simp:defaults.useradd.sysconfig_init.bootup:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::bootup
+      value: color
+  simp:defaults.useradd.sysconfig_init.res_col:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::res_col
+      value: 60
+  simp:defaults.useradd.sysconfig_init.move_to_col:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::move_to_col
+      value: '"echo -en \\033[${RES_COL}G"'
+  simp:defaults.useradd.sysconfig_init.setcolor_success:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_success
+      value: green
+  simp:defaults.useradd.sysconfig_init.setcolor_failure:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_failure
+      value: red
+  simp:defaults.useradd.sysconfig_init.setcolor_warning:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_warning
+      value: yellow
+  simp:defaults.useradd.sysconfig_init.setcolor_normal:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_normal
+      value: default
+  simp:defaults.useradd.sysconfig_init.loglvl:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::loglvl
+      value: 3
+  simp:defaults.useradd.sysconfig_init.prompt:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::prompt
+      value: false
+  simp:defaults.useradd.sysconfig_init.autoswap:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::autoswap
+      value: false
+  simp:defaults.useradd.sysconfig_init.mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::mode
+      value: '0644'
+  simp:defaults.useradd.nss.netid_authoritative:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::netid_authoritative
+      value: false
+  simp:defaults.useradd.nss.services_authoritative:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::services_authoritative
+      value: false
+  simp:defaults.useradd.nss.setent_batch_read:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::setent_batch_read
+      value: true
+  simp:defaults.useradd.nss.mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::mode
+      value: '0640'
+  simp:defaults.useradd.nss.purge:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::purge
+      value: true

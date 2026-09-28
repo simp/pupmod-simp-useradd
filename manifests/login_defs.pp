@@ -98,13 +98,13 @@ class useradd::login_defs (
   Optional[Variant[Pattern['^[frwh]+$'], Enum['absent']]]                $chfn_restrict         = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $chsh_auth             = undef,
   Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]       $console               = undef,
-  Optional[Variant[Array[String[1],1], Enum['absent']]]                     $console_groups        = undef,
+  Optional[Variant[Array[String,1], Enum['absent']]]                     $console_groups        = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $create_home           = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $default_home          = undef,
-  Optional[Variant[String[1], Enum['absent']]]                              $env_hz                = undef,
+  Optional[Variant[String, Enum['absent']]]                              $env_hz                = undef,
   Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]       $env_path              = undef,
   Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]       $env_supath            = undef,
-  Optional[Variant[String[1], Enum['absent']]]                              $env_tz                = undef,
+  Optional[Variant[String, Enum['absent']]]                              $env_tz                = undef,
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $environ_file          = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $erasechar             = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $fail_delay            = undef,
@@ -117,7 +117,7 @@ class useradd::login_defs (
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $issue_file            = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $killchar              = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $lastlog_enab          = undef,
-  Optional[Variant[String[1], Enum['absent']]]                              $login_string          = undef,
+  Optional[Variant[String, Enum['absent']]]                              $login_string          = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $login_retries         = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $login_timeout         = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $log_ok_logins         = undef,
@@ -142,7 +142,7 @@ class useradd::login_defs (
   Optional[Variant[Integer, Enum['absent']]]                             $sha_crypt_min_rounds  = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $sha_crypt_max_rounds  = undef,
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $sulog_file            = undef,
-  Optional[Variant[String[1], Enum['absent']]]                              $su_name               = undef,
+  Optional[Variant[String, Enum['absent']]]                              $su_name               = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $su_wheel_only         = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $sys_gid_max           = undef,
   Optional[Variant[Integer, Enum['absent']]]                             $sys_gid_min           = undef,
@@ -150,17 +150,31 @@ class useradd::login_defs (
   Optional[Variant[Integer, Enum['absent']]]                             $sys_uid_min           = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $syslog_sg_enab        = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $syslog_su_enab        = undef,
-  Optional[Variant[String[1], Enum['absent']]]                              $ttygroup              = undef,
+  Optional[Variant[String, Enum['absent']]]                              $ttygroup              = undef,
   Optional[Variant[Simplib::Umask, Enum['absent']]]                      $ttyperm               = undef,
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $ttytype_file          = undef,
   Optional[Variant[Integer[0], Enum['absent']]]                          $uid_min               = simplib::lookup('simp_options::uid::min', { 'default_value' => undef }),
   Optional[Variant[Integer[1], Enum['absent']]]                          $uid_max               = simplib::lookup('simp_options::uid::max', { 'default_value' => undef }),
-  Optional[Variant[String[1], Enum['absent']]]                              $umask                 = undef,  # CCE-26371-5
+  Optional[Variant[String, Enum['absent']]]                              $umask                 = undef,  # CCE-26371-5
   Optional[Variant[Integer, Enum['absent']]]                             $ulimit                = undef,  # The maximum file size in 512 byte units. Noted here since the man page isn't helpful.
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $userdel_cmd           = undef,
   Optional[Variant[Boolean, Enum['absent']]]                             $usergroups_enab       = undef,
   Boolean                                                                $purge                 = false
 ) {
+  # The Login_defs lens can't hold a key with no value, so an empty String,
+  # which 3.x wrote as `KEY` with nothing after it, is skipped.
+  $_empty = {
+    'console_groups' => $console_groups =~ Array and '' in $console_groups,
+    'login_string'   => $login_string == '',
+    'su_name'        => $su_name == '',
+    'ttygroup'       => $ttygroup == '',
+    'umask'          => $umask == '',
+  }.filter |$param, $empty| { $empty }.keys
+
+  $_empty.each |$param| {
+    simplib::deprecation("useradd::login_defs::${param}", "useradd::login_defs::${param}: an empty value is deprecated and ignored; login.defs can't hold it.")
+  }
+
   $_env_hz = $env_hz ? {
     Undef       => undef,
     'absent'    => 'absent',
@@ -179,7 +193,7 @@ class useradd::login_defs (
     'CHFN_RESTRICT'         => $chfn_restrict,
     'CHSH_AUTH'             => $chsh_auth,
     'CONSOLE'               => useradd::join($console, ':'),
-    'CONSOLE_GROUPS'        => useradd::join($console_groups, ','),
+    'CONSOLE_GROUPS'        => useradd::join($console_groups ? { Array => $console_groups - [''], default => $console_groups }, ','),
     'CREATE_HOME'           => $create_home,
     'DEFAULT_HOME'          => $default_home,
     'ENCRYPT_METHOD'        => $encrypt_method,
@@ -240,7 +254,7 @@ class useradd::login_defs (
     'ULIMIT'                => $ulimit,
     'USERDEL_CMD'           => $userdel_cmd,
     'USERGROUPS_ENAB'       => $usergroups_enab,
-  }.filter |$key, $value| { $value =~ NotUndef }
+  }.filter |$key, $value| { $value =~ NotUndef and $value != '' }
 
   useradd::settings { '/etc/login.defs':
     lens          => 'Login_defs.lns',

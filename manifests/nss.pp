@@ -1,27 +1,42 @@
-# Deprecated: no longer manages `/etc/default/nss`
+# Manage settings in /etc/default/nss
 #
-# Nothing on EL8 or later reads `/etc/default/nss`. The parameters are kept so
-# existing Hiera data still compiles, and warn when set.
+# Read by `libnss_nis`. Each parameter manages the key of the same name,
+# upper-cased, editing the file in place. An unset parameter leaves its key
+# alone, and `absent` removes the key. Booleans are written as `TRUE`/`FALSE`.
 #
 # @param netid_authoritative
-#   Deprecated: ignored.
-#
 # @param services_authoritative
-#   Deprecated: ignored.
-#
 # @param setent_batch_read
-#   Deprecated: ignored.
+#
+# @param mode
+#   The mode of `/etc/default/nss`, owned by `root:root`. Leaves the mode
+#   alone when unset.
+#
+# @param purge
+#   Remove every key the class doesn't set. Comments stay. Nothing is purged
+#   while no key is set.
 #
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::nss (
-  Optional[Boolean] $netid_authoritative    = undef,
-  Optional[Boolean] $services_authoritative = undef,
-  Optional[Boolean] $setent_batch_read      = undef,
+  Optional[Variant[Boolean, Enum['absent']]] $netid_authoritative    = undef,
+  Optional[Variant[Boolean, Enum['absent']]] $services_authoritative = undef,
+  Optional[Variant[Boolean, Enum['absent']]] $setent_batch_read      = undef,
+  Optional[Stdlib::Filemode]                 $mode                   = undef,
+  Boolean                                    $purge                  = false,
 ) {
-  ['netid_authoritative', 'services_authoritative', 'setent_batch_read'].each |$param| {
-    if getvar($param) =~ NotUndef {
-      deprecation("useradd::nss::${param}", "useradd::nss::${param} is deprecated and ignored: nothing on EL8 or later reads /etc/default/nss.", false)
-    }
+  $_settings = {
+    'NETID_AUTHORITATIVE'    => $netid_authoritative,
+    'SERVICES_AUTHORITATIVE' => $services_authoritative,
+    'SETENT_BATCH_READ'      => $setent_batch_read,
+  }.filter |$key, $value| { $value =~ NotUndef }.map |$key, $value| {
+    [$key, $value ? { true => 'TRUE', false => 'FALSE', default => $value }]
+  }.convert_to(Hash)
+
+  useradd::settings { '/etc/default/nss':
+    lens     => 'Shellvars.lns',
+    settings => $_settings,
+    mode     => $mode,
+    purge    => $purge,
   }
 }

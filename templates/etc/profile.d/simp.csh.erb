@@ -9,6 +9,10 @@ foreach user (<%= @user_whitelist.join(' ') %>)
 end
 
 <% end -%>
+<% unless [nil, 'absent'].include?(@prepend['csh']) then -%>
+<%= @prepend['csh'] %>
+
+<% end -%>
 <% if @_session_timeout.is_a?(Integer) then -%>
 set autologout=<%= @_session_timeout %>
 <% end -%>
@@ -18,4 +22,8 @@ umask <%= @umask %>
 <% if ['y', 'n'].include?(@_mesg) then -%>
 tty -s
 if ( $? == 0 ) mesg <%= @_mesg %>
+<% end -%>
+<% unless [nil, 'absent'].include?(@append['csh']) then -%>
+
+<%= @append['csh'] %>
 <% end -%>

@@ -155,8 +155,49 @@ describe 'useradd class' do
           on(host, 'grep -q "/sbin/sulogin" /etc/systemd/system/rescue.service.d/rescue_exec.conf')
         end
 
+        it 'restores /etc/sysconfig/init' do
+          init = on(host, 'cat /etc/sysconfig/init').stdout
+          expect(init).to match(%r{^BOOTUP="?color"?$})
+          expect(init).to match(%r{^SINGLE="?/sbin/sulogin"?$})
+          expect(init).to include('SETCOLOR_SUCCESS="echo -en \\\\033[0;32m"')
+          expect(on(host, 'stat -c "%a" /etc/sysconfig/init').stdout.strip).to eq('644')
+        end
+
+        it 'restores /etc/default/nss' do
+          expect(on(host, 'cat /etc/default/nss').stdout).to match(%r{^NETID_AUTHORITATIVE="?FALSE"?$})
+          expect(on(host, 'stat -c "%a" /etc/default/nss').stdout.strip).to eq('640')
+        end
+
         it 'is used by useradd' do
           on(host, 'useradd -M ua_two && chage -l ua_two | grep -E "^Maximum.*: 180$"; rc=$?; userdel ua_two; exit $rc')
+        end
+      end
+
+      # The drop-ins exactly as 3.x wrote them through systemd::dropin_file.
+      context 'with the 3.x single-user login drop-ins' do
+        let(:dropin) { '/etc/systemd/system/rescue.service.d/rescue_exec.conf' }
+
+        before(:all) do
+          ['emergency', 'rescue'].each do |unit|
+            on(host, <<~CMD)
+              rm -rf /etc/systemd/system/#{unit}.service.d && mkdir /etc/systemd/system/#{unit}.service.d
+              printf '[Service]\\nExecStart=\\nExecStart=-/bin/sh -c "/sbin/sulogin; /usr/bin/systemctl --fail --no-block default"\\n' > /etc/systemd/system/#{unit}.service.d/#{unit}_exec.conf
+              chmod 0444 /etc/systemd/system/#{unit}.service.d/#{unit}_exec.conf
+            CMD
+          end
+          on(host, 'systemctl daemon-reload')
+        end
+
+        it 'changes nothing under simp:defaults' do
+          with_simp_defaults_enforced(host) do
+            apply_manifest_on(host, manifest, catch_changes: true)
+          end
+        end
+
+        it 'keeps them without the profile' do
+          apply_manifest_on(host, manifest, catch_changes: true)
+          on(host, "grep -q /sbin/sulogin #{dropin}")
+          expect(on(host, "stat -c '%a %U %G' #{dropin}").stdout.strip).to eq('444 root root')
         end
       end
 
