@@ -94,6 +94,7 @@ describe 'useradd' do
         it 'restores the shells and purges the rest' do
           is_expected.to contain_augeas('/etc/shells /bin/bash')
           is_expected.to contain_augeas('/etc/shells purge')
+          is_expected.to contain_file('/etc/shells').with(owner: 'root', group: 'root', mode: '0644')
         end
 
         it 'restores login.defs' do
@@ -163,8 +164,15 @@ describe 'useradd' do
       is_expected.to contain_augeas('/etc/securetty tty4').with_changes(%r{\Arm })
     end
 
+    it 'lets the site turn off a destructive toggle' do
+      is_expected.to contain_class('useradd').with_purge_shells(false)
+      is_expected.not_to contain_augeas('/etc/shells purge')
+      is_expected.to contain_augeas('/etc/shells /bin/bash')
+    end
+
     it 'leaves the rest of the profile in force' do
       is_expected.to contain_augeas('/etc/login.defs PASS_MIN_DAYS')
+      is_expected.to contain_augeas('/etc/securetty purge')
     end
   end
 end

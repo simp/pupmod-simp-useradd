@@ -7,40 +7,52 @@
 #   compliance_engine::enforcement:
 #     - simp:defaults
 #
-# @param securetty_ensure
-#   ttys root may log in from, mapped to `present` or `absent`. Each entry is
-#   added to, or removed from, `/etc/securetty` in place.
+# @param securetty_entries
+#   ttys root may log in from, each mapped to its options. `{}` adds the tty
+#   to `/etc/securetty` in place.
+#
+# @option securetty_entries [Enum['present', 'absent']] :ensure
+#   `absent` removes the tty. Defaults to `present`.
 #
 # @param purge_securetty
 #   Remove every entry from `/etc/securetty` that isn't `present` in
-#   `securetty_ensure` (or the deprecated `securetty`). Nothing is purged
+#   `securetty_entries` (or the deprecated `securetty`). Nothing is purged
 #   while no entry is `present`.
 #
 # @param securetty_mode
 #   The mode of `/etc/securetty`, owned by `root:root`. Leaves the mode alone
-#   when unset, and never creates the file.
+#   when unset, and never creates the file. Defaults to `0400`, as in 3.x,
+#   while the deprecated `securetty` Array is set.
 #
-# @param shells_ensure
-#   Shells, mapped to `present` or `absent`. Each entry is added to, or removed
-#   from, `/etc/shells` in place.
+# @param shells_entries
+#   Shells, each mapped to its options. `{}` adds the shell to `/etc/shells`
+#   in place.
+#
+# @option shells_entries [Enum['present', 'absent']] :ensure
+#   `absent` removes the shell. Defaults to `present`.
 #
 # @param purge_shells
 #   Remove every shell from `/etc/shells` that isn't `present` in
-#   `shells_ensure` (or the deprecated `shells_default` and `shells`). Nothing
+#   `shells_entries` (or the deprecated `shells_default` and `shells`). Nothing
 #   is purged while no shell is `present`.
 #
+# @param shells_mode
+#   The mode of `/etc/shells`, owned by `root:root`. Leaves the mode alone
+#   when unset, and never creates the file. Defaults to `0644`, as in 3.x,
+#   while the deprecated `shells_default` or `shells` Array is set.
+#
 # @param securetty
-#   Deprecated: use `securetty_ensure`. Entries are added to `/etc/securetty`.
+#   Deprecated: use `securetty_entries`. Entries are added to `/etc/securetty`.
 #
 #   * `true` or `[]`: remove every entry, leaving an empty file.
 #   * An Array containing `ANY_SHELL`: remove `/etc/securetty`.
 #   * `false`: ignored.
 #
 # @param shells_default
-#   Deprecated: use `shells_ensure`. Shells added to `/etc/shells`.
+#   Deprecated: use `shells_entries`. Shells added to `/etc/shells`.
 #
 # @param shells
-#   Deprecated: use `shells_ensure`. Shells added to `/etc/shells`, after
+#   Deprecated: use `shells_entries`. Shells added to `/etc/shells`, after
 #   `shells_default`. `false` ignores both.
 #
 # @param manage_etc_profile
@@ -72,11 +84,12 @@
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd (
-  Hash[Useradd::Tty, Enum['present', 'absent']]              $securetty_ensure      = {},
+  Hash[Useradd::Tty, Useradd::EntryOptions]                  $securetty_entries     = {},
   Boolean                                                    $purge_securetty       = false,
   Optional[Stdlib::Filemode]                                 $securetty_mode        = undef,
-  Hash[Stdlib::AbsolutePath, Enum['present', 'absent']]      $shells_ensure         = {},
+  Hash[Stdlib::AbsolutePath, Useradd::EntryOptions]          $shells_entries        = {},
   Boolean                                                    $purge_shells          = false,
+  Optional[Stdlib::Filemode]                                 $shells_mode           = undef,
   Optional[Variant[Boolean, Array[Useradd::Tty]]]            $securetty             = undef,
   Optional[Array[Stdlib::AbsolutePath]]                      $shells_default        = undef,
   Optional[Variant[Boolean, Array[Stdlib::AbsolutePath]]]    $shells                = undef,
@@ -102,7 +115,11 @@ class useradd (
         'passwd' => 'manage_passwd_perms',
         default  => "manage_${class}",
       }
-      deprecation("useradd::${_param}", "useradd::${_param} is deprecated and will be removed in a future release. Set the parameters of useradd::${class} instead.", false)
+      $_instead = $class ? {
+        'nss'   => 'useradd::nss no longer manages anything',
+        default => "Set the parameters of useradd::${class} instead",
+      }
+      deprecation("useradd::${_param}", "useradd::${_param} is deprecated and will be removed in a future release. ${_instead}.", false)
     }
 
     unless $manage == false {
@@ -113,8 +130,8 @@ class useradd (
   ['securetty', 'shells_default', 'shells'].each |$param| {
     if getvar($param) =~ NotUndef {
       $_replacement = $param ? {
-        'securetty' => 'securetty_ensure',
-        default     => 'shells_ensure',
+        'securetty' => 'securetty_entries',
+        default     => 'shells_entries',
       }
       deprecation("useradd::${param}", "useradd::${param} is deprecated and will be removed in a future release. Use useradd::${_replacement} instead.", false)
     }
@@ -134,12 +151,20 @@ class useradd (
       default => [],
     }
 
-    $_securetty_file = ($securetty_mode or $_securetty_empty) ? {
+    # 3.x wrote the file 0400 whenever `securetty` was in use.
+    $_securetty_mode = ($securetty =~ NotUndef and $securetty != false) ? {
+      true    => pick($securetty_mode, '0400'),
+      default => $securetty_mode,
+    }
+
+    $_securetty_file = ($_securetty_mode or $_securetty_empty) ? {
       true    => File['/etc/securetty'],
       default => undef,
     }
 
-    useradd::entries($securetty_ensure, $_securetty_legacy).each |$tty, $state| {
+    $_securetty = useradd::entries($securetty_entries, $_securetty_legacy)
+
+    $_securetty.each |$tty, $state| {
       useradd::entry { "/etc/securetty ${tty}":
         ensure => $state,
         file   => '/etc/securetty',
@@ -149,7 +174,7 @@ class useradd (
       }
     }
 
-    $_securetty_keep = useradd::entries($securetty_ensure, $_securetty_legacy).filter |$tty, $state| { $state == 'present' }.keys
+    $_securetty_keep = $_securetty.filter |$tty, $state| { $state == 'present' }.keys
 
     if $_securetty_empty or ($purge_securetty and !$_securetty_keep.empty) {
       useradd::entry::purge { '/etc/securetty':
@@ -170,7 +195,7 @@ class useradd (
         ensure => $_securetty_file_ensure,
         owner  => 'root',
         group  => 'root',
-        mode   => $securetty_mode,
+        mode   => $_securetty_mode,
       }
     }
   }
@@ -181,7 +206,18 @@ class useradd (
     Array   => pick($shells_default, []) + $shells,
     default => pick($shells_default, []),
   }
-  $_shells = useradd::entries($shells_ensure, $_shells_legacy)
+  $_shells = useradd::entries($shells_entries, $_shells_legacy)
+
+  # 3.x wrote the file 0644 whenever it managed it.
+  $_shells_mode = $_shells_legacy.empty ? {
+    true    => $shells_mode,
+    default => pick($shells_mode, '0644'),
+  }
+
+  $_shells_file = $_shells_mode ? {
+    Undef   => undef,
+    default => File['/etc/shells'],
+  }
 
   $_shells.each |$shell, $state| {
     useradd::entry { "/etc/shells ${shell}":
@@ -189,6 +225,7 @@ class useradd (
       file   => '/etc/shells',
       lens   => 'Shells.lns',
       entry  => $shell,
+      before => $_shells_file,
     }
   }
 
@@ -196,8 +233,18 @@ class useradd (
 
   if $purge_shells and !$_shells_keep.empty {
     useradd::entry::purge { '/etc/shells':
-      lens => 'Shells.lns',
-      keep => $_shells_keep,
+      lens   => 'Shells.lns',
+      keep   => $_shells_keep,
+      before => $_shells_file,
+    }
+  }
+
+  if $_shells_file {
+    # With no `ensure`, a missing file is not created.
+    file { '/etc/shells':
+      owner => 'root',
+      group => 'root',
+      mode  => $_shells_mode,
     }
   }
 }

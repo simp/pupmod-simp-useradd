@@ -36,7 +36,13 @@ define useradd::setting (
       false   => 'no',
       default => String($value),
     }
-    $_escaped = $_value.regsubst('\\\\', '\\\\\\\\', 'G').regsubst('"', '\\"', 'G')
+    # The augeas provider passes `\x` through verbatim and unescapes only
+    # `\"`, so only `"` is escaped. A backslash before a `"`, or at the end,
+    # would then end the string early.
+    if $_value =~ /\\("|\z)/ {
+      fail("useradd::setting '${title}': a value can't have a backslash before a double quote or at the end")
+    }
+    $_escaped = $_value.regsubst('"', '\\"', 'G')
 
     $_changes = "set ${key} \"${_escaped}\""
     $_onlyif  = undef

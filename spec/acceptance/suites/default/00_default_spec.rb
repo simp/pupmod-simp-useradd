@@ -65,6 +65,17 @@ describe 'useradd class' do
         end
       end
 
+      context 'with a backslash in a value' do
+        let(:set) { %q(class { 'useradd::login_defs': login_string => 'Pass\\word "%s":' }) }
+
+        it 'is written verbatim' do
+          apply_manifest_on(host, set, catch_failures: true)
+          apply_manifest_on(host, set, catch_changes: true)
+          expect(on(host, 'grep "^LOGIN_STRING" /etc/login.defs').stdout.strip).to eq('LOGIN_STRING Pass\\word "%s":')
+          apply_manifest_on(host, "class { 'useradd::login_defs': login_string => 'absent' }", catch_failures: true)
+        end
+      end
+
       context 'with securetty_mode and no /etc/securetty' do
         let(:mode_only) { "class { 'useradd': securetty_mode => '0400' }" }
 
@@ -76,12 +87,12 @@ describe 'useradd class' do
         end
       end
 
-      context 'with shells_ensure and purge_shells' do
+      context 'with shells_entries and purge_shells' do
         let(:shells) do
           <<~EOS
             class { 'useradd':
-              shells_ensure => { '/bin/sh' => 'present', '/bin/bash' => 'present', '/bin/tcsh' => 'absent' },
-              purge_shells  => true,
+              shells_entries => { '/bin/sh' => {}, '/bin/bash' => {}, '/bin/tcsh' => { 'ensure' => 'absent' } },
+              purge_shells   => true,
             }
           EOS
         end
@@ -131,6 +142,7 @@ describe 'useradd class' do
         it 'restores the passwd file permissions' do
           expect(on(host, 'stat -c "%a %U %G" /etc/shadow').stdout.strip).to eq('0 root root')
           expect(on(host, 'stat -c "%a %U %G" /etc/passwd').stdout.strip).to eq('644 root root')
+          expect(on(host, 'stat -c "%a %U %G" /etc/shells').stdout.strip).to eq('644 root root')
         end
 
         it 'restores the login scripts' do

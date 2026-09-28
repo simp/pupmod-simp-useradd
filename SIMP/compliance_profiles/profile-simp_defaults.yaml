@@ -9,11 +9,12 @@ version: 2.0.0
 profiles:
   simp:defaults:
     checks:
-      simp:defaults.useradd.securetty_ensure: true
+      simp:defaults.useradd.securetty_entries: true
       simp:defaults.useradd.purge_securetty: true
       simp:defaults.useradd.securetty_mode: true
-      simp:defaults.useradd.shells_ensure: true
+      simp:defaults.useradd.shells_entries: true
       simp:defaults.useradd.purge_shells: true
+      simp:defaults.useradd.shells_mode: true
       simp:defaults.useradd.login_defs.encrypt_method: true
       simp:defaults.useradd.login_defs.chfn_auth: true
       simp:defaults.useradd.login_defs.chfn_restrict: true

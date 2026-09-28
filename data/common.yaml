@@ -1,8 +1,8 @@
 ---
 lookup_options:
-  useradd::securetty_ensure:
+  useradd::securetty_entries:
     merge: deep
-  useradd::shells_ensure:
+  useradd::shells_entries:
     merge: deep
   useradd::passwd::files:
     merge: deep

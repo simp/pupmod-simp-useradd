@@ -7,16 +7,16 @@
 # Values set in site Hiera take precedence over these.
 version: 2.0.0
 checks:
-  simp:defaults.useradd.securetty_ensure:
+  simp:defaults.useradd.securetty_entries:
     type: puppet-class-parameter
     settings:
-      parameter: useradd::securetty_ensure
+      parameter: useradd::securetty_entries
       value:
-        tty0: present
-        tty1: present
-        tty2: present
-        tty3: present
-        tty4: present
+        tty0: {}
+        tty1: {}
+        tty2: {}
+        tty3: {}
+        tty4: {}
   simp:defaults.useradd.purge_securetty:
     type: puppet-class-parameter
     settings:
@@ -27,22 +27,27 @@ checks:
     settings:
       parameter: useradd::securetty_mode
       value: '0400'
-  simp:defaults.useradd.shells_ensure:
+  simp:defaults.useradd.shells_entries:
     type: puppet-class-parameter
     settings:
-      parameter: useradd::shells_ensure
+      parameter: useradd::shells_entries
       value:
-        /bin/sh: present
-        /bin/bash: present
-        /sbin/nologin: present
-        /usr/bin/sh: present
-        /usr/bin/bash: present
-        /usr/sbin/nologin: present
+        /bin/sh: {}
+        /bin/bash: {}
+        /sbin/nologin: {}
+        /usr/bin/sh: {}
+        /usr/bin/bash: {}
+        /usr/sbin/nologin: {}
   simp:defaults.useradd.purge_shells:
     type: puppet-class-parameter
     settings:
       parameter: useradd::purge_shells
       value: true
+  simp:defaults.useradd.shells_mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::shells_mode
+      value: '0644'
   simp:defaults.useradd.login_defs.encrypt_method:
     type: puppet-class-parameter
     settings:

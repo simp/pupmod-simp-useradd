@@ -55,6 +55,27 @@ describe 'useradd::login_defs' do
     it { is_expected.not_to contain_augeas('/etc/login.defs purge 0') }
   end
 
+  context 'with a backslash in a value' do
+    let(:params) { { login_string: 'a\\b' } }
+
+    # The augeas provider passes `\x` through verbatim.
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes('set LOGIN_STRING "a\\b"') }
+  end
+
+  ['a\\', 'a\\"b'].each do |value|
+    context "with the value #{value.inspect}" do
+      let(:params) { { login_string: value } }
+
+      it { is_expected.to compile.and_raise_error(%r{backslash before a double quote or at the end}) }
+    end
+  end
+
+  context 'with an empty string' do
+    let(:params) { { login_string: '' } }
+
+    it { is_expected.to compile.and_raise_error(%r{login_string}) }
+  end
+
   context 'with a setting absent' do
     let(:params) { { pass_max_days: 'absent' } }
 

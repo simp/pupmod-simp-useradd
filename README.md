@@ -44,10 +44,21 @@ Values set in site Hiera take precedence over the profile.
 * `/etc/login.defs`, `/etc/default/useradd` and `/etc/libuser.conf` are edited
   one key per parameter. `absent` removes a key.
 * `/etc/securetty` and `/etc/shells` are edited one entry at a time, through
-  `securetty_ensure` and `shells_ensure`.
+  `securetty_entries` and `shells_entries`.
 * Keys and entries the module doesn't set are kept, unless you turn on the
   matching `purge` parameter. `simp:defaults` turns them on.
 * `/etc/default/nss` and `/etc/sysconfig/init` are no longer managed.
+
+### UID/GID ranges
+
+3.x always wrote `UID_MIN`, `UID_MAX`, `GID_MIN` and `GID_MAX` to
+`login.defs`, from `simp_options::uid`/`gid`, else the current value, else
+1000/1000000/1000/500000. 4.0.0 writes them only when set, directly or through
+`simp_options`. `simp:defaults` doesn't set them.
+
+* A host that already has the keys keeps its values.
+* A `login.defs` missing a key no longer gets the 3.x fallback. Set the
+  parameter to keep it.
 
 ### Login scripts
 
@@ -66,8 +77,8 @@ Values set in site Hiera take precedence over the profile.
 These still work, and warn when set:
 
 * the `manage_*` parameters of `useradd`, where `false` still skips the class;
-* `securetty`, `shells_default` and `shells`, replaced by `securetty_ensure`
-  and `shells_ensure`;
+* `securetty`, `shells_default` and `shells`, replaced by `securetty_entries`
+  and `shells_entries`;
 * `useradd::etc_profile::manage_tmout`;
 * the `useradd::sysconfig_init` display parameters and `useradd::nss`, which
   no longer manage anything.
@@ -155,9 +166,10 @@ single entry:
 
 ```yaml
 ---
-useradd::securetty_ensure:
-  console: present
-  tty4: absent
+useradd::securetty_entries:
+  console: {}
+  tty4:
+    ensure: absent
 ```
 
 

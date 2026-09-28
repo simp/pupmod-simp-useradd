@@ -30,7 +30,7 @@
 
 #### Public Functions
 
-* [`useradd::entries`](#useradd--entries): Combine a list's `*_ensure` Hash with its deprecated Array parameter
+* [`useradd::entries`](#useradd--entries): Combine a list's `*_entries` Hash with its deprecated Array parameter
 
 #### Private Functions
 
@@ -40,6 +40,7 @@
 
 * [`Useradd::Bootup`](#Useradd--Bootup): Boot mode sysconfig option
 * [`Useradd::CryptStyle`](#Useradd--CryptStyle): The  algorithm to use for password encryption when creating new passwords
+* [`Useradd::EntryOptions`](#Useradd--EntryOptions): Options for one entry of a list parameter
 * [`Useradd::LibuserModule`](#Useradd--LibuserModule): Valid libuser modules
 * [`Useradd::Tty`](#Useradd--Tty): A tty name, as listed in `/etc/securetty`
 
@@ -62,11 +63,12 @@ author: SIMP Team <simp@simp-project.com>
 
 The following parameters are available in the `useradd` class:
 
-* [`securetty_ensure`](#-useradd--securetty_ensure)
+* [`securetty_entries`](#-useradd--securetty_entries)
 * [`purge_securetty`](#-useradd--purge_securetty)
 * [`securetty_mode`](#-useradd--securetty_mode)
-* [`shells_ensure`](#-useradd--shells_ensure)
+* [`shells_entries`](#-useradd--shells_entries)
 * [`purge_shells`](#-useradd--purge_shells)
+* [`shells_mode`](#-useradd--shells_mode)
 * [`securetty`](#-useradd--securetty)
 * [`shells_default`](#-useradd--shells_default)
 * [`shells`](#-useradd--shells)
@@ -78,12 +80,16 @@ The following parameters are available in the `useradd` class:
 * [`manage_sysconfig_init`](#-useradd--manage_sysconfig_init)
 * [`manage_useradd`](#-useradd--manage_useradd)
 
-##### <a name="-useradd--securetty_ensure"></a>`securetty_ensure`
+##### <a name="-useradd--securetty_entries"></a>`securetty_entries`
 
-Data type: `Hash[Useradd::Tty, Enum['present', 'absent']]`
+Data type: `Hash[Useradd::Tty, Useradd::EntryOptions]`
 
-ttys root may log in from, mapped to `present` or `absent`. Each entry is
-added to, or removed from, `/etc/securetty` in place.
+ttys root may log in from, each mapped to its options. `{}` adds the tty
+to `/etc/securetty` in place.
+
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` removes the tty. Defaults to `present`.
 
 Default value: `{}`
 
@@ -92,7 +98,7 @@ Default value: `{}`
 Data type: `Boolean`
 
 Remove every entry from `/etc/securetty` that isn't `present` in
-`securetty_ensure` (or the deprecated `securetty`). Nothing is purged
+`securetty_entries` (or the deprecated `securetty`). Nothing is purged
 while no entry is `present`.
 
 Default value: `false`
@@ -102,16 +108,21 @@ Default value: `false`
 Data type: `Optional[Stdlib::Filemode]`
 
 The mode of `/etc/securetty`, owned by `root:root`. Leaves the mode alone
-when unset, and never creates the file.
+when unset, and never creates the file. Defaults to `0400`, as in 3.x,
+while the deprecated `securetty` Array is set.
 
 Default value: `undef`
 
-##### <a name="-useradd--shells_ensure"></a>`shells_ensure`
+##### <a name="-useradd--shells_entries"></a>`shells_entries`
 
-Data type: `Hash[Stdlib::AbsolutePath, Enum['present', 'absent']]`
+Data type: `Hash[Stdlib::AbsolutePath, Useradd::EntryOptions]`
 
-Shells, mapped to `present` or `absent`. Each entry is added to, or removed
-from, `/etc/shells` in place.
+Shells, each mapped to its options. `{}` adds the shell to `/etc/shells`
+in place.
+
+Options:
+
+* **:ensure** `Enum['present', 'absent']`: `absent` removes the shell. Defaults to `present`.
 
 Default value: `{}`
 
@@ -120,16 +131,26 @@ Default value: `{}`
 Data type: `Boolean`
 
 Remove every shell from `/etc/shells` that isn't `present` in
-`shells_ensure` (or the deprecated `shells_default` and `shells`). Nothing
+`shells_entries` (or the deprecated `shells_default` and `shells`). Nothing
 is purged while no shell is `present`.
 
 Default value: `false`
+
+##### <a name="-useradd--shells_mode"></a>`shells_mode`
+
+Data type: `Optional[Stdlib::Filemode]`
+
+The mode of `/etc/shells`, owned by `root:root`. Leaves the mode alone
+when unset, and never creates the file. Defaults to `0644`, as in 3.x,
+while the deprecated `shells_default` or `shells` Array is set.
+
+Default value: `undef`
 
 ##### <a name="-useradd--securetty"></a>`securetty`
 
 Data type: `Optional[Variant[Boolean, Array[Useradd::Tty]]]`
 
-Deprecated: use `securetty_ensure`. Entries are added to `/etc/securetty`.
+Deprecated: use `securetty_entries`. Entries are added to `/etc/securetty`.
 
 * `true` or `[]`: remove every entry, leaving an empty file.
 * An Array containing `ANY_SHELL`: remove `/etc/securetty`.
@@ -141,7 +162,7 @@ Default value: `undef`
 
 Data type: `Optional[Array[Stdlib::AbsolutePath]]`
 
-Deprecated: use `shells_ensure`. Shells added to `/etc/shells`.
+Deprecated: use `shells_entries`. Shells added to `/etc/shells`.
 
 Default value: `undef`
 
@@ -149,7 +170,7 @@ Default value: `undef`
 
 Data type: `Optional[Variant[Boolean, Array[Stdlib::AbsolutePath]]]`
 
-Deprecated: use `shells_ensure`. Shells added to `/etc/shells`, after
+Deprecated: use `shells_entries`. Shells added to `/etc/shells`, after
 `shells_default`. `false` ignores both.
 
 Default value: `undef`
@@ -746,7 +767,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--console_groups"></a>`console_groups`
 
-Data type: `Optional[Variant[Array[String,1], Enum['absent']]]`
+Data type: `Optional[Variant[Array[String[1],1], Enum['absent']]]`
 
 
 
@@ -770,7 +791,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_hz"></a>`env_hz`
 
-Data type: `Optional[Variant[String, Enum['absent']]]`
+Data type: `Optional[Variant[String[1], Enum['absent']]]`
 
 
 
@@ -794,7 +815,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_tz"></a>`env_tz`
 
-Data type: `Optional[Variant[String, Enum['absent']]]`
+Data type: `Optional[Variant[String[1], Enum['absent']]]`
 
 
 
@@ -898,7 +919,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--login_string"></a>`login_string`
 
-Data type: `Optional[Variant[String, Enum['absent']]]`
+Data type: `Optional[Variant[String[1], Enum['absent']]]`
 
 
 
@@ -1090,7 +1111,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--su_name"></a>`su_name`
 
-Data type: `Optional[Variant[String, Enum['absent']]]`
+Data type: `Optional[Variant[String[1], Enum['absent']]]`
 
 
 
@@ -1154,7 +1175,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--ttygroup"></a>`ttygroup`
 
-Data type: `Optional[Variant[String, Enum['absent']]]`
+Data type: `Optional[Variant[String[1], Enum['absent']]]`
 
 
 
@@ -1194,7 +1215,7 @@ Default value: `simplib::lookup('simp_options::uid::min', { 'default_value' => u
 
 ##### <a name="-useradd--login_defs--umask"></a>`umask`
 
-Data type: `Optional[Variant[String, Enum['absent']]]`
+Data type: `Optional[Variant[String[1], Enum['absent']]]`
 
 
 
@@ -1566,7 +1587,7 @@ Array entries are applied last, as `present`, so a site's old data still
 wins. An entry written as `--entry` (a Hiera knockout that reached the class)
 becomes `absent`.
 
-#### `useradd::entries(Hash[String[1], Enum['present', 'absent']] $entries, Array[String[1]] $legacy = [])`
+#### `useradd::entries(Hash[String[1], Useradd::EntryOptions] $entries, Array[String[1]] $legacy = [])`
 
 Array entries are applied last, as `present`, so a site's old data still
 wins. An entry written as `--entry` (a Hiera knockout that reached the class)
@@ -1576,9 +1597,9 @@ Returns: `Hash[String[1], Enum['present', 'absent']]`
 
 ##### `entries`
 
-Data type: `Hash[String[1], Enum['present', 'absent']]`
+Data type: `Hash[String[1], Useradd::EntryOptions]`
 
-The Hash of entry to `present` or `absent`.
+The Hash of entry to its options. `ensure` defaults to `present`.
 
 ##### `legacy`
 
@@ -1599,6 +1620,13 @@ Alias of `Enum['graphical', 'color', 'verbose', 'plain']`
 The  algorithm to use for password encryption when creating new passwords
 
 Alias of `Enum['BLOWFISH', 'DES', 'MD5', 'SHA256', 'SHA512', 'blowfish', 'des', 'md5', 'sha256', 'sha512']`
+
+### <a name="Useradd--EntryOptions"></a>`Useradd::EntryOptions`
+
+An empty Hash means `{ ensure => present }`. New options are added here as
+Optional keys, so existing data keeps validating.
+
+Alias of `Struct[{ Optional['ensure'] => Enum['present', 'absent'] }]`
 
 ### <a name="Useradd--LibuserModule"></a>`Useradd::LibuserModule`
 

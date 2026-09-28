@@ -35,10 +35,12 @@ deprecated parameter and no UID/GID range.
 one file or group of files. It also edits `/etc/securetty` and `/etc/shells`
 itself.
 
-- **`useradd`** — `securetty_ensure`, `shells_ensure`, `purge_securetty`,
-  `purge_shells`, `securetty_mode`. The deprecated `securetty`,
+- **`useradd`** — `securetty_entries`, `shells_entries`, `purge_securetty`,
+  `purge_shells`, `securetty_mode`, `shells_mode`. Entries map to
+  `Useradd::EntryOptions` (`{}` = present). The deprecated `securetty`,
   `shells_default` and `shells` Arrays still apply, combined by
-  `useradd::entries` (Array entries win; `--entry` knocks one out).
+  `useradd::entries` (Array entries win; `--entry` knocks one out), and
+  default the file mode to 3.x's `0400`/`0644`.
   The deprecated `manage_*` Booleans still skip a class when `false`.
 - **`useradd::login_defs`** — per-key augeas (`Login_defs.lns`), `mode`,
   `purge`. The purge always keeps `UID_MIN`, `UID_MAX`, `GID_MIN` and
@@ -84,9 +86,13 @@ itself.
   set.
 - **The deprecated Arrays keep their 3.x types**, so `shells`
   (`Array[Stdlib::AbsolutePath]`) can't take a `--` knockout. Use
-  `shells_ensure`.
+  `shells_entries`.
 - **Deprecations use `deprecation(key, msg, false)`**, which never fails
-  compilation under `strict=error`. Don't use `warning()` for them.
+  compilation under `strict=error`. Don't use `warning()` for them. The
+  third argument needs stdlib 9.2.0.
+- **`useradd::setting` escapes only `"`.** The augeas provider passes `\x`
+  through verbatim, so a value with a backslash before `"` or at the end
+  fails compilation.
 - **`pass_min_len` / `pass_max_len`** have no effect on stock EL; minimum
   length is set via PAM / `pwquality.conf`.
 - **`etc_profile::manage_tmout`** is deprecated; leave `session_timeout`
