@@ -1,103 +1,203 @@
 # Manage settings regarding users and user creation
 #
-# @param manage_useradd
-#   If true, manage `/etc/default/useradd`
+# A bare `include useradd` manages nothing. Each setting is managed only when
+# its parameter is set. To restore the behavior of useradd 3.x, enforce the
+# `simp:defaults` compliance profile:
 #
-# @param manage_login_defs
-#   If true, manage `/etc/login.defs`
+#   compliance_engine::enforcement:
+#     - simp:defaults
 #
-# @param manage_libuser_conf
-#   If true, manage `/etc/libuser.conf`
+# @param securetty_ensure
+#   ttys root may log in from, mapped to `present` or `absent`. Each entry is
+#   added to, or removed from, `/etc/securetty` in place.
 #
-# @param manage_etc_profile
-#   If true, manage `/etc/profile/simp.*`
+# @param purge_securetty
+#   Remove every entry from `/etc/securetty` that isn't `present` in
+#   `securetty_ensure` (or the deprecated `securetty`). Nothing is purged
+#   while no entry is `present`.
 #
-# @param manage_sysconfig_init
-#   If true, manage `/etc/sysconfig/init`
+# @param securetty_mode
+#   The mode of `/etc/securetty`, owned by `root:root`. Leaves the mode alone
+#   when unset, and never creates the file.
 #
-# @param manage_nss
-#   If true, manage `/etc/default/nss`
+# @param shells_ensure
+#   Shells, mapped to `present` or `absent`. Each entry is added to, or removed
+#   from, `/etc/shells` in place.
 #
-# @param manage_passwd_perms
-#   If true, manage the permissions of shadow and passwd related files
+# @param purge_shells
+#   Remove every shell from `/etc/shells` that isn't `present` in
+#   `shells_ensure` (or the deprecated `shells_default` and `shells`). Nothing
+#   is purged while no shell is `present`.
 #
 # @param securetty
-#   List of ttys available to log into
-#   Defaults to ['tty0', 'tty1', 'tty2', 'tty3', 'tty4']
+#   Deprecated: use `securetty_ensure`. Entries are added to `/etc/securetty`.
 #
-#   * If set to false, management of /etc/securetty will be disabled
-#   * If the Array is empty(default) or set to true, root will not be able to log into
-#     any physical console. This does not prevent root login from anywhere 
-#     else.
-#   * If the string 'ANY_SHELL' is found in the Array, then the
-#     ``/etc/securetty`` file will be removed and root will be able to login
-#     from anywhere.
+#   * `true` or `[]`: remove every entry, leaving an empty file.
+#   * An Array containing `ANY_SHELL`: remove `/etc/securetty`.
+#   * `false`: ignored.
 #
 # @param shells_default
-#   List of shells that will appear on the system by default
-#
-#   * These have been set to the usual suspects and users should use the
-#     ``shells`` parameter to add to the list
+#   Deprecated: use `shells_ensure`. Shells added to `/etc/shells`.
 #
 # @param shells
-#   List of shells available to the user to set as default
+#   Deprecated: use `shells_ensure`. Shells added to `/etc/shells`, after
+#   `shells_default`. `false` ignores both.
 #
-#   * Set to false to disable management
-#   * Will be combined with ``shells_default`` in /etc/shells
+# @param manage_etc_profile
+#   Deprecated: set the parameters of `useradd::etc_profile` instead. `false`
+#   skips the class.
+#
+# @param manage_libuser_conf
+#   Deprecated: set the parameters of `useradd::libuser_conf` instead. `false`
+#   skips the class.
+#
+# @param manage_login_defs
+#   Deprecated: set the parameters of `useradd::login_defs` instead. `false`
+#   skips the class.
+#
+# @param manage_nss
+#   Deprecated: `useradd::nss` no longer manages anything.
+#
+# @param manage_passwd_perms
+#   Deprecated: set `useradd::passwd::files` instead. `false` skips the class.
+#
+# @param manage_sysconfig_init
+#   Deprecated: set the parameters of `useradd::sysconfig_init` instead.
+#   `false` skips the class.
+#
+# @param manage_useradd
+#   Deprecated: set the parameters of `useradd::useradd` instead. `false`
+#   skips the class.
 #
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd (
-  Boolean                                      $manage_etc_profile    = true,
-  Boolean                                      $manage_libuser_conf   = true,
-  Boolean                                      $manage_login_defs     = true,
-  Boolean                                      $manage_nss            = true,
-  Boolean                                      $manage_passwd_perms   = true,
-  Boolean                                      $manage_sysconfig_init = true,
-  Boolean                                      $manage_useradd        = true,
-  Variant[Boolean,Array[String]]               $securetty             = ['tty0', 'tty1', 'tty2', 'tty3', 'tty4'],
-
-  Array[Stdlib::AbsolutePath]                  $shells_default        = ['/bin/sh','/bin/bash','/sbin/nologin','/usr/bin/sh','/usr/bin/bash','/usr/sbin/nologin'],
-  Variant[Boolean,Array[Stdlib::AbsolutePath]] $shells                = []
+  Hash[Useradd::Tty, Enum['present', 'absent']]              $securetty_ensure      = {},
+  Boolean                                                    $purge_securetty       = false,
+  Optional[Stdlib::Filemode]                                 $securetty_mode        = undef,
+  Hash[Stdlib::AbsolutePath, Enum['present', 'absent']]      $shells_ensure         = {},
+  Boolean                                                    $purge_shells          = false,
+  Optional[Variant[Boolean, Array[Useradd::Tty]]]            $securetty             = undef,
+  Optional[Array[Stdlib::AbsolutePath]]                      $shells_default        = undef,
+  Optional[Variant[Boolean, Array[Stdlib::AbsolutePath]]]    $shells                = undef,
+  Optional[Boolean]                                          $manage_etc_profile    = undef,
+  Optional[Boolean]                                          $manage_libuser_conf   = undef,
+  Optional[Boolean]                                          $manage_login_defs     = undef,
+  Optional[Boolean]                                          $manage_nss            = undef,
+  Optional[Boolean]                                          $manage_passwd_perms   = undef,
+  Optional[Boolean]                                          $manage_sysconfig_init = undef,
+  Optional[Boolean]                                          $manage_useradd        = undef,
 ) {
-  if $manage_etc_profile { include 'useradd::etc_profile' }
-  if $manage_libuser_conf { include 'useradd::libuser_conf' }
-  if $manage_login_defs { include 'useradd::login_defs' }
-  if $manage_nss { include 'useradd::nss' }
-  if $manage_passwd_perms { include 'useradd::passwd' }
-  if $manage_sysconfig_init { include 'useradd::sysconfig_init' }
-  if $manage_useradd { include 'useradd::useradd' }
+  {
+    'etc_profile'    => $manage_etc_profile,
+    'libuser_conf'   => $manage_libuser_conf,
+    'login_defs'     => $manage_login_defs,
+    'nss'            => $manage_nss,
+    'passwd'         => $manage_passwd_perms,
+    'sysconfig_init' => $manage_sysconfig_init,
+    'useradd'        => $manage_useradd,
+  }.each |$class, $manage| {
+    if $manage =~ NotUndef {
+      $_param = $class ? {
+        'passwd' => 'manage_passwd_perms',
+        default  => "manage_${class}",
+      }
+      deprecation("useradd::${_param}", "useradd::${_param} is deprecated and will be removed in a future release. Set the parameters of useradd::${class} instead.", false)
+    }
 
-  if $securetty {
-    if 'ANY_SHELL' in $securetty {
-      file { '/etc/securetty':
-        ensure => 'absent',
+    unless $manage == false {
+      include "useradd::${class}"
+    }
+  }
+
+  ['securetty', 'shells_default', 'shells'].each |$param| {
+    if getvar($param) =~ NotUndef {
+      $_replacement = $param ? {
+        'securetty' => 'securetty_ensure',
+        default     => 'shells_ensure',
+      }
+      deprecation("useradd::${param}", "useradd::${param} is deprecated and will be removed in a future release. Use useradd::${_replacement} instead.", false)
+    }
+  }
+
+  # /etc/securetty
+  if $securetty =~ Array and 'ANY_SHELL' in $securetty {
+    file { '/etc/securetty':
+      ensure => 'absent',
+    }
+  }
+  else {
+    # `true` and `[]` meant an empty file in 3.x.
+    $_securetty_empty = ($securetty == true or $securetty == [])
+    $_securetty_legacy = $securetty ? {
+      Array   => $securetty,
+      default => [],
+    }
+
+    $_securetty_file = ($securetty_mode or $_securetty_empty) ? {
+      true    => File['/etc/securetty'],
+      default => undef,
+    }
+
+    useradd::entries($securetty_ensure, $_securetty_legacy).each |$tty, $state| {
+      useradd::entry { "/etc/securetty ${tty}":
+        ensure => $state,
+        file   => '/etc/securetty',
+        lens   => 'Securetty.lns',
+        entry  => $tty,
+        before => $_securetty_file,
       }
     }
 
-    else {
-      if $securetty == true {
-        $_securetty = []
+    $_securetty_keep = useradd::entries($securetty_ensure, $_securetty_legacy).filter |$tty, $state| { $state == 'present' }.keys
+
+    if $_securetty_empty or ($purge_securetty and !$_securetty_keep.empty) {
+      useradd::entry::purge { '/etc/securetty':
+        lens   => 'Securetty.lns',
+        keep   => $_securetty_keep,
+        before => $_securetty_file,
       }
-      else {
-        $_securetty = $securetty
+    }
+
+    if $_securetty_file {
+      # With no `ensure`, a missing file is not created.
+      $_securetty_file_ensure = $_securetty_empty ? {
+        true    => 'file',
+        default => undef,
       }
 
       file { '/etc/securetty':
-        ensure  => 'file',
-        owner   => 'root',
-        group   => 'root',
-        mode    => '0400',
-        content => join($_securetty,"\n")
+        ensure => $_securetty_file_ensure,
+        owner  => 'root',
+        group  => 'root',
+        mode   => $securetty_mode,
       }
     }
   }
-  if $shells and !(empty($shells_default) and empty($shells)) {
-    file { '/etc/shells':
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => join(($shells_default + $shells),"\n")
+
+  # /etc/shells
+  $_shells_legacy = $shells ? {
+    false   => [],
+    Array   => pick($shells_default, []) + $shells,
+    default => pick($shells_default, []),
+  }
+  $_shells = useradd::entries($shells_ensure, $_shells_legacy)
+
+  $_shells.each |$shell, $state| {
+    useradd::entry { "/etc/shells ${shell}":
+      ensure => $state,
+      file   => '/etc/shells',
+      lens   => 'Shells.lns',
+      entry  => $shell,
+    }
+  }
+
+  $_shells_keep = $_shells.filter |$shell, $state| { $state == 'present' }.keys
+
+  if $purge_shells and !$_shells_keep.empty {
+    useradd::entry::purge { '/etc/shells':
+      lens => 'Shells.lns',
+      keep => $_shells_keep,
     }
   }
 }

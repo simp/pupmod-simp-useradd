@@ -9,17 +9,13 @@ foreach user (<%= @user_whitelist.join(' ') %>)
 end
 
 <% end -%>
-<% if @prepend['csh'] then -%>
-<%= @prepend['csh'] %>
-
+<% if @_session_timeout.is_a?(Integer) then -%>
+set autologout=<%= @_session_timeout %>
 <% end -%>
-<% if @manage_tmout then -%>
-set autologout=<%= @session_timeout %>
-<% end -%>
+<% unless [nil, 'absent'].include?(@umask) then -%>
 umask <%= @umask %>
+<% end -%>
+<% if ['y', 'n'].include?(@_mesg) then -%>
 tty -s
-if ( $? == 0 ) mesg <%= @mesg ? 'y' : 'n' %>
-<% if @append['csh'] then -%>
-
-<%= @append['csh'] %>
+if ( $? == 0 ) mesg <%= @_mesg %>
 <% end -%>

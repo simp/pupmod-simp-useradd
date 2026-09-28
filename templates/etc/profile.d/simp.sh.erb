@@ -8,21 +8,17 @@ for user in <%= @user_whitelist.join(' ') %>; do
   fi
 done
 <% end -%>
-<% if @prepend['sh'] then -%>
-<%= @prepend['sh'] %>
-
-<% end -%>
-<% if @manage_tmout then -%>
-[ $TMOUT ] || export TMOUT=<%= @session_timeout.to_i * 60 %>
+<% if @_session_timeout.is_a?(Integer) then -%>
+[ $TMOUT ] || export TMOUT=<%= @_session_timeout * 60 %>
 readonly TMOUT
 <% end -%>
+<% if ['y', 'n'].include?(@_mesg) then -%>
 
 if tty -s; then
-  mesg <%= @mesg ? 'y' : 'n' %>
+  mesg <%= @_mesg %>
 fi
+<% end -%>
+<% unless [nil, 'absent'].include?(@umask) then -%>
 
 umask <%= @umask %>
-<% if @append['sh'] then -%>
-
-<%= @append['sh'] %>
 <% end -%>

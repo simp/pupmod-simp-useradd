@@ -1,73 +1,120 @@
-# Allow for the configuration of /etc/sysconfig/init
+# Manage the shell run by the emergency and rescue targets
 #
-# See /usr/share/doc/initscripts-<version>/sysconfig.txt for variable
-#   definitions.
+# `/etc/sysconfig/init` is no longer managed: no EL8 or later package ships
+# it, and only the legacy `/etc/rc.d/init.d/functions` reads it. Its
+# parameters are kept so existing Hiera data still compiles, and warn when set.
+#
+# @param single_user_login
+#   The command `emergency.service` and `rescue.service` run, written to a
+#   systemd drop-in for each. `absent` removes the drop-ins.
+#
+# @param purge
+#   Remove every other drop-in for `emergency.service` and `rescue.service`.
+#   Acts only while `single_user_login` is set to a command.
+#
+# @param systemd
+#   Include the `systemd` class, which with its defaults keeps
+#   `systemd-journald` running.
 #
 # @param bootup
-# @param res_col
-# @param move_to_col
-#   * By default, undef will add the code `"echo -en \\033[${RES_COL}G"` to
-#     /etc/sysconfig/init
-#   * Optional string of code will be substituted if included
-# @param setcolor_success
-# @param setcolor_failure
-# @param setcolor_warning
-# @param setcolor_normal
-# @param single_user_login
-# @param loglvl
-# @param prompt
-# @param autoswap
-#   AUTOSWAP option is only useful in el6.  Not present in el7 or later.
+#   Deprecated: ignored.
 #
-#For all `setcolor` variables, use the following color options as a string:
-#   * default
-#   * black
-#   * red
-#   * green
-#   * yellow
-#   * blue
-#   * magenta
-#   * cyan
-#   * white
+# @param res_col
+#   Deprecated: ignored.
+#
+# @param move_to_col
+#   Deprecated: ignored.
+#
+# @param setcolor_success
+#   Deprecated: ignored.
+#
+# @param setcolor_failure
+#   Deprecated: ignored.
+#
+# @param setcolor_warning
+#   Deprecated: ignored.
+#
+# @param setcolor_normal
+#   Deprecated: ignored.
+#
+# @param loglvl
+#   Deprecated: ignored.
+#
+# @param prompt
+#   Deprecated: ignored.
+#
+# @param autoswap
+#   Deprecated: ignored.
 #
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::sysconfig_init (
-  Useradd::Bootup      $bootup            = 'color',
-  Integer              $res_col           = 60,
-  Optional[String]     $move_to_col       = undef,
-  String               $setcolor_success  = 'green',
-  String               $setcolor_failure  = 'red',
-  String               $setcolor_warning  = 'yellow',
-  String               $setcolor_normal   = 'default',
-  Stdlib::AbsolutePath $single_user_login = '/sbin/sulogin',
-  Integer[1,8]         $loglvl            = 3,
-  Boolean              $prompt            = false,
-  Boolean              $autoswap          = false,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]] $single_user_login = undef,
+  Boolean                                                 $purge             = false,
+  Boolean                                                 $systemd           = false,
+  Optional[Useradd::Bootup]                               $bootup            = undef,
+  Optional[Integer]                                       $res_col           = undef,
+  Optional[String]                                        $move_to_col       = undef,
+  Optional[String]                                        $setcolor_success  = undef,
+  Optional[String]                                        $setcolor_failure  = undef,
+  Optional[String]                                        $setcolor_warning  = undef,
+  Optional[String]                                        $setcolor_normal   = undef,
+  Optional[Integer[1,8]]                                  $loglvl            = undef,
+  Optional[Boolean]                                       $prompt            = undef,
+  Optional[Boolean]                                       $autoswap          = undef,
 ) {
-  if 'systemd' in $facts['init_systems'] {
-    $_unit_file_content = @("END")
-      [Service]
-      ExecStart=
-      ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
-      | END
-
-    systemd::dropin_file { 'emergency_exec.conf':
-      unit    => 'emergency.service',
-      content => $_unit_file_content
-    }
-
-    systemd::dropin_file { 'rescue_exec.conf':
-      unit    => 'rescue.service',
-      content => $_unit_file_content
+  [
+    'bootup', 'res_col', 'move_to_col', 'setcolor_success', 'setcolor_failure',
+    'setcolor_warning', 'setcolor_normal', 'loglvl', 'prompt', 'autoswap',
+  ].each |$param| {
+    if getvar($param) =~ NotUndef {
+      deprecation("useradd::sysconfig_init::${param}", "useradd::sysconfig_init::${param} is deprecated and ignored: /etc/sysconfig/init is no longer managed.", false)
     }
   }
 
-  file { '/etc/sysconfig/init':
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    content => template('useradd/etc/sysconfig/init.erb')
+  if $systemd {
+    include 'systemd'
+  }
+
+  if $single_user_login and 'systemd' in pick($facts['init_systems'], []) {
+    ['emergency', 'rescue'].each |$unit| {
+      $_dir = "/etc/systemd/system/${unit}.service.d"
+
+      if $single_user_login == 'absent' {
+        file { "${_dir}/${unit}_exec.conf":
+          ensure => 'absent',
+          notify => Exec['useradd systemctl daemon-reload'],
+        }
+      }
+      else {
+        file { $_dir:
+          ensure  => 'directory',
+          owner   => 'root',
+          group   => 'root',
+          recurse => $purge,
+          purge   => $purge,
+          notify  => Exec['useradd systemctl daemon-reload'],
+        }
+
+        file { "${_dir}/${unit}_exec.conf":
+          ensure  => 'file',
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0444',
+          content => @("END"),
+            [Service]
+            ExecStart=
+            ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
+            | END
+          notify  => Exec['useradd systemctl daemon-reload'],
+        }
+      }
+    }
+
+    exec { 'useradd systemctl daemon-reload':
+      command     => 'systemctl daemon-reload',
+      path        => ['/usr/bin', '/bin'],
+      refreshonly => true,
+    }
   }
 }

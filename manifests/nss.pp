@@ -1,21 +1,27 @@
-# Install and configure the NSS configuration file.
-# See nss(5) for more details.
+# Deprecated: no longer manages `/etc/default/nss`
+#
+# Nothing on EL8 or later reads `/etc/default/nss`. The parameters are kept so
+# existing Hiera data still compiles, and warn when set.
 #
 # @param netid_authoritative
+#   Deprecated: ignored.
+#
 # @param services_authoritative
+#   Deprecated: ignored.
+#
 # @param setent_batch_read
+#   Deprecated: ignored.
 #
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::nss (
-  Boolean $netid_authoritative    = false,
-  Boolean $services_authoritative = false,
-  Boolean $setent_batch_read      = true,
+  Optional[Boolean] $netid_authoritative    = undef,
+  Optional[Boolean] $services_authoritative = undef,
+  Optional[Boolean] $setent_batch_read      = undef,
 ) {
-  file { '/etc/default/nss':
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0640',
-    content => template('useradd/etc/default/nss.erb')
+  ['netid_authoritative', 'services_authoritative', 'setent_batch_read'].each |$param| {
+    if getvar($param) =~ NotUndef {
+      deprecation("useradd::nss::${param}", "useradd::nss::${param} is deprecated and ignored: nothing on EL8 or later reads /etc/default/nss.", false)
+    }
   }
 }
