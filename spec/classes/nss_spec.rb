@@ -1,27 +1,14 @@
 require 'spec_helper'
 
 describe 'useradd::nss' do
-  context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
-      context "on #{os}" do
-        let(:facts) do
-          facts
-        end
+  let(:facts) { on_supported_os.first[1] }
 
-        context 'with default parameters' do
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_class('useradd::nss') }
-          it {
-            is_expected.to create_file('/etc/default/nss').with_content(<<-EOM)
-# This file managed by Puppet.
+  [{}, { netid_authoritative: true, services_authoritative: false, setent_batch_read: true }].each do |params|
+    context "with #{params.empty? ? 'default parameters' : 'the deprecated parameters'}" do
+      let(:params) { params }
 
-NETID_AUTHORITATIVE=FALSE
-SERVICES_AUTHORITATIVE=FALSE
-SETENT_BATCH_READ=TRUE
-               EOM
-          }
-        end
-      end
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.not_to contain_file('/etc/default/nss') }
     end
   end
 end

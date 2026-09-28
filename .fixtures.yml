@@ -1,6 +1,14 @@
 ---
 fixtures:
   repositories:
+    augeas_core:
+      repo: https://github.com/simp/pupmod-puppetlabs-augeas_core.git
+      puppet_version: ">= 6.0.0"
+    # Only needed so spec tests can resolve `compliance_engine::enforcement`
+    # for the `simp:defaults` profile. NOT a module dependency (see metadata.json).
+    compliance_engine:
+      repo: https://github.com/simp/rubygem-simp-compliance_engine.git
+      ref: '1.0.0'
     stdlib: https://github.com/simp/puppetlabs-stdlib.git
     simp_options: https://github.com/simp/pupmod-simp-simp_options.git
     simplib: https://github.com/simp/pupmod-simp-simplib.git

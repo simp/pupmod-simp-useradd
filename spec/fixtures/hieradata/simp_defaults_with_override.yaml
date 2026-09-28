@@ -1,0 +1,10 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+# Explicit site values. They sit above the compliance engine layer, so they
+# must win over the profile.
+useradd::login_defs::pass_max_days: 60
+# Deep-merged with the profile's securetty_ensure.
+useradd::securetty_ensure:
+  tty4: absent
+  console: present

@@ -1,0 +1,5 @@
+---
+simp_options::uid::min: 1000
+simp_options::uid::max: 600000
+simp_options::gid::min: 1000
+simp_options::gid::max: 600000

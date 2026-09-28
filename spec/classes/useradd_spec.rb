@@ -1,64 +1,47 @@
 require 'spec_helper'
 
 describe 'useradd::useradd' do
-  context 'supported operating systems' do
-    on_supported_os.each do |os, facts|
-      context "on #{os}" do
-        let(:facts) do
-          facts
-        end
+  let(:facts) { on_supported_os.first[1] }
 
-        it { is_expected.to compile.with_all_deps }
-        it {
-          is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(%r{^\s+}, ''))
-               # This file managed by Puppet.
-               # useradd defaults file
-               GROUP=100
-               HOME=/home
-               INACTIVE=35
-               SHELL=/bin/bash
-               SKEL=/etc/skel
-               CREATE_MAIL_SPOOL=yes
-             EOM
-        }
+  def augeas_resources
+    catalogue.resources.select { |r| r.type == 'Augeas' }
+  end
 
-        context 'expire' do
-          let(:params) { { expire: '2020-01-10' } }
+  context 'with default parameters' do
+    it { is_expected.to compile.with_all_deps }
+    it { expect(augeas_resources).to be_empty }
+    it { is_expected.not_to contain_file('/etc/default/useradd') }
+  end
 
-          it {
-            is_expected.to create_file('/etc/default/useradd').with_content(<<-EOM.gsub(%r{^\s+}, ''))
-               # This file managed by Puppet.
-               # useradd defaults file
-               GROUP=100
-               HOME=/home
-               INACTIVE=35
-               EXPIRE=2020-01-10
-               SHELL=/bin/bash
-               SKEL=/etc/skel
-               CREATE_MAIL_SPOOL=yes
-             EOM
-          }
-        end
+  context 'with settings' do
+    let(:params) { { inactive: 35, shell: '/bin/bash', create_mail_spool: true, expire: 'absent' } }
 
-        bad_expires = [
-          '202-01-10',
-          '111',
-          '2020/01/10',
-          'foo',
-        ]
+    it { is_expected.to compile.with_all_deps }
 
-        bad_expires.each do |exp|
-          context "bad_expire: #{exp}" do
-            let(:params) { { expire: exp } }
-
-            it {
-              expect {
-                is_expected.to compile
-              }.to raise_error(%r{got '#{exp}'})
-            }
-          end
-        end
-      end
+    it do
+      is_expected.to contain_augeas('/etc/default/useradd INACTIVE').with(
+        incl: '/etc/default/useradd',
+        lens: 'Shellvars.lns',
+        context: '/files/etc/default/useradd',
+        changes: 'set INACTIVE "35"',
+      )
     end
+
+    it { is_expected.to contain_augeas('/etc/default/useradd SHELL').with_changes('set SHELL "/bin/bash"') }
+    it { is_expected.to contain_augeas('/etc/default/useradd CREATE_MAIL_SPOOL').with_changes('set CREATE_MAIL_SPOOL "yes"') }
+    it { is_expected.to contain_augeas('/etc/default/useradd EXPIRE').with_changes('rm EXPIRE') }
+    it { expect(augeas_resources.size).to eq(4) }
+  end
+
+  context 'with purge and mode' do
+    let(:params) { { inactive: 35, expire: 'absent', purge: true, mode: '0600' } }
+
+    it do
+      is_expected.to contain_augeas('/etc/default/useradd purge 0').with_changes(
+        "rm *[label() != '#comment' and label() != 'INACTIVE']",
+      ).that_comes_before('File[/etc/default/useradd]')
+    end
+
+    it { is_expected.to contain_file('/etc/default/useradd').with_mode('0600').without_ensure }
   end
 end

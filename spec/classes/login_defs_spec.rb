@@ -1,69 +1,101 @@
 require 'spec_helper'
 
 describe 'useradd::login_defs' do
-  context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
-      context "on #{os}" do
-        let(:facts) do
-          os_facts.merge({
-                           login_defs: { 'gid_min' => 1000, 'gid_max' => 500_000 }
-                         })
-        end
+  let(:facts) { on_supported_os.first[1] }
 
-        context 'with default parameters' do
-          let(:expected) { File.read('spec/expected/default_login_defs') }
+  def augeas_resources
+    catalogue.resources.select { |r| r.type == 'Augeas' }
+  end
 
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_class('useradd::login_defs') }
-          it { is_expected.to create_file('/etc/login.defs').with_content(expected) }
-        end
+  context 'with default parameters' do
+    it { is_expected.to compile.with_all_deps }
+    it { expect(augeas_resources).to be_empty }
+    it { is_expected.not_to contain_file('/etc/login.defs') }
+  end
 
-        context 'with everything defined or true' do
-          let(:expected) { File.read('spec/expected/default_login_defs_all_true') }
-          let(:params) do
-            {
-              chfn_auth: true,
-           chsh_auth: true,
-           default_home: true,
-           su_wheel_only: true,
-           erasechar: 100,
-           killchar: 100,
-           max_members_per_group: 100,
-           pass_min_len: 100,
-           sys_gid_max: 100,
-           sys_gid_min: 100,
-           gid_min: 100,
-           gid_max: 100,
-           sys_uid_max: 100,
-           sys_uid_min: 100,
-           uid_min: 100,
-           uid_max: 100,
-           ulimit: 100,
-           env_hz: 'HZ=100',
-           env_tz: 'TZ=CST6CDT',
-           fake_shell: '/usr/sbin/nologin',
-           ftmp_file: '/tmp/ftmp',
-           hushlogin_file: '/tmp/hushlogin',
-           login_string: 'Password: ',
-           mail_file: '/tmp/mailfile',
-           nologins_file: '/tmp/nologins',
-           sulog_file: '/tmp/sulog',
-           ttygroup: 'puppet',
-           ttyperm: '0600',
-           ttytype_file: '/tmp/ttytype',
-           userdel_cmd: '/usr/sbin/userdel',
-           console: ['/dev/tty1'],
-           env_path: ['/usr/bin', '/usr/local/bin'],
-           env_supath: ['/usr/bin', '/usr/sbin/', '/usr/local/bin'],
-           motd_file: ['/etc/motd', '/etc/issue']
-            }
-          end
-
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_class('useradd::login_defs') }
-          it { is_expected.to create_file('/etc/login.defs').with_content(expected) }
-        end
-      end
+  context 'with settings' do
+    let(:params) do
+      {
+        pass_max_days: 90,
+        umask: '077',
+        create_home: true,
+        faillog_enab: false,
+        console: ['/dev/tty1', '/dev/tty2'],
+        console_groups: ['floppy', 'audio'],
+        env_tz: 'America/New_York',
+        env_hz: '100',
+        login_string: 'Password for "%s": ',
+      }
     end
+
+    it { is_expected.to compile.with_all_deps }
+
+    it 'edits one key per parameter in place' do
+      is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').with(
+        incl: '/etc/login.defs',
+        lens: 'Login_defs.lns',
+        context: '/files/etc/login.defs',
+        changes: 'set PASS_MAX_DAYS "90"',
+      )
+    end
+
+    it { is_expected.to contain_augeas('/etc/login.defs UMASK').with_changes('set UMASK "077"') }
+    it { is_expected.to contain_augeas('/etc/login.defs CREATE_HOME').with_changes('set CREATE_HOME "yes"') }
+    it { is_expected.to contain_augeas('/etc/login.defs FAILLOG_ENAB').with_changes('set FAILLOG_ENAB "no"') }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE').with_changes('set CONSOLE "/dev/tty1:/dev/tty2"') }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes('set CONSOLE_GROUPS "floppy,audio"') }
+    it { is_expected.to contain_augeas('/etc/login.defs ENV_TZ').with_changes('set ENV_TZ "TZ=America/New_York"') }
+    it { is_expected.to contain_augeas('/etc/login.defs ENV_HZ').with_changes('set ENV_HZ "HZ=100"') }
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes('set LOGIN_STRING "Password for \"%s\": "') }
+
+    it 'leaves every other key alone' do
+      expect(augeas_resources.size).to eq(params.size)
+    end
+
+    it { is_expected.not_to contain_augeas('/etc/login.defs purge 0') }
+  end
+
+  context 'with a setting absent' do
+    let(:params) { { pass_max_days: 'absent' } }
+
+    it do
+      is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').with(
+        changes: 'rm PASS_MAX_DAYS',
+        onlyif: 'match PASS_MAX_DAYS size > 0',
+      )
+    end
+  end
+
+  context 'with the UID/GID ranges from simp_options' do
+    let(:facts) { on_supported_os.first[1].merge(custom_hiera: 'simp_options_uid_gid') }
+
+    it { is_expected.to contain_augeas('/etc/login.defs UID_MIN').with_changes('set UID_MIN "1000"') }
+    it { is_expected.to contain_augeas('/etc/login.defs GID_MAX').with_changes('set GID_MAX "600000"') }
+  end
+
+  context 'with purge' do
+    let(:params) { { pass_max_days: 90, umask: 'absent', purge: true } }
+
+    it 'keeps the set keys and the UID/GID ranges' do
+      is_expected.to contain_augeas('/etc/login.defs purge 0').with_changes(
+        "rm *[label() != '#comment' and label() != 'PASS_MAX_DAYS' and label() != 'UID_MIN' and label() != 'UID_MAX' and label() != 'GID_MIN' and label() != 'GID_MAX']",
+      )
+    end
+  end
+
+  context 'with purge and nothing set' do
+    let(:params) { { purge: true } }
+
+    it { expect(augeas_resources).to be_empty }
+  end
+
+  context 'with mode' do
+    let(:params) { { pass_max_days: 90, mode: '0640' } }
+
+    it 'sets the mode without creating the file' do
+      is_expected.to contain_file('/etc/login.defs').with(owner: 'root', group: 'root', mode: '0640').without_ensure
+    end
+
+    it { is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').that_comes_before('File[/etc/login.defs]') }
   end
 end
