@@ -6,6 +6,7 @@
 
 #### Table of Contents
 
+1. [Breaking changes in 4.0.0](#breaking-changes-in-400)
 1. [Description](#description)
 2. [Setup - The basics of getting started with useradd](#setup)
     * [What useradd affects](#what-useradd-affects)
@@ -16,6 +17,62 @@
 6. [Deprecations](#deprecations)
 7. [Development - Guide for contributing to the module](#development)
     * [Acceptance Tests - Beaker env variables](#acceptance-tests)
+
+
+## Breaking changes in 4.0.0
+
+### A bare include manages nothing
+
+`include useradd` no longer writes any file. Each setting is managed only when
+its parameter is set, and an unset parameter leaves the system alone.
+
+To get the 3.x behavior back, either:
+
+* enforce the `simp:defaults` compliance profile, which ships with this module:
+
+  ```yaml
+  compliance_engine::enforcement:
+    - simp:defaults
+  ```
+
+* or set the parameters you need in Hiera.
+
+Values set in site Hiera take precedence over the profile.
+
+### Files are edited in place
+
+* `/etc/login.defs`, `/etc/default/useradd` and `/etc/libuser.conf` are edited
+  one key per parameter. `absent` removes a key.
+* `/etc/securetty` and `/etc/shells` are edited one entry at a time, through
+  `securetty_ensure` and `shells_ensure`.
+* Keys and entries the module doesn't set are kept, unless you turn on the
+  matching `purge` parameter. `simp:defaults` turns them on.
+* `/etc/default/nss` and `/etc/sysconfig/init` are no longer managed.
+
+### Login scripts
+
+`/etc/profile.d/simp.sh` and `simp.csh` are replaced by one file per setting
+(`simp-b-tmout.sh`, `zz-simp-umask.sh`, and so on).
+
+* `useradd::etc_profile::legacy_simp_sh: true` keeps writing the old files.
+  `simp:defaults` sets it.
+* `false` removes them.
+* Unset, they are left alone. If they are still there and you set `prepend` or
+  `append`, that content runs twice at login, and the module warns. Set
+  `legacy_simp_sh: false` to clean up.
+
+### Deprecated parameters
+
+These still work, and warn when set:
+
+* the `manage_*` parameters of `useradd`, where `false` still skips the class;
+* `securetty`, `shells_default` and `shells`, replaced by `securetty_ensure`
+  and `shells_ensure`;
+* `useradd::etc_profile::manage_tmout`;
+* the `useradd::sysconfig_init` display parameters and `useradd::nss`, which
+  no longer manage anything.
+
+See the [CHANGELOG](./CHANGELOG) for the full list.
 
 
 ## Description
@@ -42,7 +99,6 @@ This module is optimally designed for use within a larger SIMP ecosystem, but it
 ### What useradd affects
 
 This module can configure:
-  * `/etc/default/nss`
   * `/etc/default/useradd`
   * `/etc/group`
   * `/etc/group-`
@@ -57,31 +113,52 @@ This module can configure:
   * `/etc/shadow`
   * `/etc/shadow-`
   * `/etc/shells`
-  * `/etc/sysconfig/init`
+  * `/etc/systemd/system/{emergency,rescue}.service.d/`
 
 
 ### Beginning with useradd
 
-To use this module with it's default settings, just instantiate it. The following example is in hiera:
+Include the class and set the parameters you want managed, or enforce the
+`simp:defaults` profile:
 
 ```yaml
 ---
 classes:
   - useradd
 
+compliance_engine::enforcement:
+  - simp:defaults
 ```
 
 
 ## Usage
 
-Each file can be managed or unmanaged individually, using the following variables:
-  * useradd::manage_etc_profile
-  * useradd::manage_libuser_conf
-  * useradd::manage_login_defs
-  * useradd::manage_nss
-  * useradd::manage_passwd_perms
-  * useradd::manage_sysconfig_init
-  * useradd::manage_useradd
+Set only what you want enforced. For example, to enforce a password age and
+an idle-session timeout and leave everything else alone:
+
+```yaml
+---
+useradd::login_defs::pass_max_days: 60
+useradd::etc_profile::session_timeout: 15
+```
+
+Removing a key from Hiera later leaves the value on the node. To remove it,
+set it to `absent`:
+
+```yaml
+---
+useradd::login_defs::pass_max_days: absent
+```
+
+Lists are Hashes, merged across Hiera layers, so one layer can add or remove a
+single entry:
+
+```yaml
+---
+useradd::securetty_ensure:
+  console: present
+  tty4: absent
+```
 
 
 ## Reference

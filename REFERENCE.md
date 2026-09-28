@@ -6,20 +6,42 @@
 
 ### Classes
 
-* [`useradd`](#useradd): Manage settings regarding users and user creation  author: SIMP Team <simp@simp-project.com>
-* [`useradd::etc_profile`](#useradd--etc_profile): This class takes various SIMP security-related settings and applies them to the appropriate /etc/profile.d/simp.* files to enforce them at lo
-* [`useradd::libuser_conf`](#useradd--libuser_conf): Sets up /etc/libuser.conf. See libuser.conf(5) for information on the various variables.  author: SIMP Team <simp@simp-project.com>
-* [`useradd::login_defs`](#useradd--login_defs): Set up the /etc/login.defs configuration file.   All option values are taken directly from the system documentation.  Any parameter that is a
-* [`useradd::nss`](#useradd--nss): Install and configure the NSS configuration file. See nss(5) for more details.  author: SIMP Team <simp@simp-project.com>
-* [`useradd::passwd`](#useradd--passwd): Manage the permissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
-* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Allow for the configuration of /etc/sysconfig/init  See /usr/share/doc/initscripts-<version>/sysconfig.txt for variable   definitions.  For a
-* [`useradd::useradd`](#useradd--useradd): Install and configure the useradd default configuration file. See useradd(8) for more details.  author: SIMP Team <simp@simp-project.com>
+* [`useradd`](#useradd): Manage settings regarding users and user creation  A bare `include useradd` manages nothing. Each setting is managed only when its parameter 
+* [`useradd::etc_profile`](#useradd--etc_profile): Manage login settings for all users with scripts in /etc/profile.d  Each setting is written to its own pair of `sh` and `csh` scripts, so it 
+* [`useradd::libuser_conf`](#useradd--libuser_conf): Manage settings in /etc/libuser.conf  See libuser.conf(5) for information on the various variables. Each parameter manages one key, editing t
+* [`useradd::login_defs`](#useradd--login_defs): Manage settings in /etc/login.defs  Each parameter manages the login.defs key of the same name, upper-cased, editing the file in place. An un
+* [`useradd::nss`](#useradd--nss): Deprecated: no longer manages `/etc/default/nss`  Nothing on EL8 or later reads `/etc/default/nss`. The parameters are kept so existing Hiera
+* [`useradd::passwd`](#useradd--passwd): Manage the ownership and permissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
+* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Manage the shell run by the emergency and rescue targets  `/etc/sysconfig/init` is no longer managed: no EL8 or later package ships it, and o
+* [`useradd::useradd`](#useradd--useradd): Manage settings in /etc/default/useradd  See useradd(8) for more details. Each parameter manages the key of the same name, upper-cased, editi
+
+### Defined types
+
+#### Private Defined types
+
+* `useradd::entry`: Add, or remove, one entry in a one-entry-per-line file with augeas
+* `useradd::entry::purge`: Remove every entry from a one-entry-per-line file except the ones listed
+* `useradd::etc_profile::script`: Write, or remove, one login script in /etc/profile.d
+* `useradd::purge`: Remove every key from a configuration file except the ones listed
+* `useradd::setting`: Set, or remove, one key in a configuration file with augeas
+* `useradd::settings`: Manage keys in one configuration file with augeas
+
+### Functions
+
+#### Public Functions
+
+* [`useradd::entries`](#useradd--entries): Combine a list's `*_ensure` Hash with its deprecated Array parameter
+
+#### Private Functions
+
+* `useradd::join`: Join an Array parameter's value, passing anything else through
 
 ### Data types
 
 * [`Useradd::Bootup`](#Useradd--Bootup): Boot mode sysconfig option
 * [`Useradd::CryptStyle`](#Useradd--CryptStyle): The  algorithm to use for password encryption when creating new passwords
 * [`Useradd::LibuserModule`](#Useradd--LibuserModule): Valid libuser modules
+* [`Useradd::Tty`](#Useradd--Tty): A tty name, as listed in `/etc/securetty`
 
 ## Classes
 
@@ -27,125 +49,191 @@
 
 Manage settings regarding users and user creation
 
+A bare `include useradd` manages nothing. Each setting is managed only when
+its parameter is set. To restore the behavior of useradd 3.x, enforce the
+`simp:defaults` compliance profile:
+
+  compliance_engine::enforcement:
+    - simp:defaults
+
 author: SIMP Team <simp@simp-project.com>
 
 #### Parameters
 
 The following parameters are available in the `useradd` class:
 
-* [`manage_useradd`](#-useradd--manage_useradd)
-* [`manage_login_defs`](#-useradd--manage_login_defs)
-* [`manage_libuser_conf`](#-useradd--manage_libuser_conf)
-* [`manage_etc_profile`](#-useradd--manage_etc_profile)
-* [`manage_sysconfig_init`](#-useradd--manage_sysconfig_init)
-* [`manage_nss`](#-useradd--manage_nss)
-* [`manage_passwd_perms`](#-useradd--manage_passwd_perms)
+* [`securetty_ensure`](#-useradd--securetty_ensure)
+* [`purge_securetty`](#-useradd--purge_securetty)
+* [`securetty_mode`](#-useradd--securetty_mode)
+* [`shells_ensure`](#-useradd--shells_ensure)
+* [`purge_shells`](#-useradd--purge_shells)
 * [`securetty`](#-useradd--securetty)
 * [`shells_default`](#-useradd--shells_default)
 * [`shells`](#-useradd--shells)
+* [`manage_etc_profile`](#-useradd--manage_etc_profile)
+* [`manage_libuser_conf`](#-useradd--manage_libuser_conf)
+* [`manage_login_defs`](#-useradd--manage_login_defs)
+* [`manage_nss`](#-useradd--manage_nss)
+* [`manage_passwd_perms`](#-useradd--manage_passwd_perms)
+* [`manage_sysconfig_init`](#-useradd--manage_sysconfig_init)
+* [`manage_useradd`](#-useradd--manage_useradd)
 
-##### <a name="-useradd--manage_useradd"></a>`manage_useradd`
+##### <a name="-useradd--securetty_ensure"></a>`securetty_ensure`
 
-Data type: `Boolean`
+Data type: `Hash[Useradd::Tty, Enum['present', 'absent']]`
 
-If true, manage `/etc/default/useradd`
+ttys root may log in from, mapped to `present` or `absent`. Each entry is
+added to, or removed from, `/etc/securetty` in place.
 
-Default value: `true`
+Default value: `{}`
 
-##### <a name="-useradd--manage_login_defs"></a>`manage_login_defs`
-
-Data type: `Boolean`
-
-If true, manage `/etc/login.defs`
-
-Default value: `true`
-
-##### <a name="-useradd--manage_libuser_conf"></a>`manage_libuser_conf`
-
-Data type: `Boolean`
-
-If true, manage `/etc/libuser.conf`
-
-Default value: `true`
-
-##### <a name="-useradd--manage_etc_profile"></a>`manage_etc_profile`
+##### <a name="-useradd--purge_securetty"></a>`purge_securetty`
 
 Data type: `Boolean`
 
-If true, manage `/etc/profile/simp.*`
+Remove every entry from `/etc/securetty` that isn't `present` in
+`securetty_ensure` (or the deprecated `securetty`). Nothing is purged
+while no entry is `present`.
 
-Default value: `true`
+Default value: `false`
 
-##### <a name="-useradd--manage_sysconfig_init"></a>`manage_sysconfig_init`
+##### <a name="-useradd--securetty_mode"></a>`securetty_mode`
+
+Data type: `Optional[Stdlib::Filemode]`
+
+The mode of `/etc/securetty`, owned by `root:root`. Leaves the mode alone
+when unset, and never creates the file.
+
+Default value: `undef`
+
+##### <a name="-useradd--shells_ensure"></a>`shells_ensure`
+
+Data type: `Hash[Stdlib::AbsolutePath, Enum['present', 'absent']]`
+
+Shells, mapped to `present` or `absent`. Each entry is added to, or removed
+from, `/etc/shells` in place.
+
+Default value: `{}`
+
+##### <a name="-useradd--purge_shells"></a>`purge_shells`
 
 Data type: `Boolean`
 
-If true, manage `/etc/sysconfig/init`
+Remove every shell from `/etc/shells` that isn't `present` in
+`shells_ensure` (or the deprecated `shells_default` and `shells`). Nothing
+is purged while no shell is `present`.
 
-Default value: `true`
-
-##### <a name="-useradd--manage_nss"></a>`manage_nss`
-
-Data type: `Boolean`
-
-If true, manage `/etc/default/nss`
-
-Default value: `true`
-
-##### <a name="-useradd--manage_passwd_perms"></a>`manage_passwd_perms`
-
-Data type: `Boolean`
-
-If true, manage the permissions of shadow and passwd related files
-
-Default value: `true`
+Default value: `false`
 
 ##### <a name="-useradd--securetty"></a>`securetty`
 
-Data type: `Variant[Boolean,Array[String]]`
+Data type: `Optional[Variant[Boolean, Array[Useradd::Tty]]]`
 
-List of ttys available to log into
-Defaults to ['tty0', 'tty1', 'tty2', 'tty3', 'tty4']
+Deprecated: use `securetty_ensure`. Entries are added to `/etc/securetty`.
 
-* If set to false, management of /etc/securetty will be disabled
-* If the Array is empty(default) or set to true, root will not be able to log into
-  any physical console. This does not prevent root login from anywhere
-  else.
-* If the string 'ANY_SHELL' is found in the Array, then the
-  ``/etc/securetty`` file will be removed and root will be able to login
-  from anywhere.
+* `true` or `[]`: remove every entry, leaving an empty file.
+* An Array containing `ANY_SHELL`: remove `/etc/securetty`.
+* `false`: ignored.
 
-Default value: `['tty0', 'tty1', 'tty2', 'tty3', 'tty4']`
+Default value: `undef`
 
 ##### <a name="-useradd--shells_default"></a>`shells_default`
 
-Data type: `Array[Stdlib::AbsolutePath]`
+Data type: `Optional[Array[Stdlib::AbsolutePath]]`
 
-List of shells that will appear on the system by default
+Deprecated: use `shells_ensure`. Shells added to `/etc/shells`.
 
-* These have been set to the usual suspects and users should use the
-  ``shells`` parameter to add to the list
-
-Default value: `['/bin/sh','/bin/bash','/sbin/nologin','/usr/bin/sh','/usr/bin/bash','/usr/sbin/nologin']`
+Default value: `undef`
 
 ##### <a name="-useradd--shells"></a>`shells`
 
-Data type: `Variant[Boolean,Array[Stdlib::AbsolutePath]]`
+Data type: `Optional[Variant[Boolean, Array[Stdlib::AbsolutePath]]]`
 
-List of shells available to the user to set as default
+Deprecated: use `shells_ensure`. Shells added to `/etc/shells`, after
+`shells_default`. `false` ignores both.
 
-* Set to false to disable management
-* Will be combined with ``shells_default`` in /etc/shells
+Default value: `undef`
 
-Default value: `[]`
+##### <a name="-useradd--manage_etc_profile"></a>`manage_etc_profile`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: set the parameters of `useradd::etc_profile` instead. `false`
+skips the class.
+
+Default value: `undef`
+
+##### <a name="-useradd--manage_libuser_conf"></a>`manage_libuser_conf`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: set the parameters of `useradd::libuser_conf` instead. `false`
+skips the class.
+
+Default value: `undef`
+
+##### <a name="-useradd--manage_login_defs"></a>`manage_login_defs`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: set the parameters of `useradd::login_defs` instead. `false`
+skips the class.
+
+Default value: `undef`
+
+##### <a name="-useradd--manage_nss"></a>`manage_nss`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: `useradd::nss` no longer manages anything.
+
+Default value: `undef`
+
+##### <a name="-useradd--manage_passwd_perms"></a>`manage_passwd_perms`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: set `useradd::passwd::files` instead. `false` skips the class.
+
+Default value: `undef`
+
+##### <a name="-useradd--manage_sysconfig_init"></a>`manage_sysconfig_init`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: set the parameters of `useradd::sysconfig_init` instead.
+`false` skips the class.
+
+Default value: `undef`
+
+##### <a name="-useradd--manage_useradd"></a>`manage_useradd`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: set the parameters of `useradd::useradd` instead. `false`
+skips the class.
+
+Default value: `undef`
 
 ### <a name="useradd--etc_profile"></a>`useradd::etc_profile`
 
-This class takes various SIMP security-related settings and
-applies them to the appropriate /etc/profile.d/simp.* files to
-enforce them at login for all users.
+Manage login settings for all users with scripts in /etc/profile.d
 
-Currently only supports csh and sh files in profile.d.
+Each setting is written to its own pair of `sh` and `csh` scripts, so it can
+be managed, or removed, on its own. An unset parameter leaves its scripts
+alone, and `absent` removes them.
+
+| Setting           | sh script                | csh script               |
+|-------------------|--------------------------|--------------------------|
+| `prepend`         | `simp-a-prepend.sh`      | `zz-simp-a-prepend.csh`  |
+| `session_timeout` | `simp-b-tmout.sh`        | `zz-simp-autologout.csh` |
+| `mesg`            | `zz-simp-mesg.sh`        | `zz-simp-mesg.csh`       |
+| `umask`           | `zz-simp-umask.sh`       | `zz-simp-umask.csh`      |
+| `append`          | `zz-simp-z-append.sh`    | `zz-simp-z-append.csh`   |
+
+The names order the scripts so these settings win over the `simp.sh` and
+`simp.csh` scripts written by useradd 3.x: `TMOUT` is read-only once set, so
+its script runs first, and the others run last.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -154,16 +242,17 @@ author: SIMP Team <simp@simp-project.com>
 The following parameters are available in the `useradd::etc_profile` class:
 
 * [`session_timeout`](#-useradd--etc_profile--session_timeout)
-* [`manage_tmout`](#-useradd--etc_profile--manage_tmout)
 * [`umask`](#-useradd--etc_profile--umask)
 * [`mesg`](#-useradd--etc_profile--mesg)
 * [`user_whitelist`](#-useradd--etc_profile--user_whitelist)
 * [`prepend`](#-useradd--etc_profile--prepend)
 * [`append`](#-useradd--etc_profile--append)
+* [`legacy_simp_sh`](#-useradd--etc_profile--legacy_simp_sh)
+* [`manage_tmout`](#-useradd--etc_profile--manage_tmout)
 
 ##### <a name="-useradd--etc_profile--session_timeout"></a>`session_timeout`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer[0], Enum['absent']]]`
 
 The number of *minutes* that a user may be idle prior to being
 logged out. This is a logical extension of the SCAP Security Guide
@@ -171,81 +260,88 @@ requirements for Graphical and SSH timeouts and takes the place of
 a terminal screen lock since we haven't found one that works in
 100% of the authentication scenarios.
 
-Default value: `15`
+Sets a read-only `TMOUT` for sh, unless one is already set, and
+`autologout` for csh.
 
-##### <a name="-useradd--etc_profile--manage_tmout"></a>`manage_tmout`
-
-Data type: `Boolean`
-
-If true, manage the idle session timeout in the SIMP profile.d
-scripts (`TMOUT` for sh, `autologout` for csh).
-
-Set this to false when another file in `/etc/profile.d` already
-manages `TMOUT` as read-only. In that scenario, leaving this enabled
-produces a `TMOUT: readonly variable` warning at every login
-depending on the order in which the profile scripts are sourced.
-
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--etc_profile--umask"></a>`umask`
 
-Data type: `String`
+Data type: `Optional[String[1]]`
 
 The umask that will be applied to the user upon login.
 Covers CCE-26917-5, CCE-27034-8, and CCE-26669-2
 
-Default value: `'0077'`
+Default value: `undef`
 
 ##### <a name="-useradd--etc_profile--mesg"></a>`mesg`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
-Boolean
 If true, set mesg to allow writes to user terminals using wall,
 etc...
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--etc_profile--user_whitelist"></a>`user_whitelist`
 
-Data type: `Array`
+Data type: `Array[String[1]]`
 
 A list of users that you don't want to be affected by these
-settings.
+settings. Every script skips them.
 
 Default value: `[]`
 
 ##### <a name="-useradd--etc_profile--prepend"></a>`prepend`
 
-Data type: `Hash`
+Data type: `Hash[String[1], String]`
 
-Content that you want prepended to the settings scripts.
-The hash takes the form 'extension' => 'content'.
-Content will be written exactly as provided, no custom formatting
-will be performed.
+Content for a script run before the others, as
+`{ 'sh' => <content>, 'csh' => <content> }`. The content is written
+exactly as provided, and `absent` removes the script.
 
 Example:
   { 'sh' => 'if [ $UID -eq 0 ]; then echo "foo"; fi ' }
-Result:
-  = /etc/profile.d/simp.sh =
-   if [ $UID -eq 0 ]; then echo "foo"; fi
-   <usual content>
 
 Default value: `{}`
 
 ##### <a name="-useradd--etc_profile--append"></a>`append`
 
-Data type: `Hash`
+Data type: `Hash[String[1], String]`
 
-Content that you want appended to the settings scripts.
-See $prepend for usage.
+Content for a script run after the others. See `prepend` for usage.
 
 Default value: `{}`
 
+##### <a name="-useradd--etc_profile--legacy_simp_sh"></a>`legacy_simp_sh`
+
+Data type: `Optional[Boolean]`
+
+Manage `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
+scripts useradd 3.x wrote. `true` writes them as 3.x did, from
+`session_timeout`, `mesg` and `umask`, while `prepend` and `append` stay
+in their own scripts. `false` removes them. Unset leaves them alone.
+
+Default value: `undef`
+
+##### <a name="-useradd--etc_profile--manage_tmout"></a>`manage_tmout`
+
+Data type: `Optional[Boolean]`
+
+Deprecated: leave `session_timeout` unset instead. `false` stops managing
+the session timeout.
+
+Default value: `undef`
+
 ### <a name="useradd--libuser_conf"></a>`useradd::libuser_conf`
 
-Sets up /etc/libuser.conf.
-See libuser.conf(5) for information on the various variables.
+Manage settings in /etc/libuser.conf
+
+See libuser.conf(5) for information on the various variables. Each parameter
+manages one key, editing the file in place: `defaults_*` the `[defaults]`
+section, `files_*` the `[files]` section, and so on. An unset parameter
+leaves its key alone, and `absent` removes the key. Booleans are written as
+`yes`/`no`.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -280,34 +376,36 @@ The following parameters are available in the `useradd::libuser_conf` class:
 * [`ldap_bindtype`](#-useradd--libuser_conf--ldap_bindtype)
 * [`sasl_appname`](#-useradd--libuser_conf--sasl_appname)
 * [`sasl_domain`](#-useradd--libuser_conf--sasl_domain)
+* [`mode`](#-useradd--libuser_conf--mode)
+* [`purge`](#-useradd--libuser_conf--purge)
 
 ##### <a name="-useradd--libuser_conf--defaults_modules"></a>`defaults_modules`
 
-Data type: `Array[Useradd::LibuserModule]`
+Data type: `Optional[Variant[Array[Useradd::LibuserModule], Enum['absent']]]`
 
+Joined with `,`. `[]` removes the key.
 
-
-Default value: `['files','shadow']`
+Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--defaults_create_modules"></a>`defaults_create_modules`
 
-Data type: `Array[Useradd::LibuserModule]`
+Data type: `Optional[Variant[Array[Useradd::LibuserModule], Enum['absent']]]`
 
+Joined with `,`. `[]` removes the key.
 
-
-Default value: `['files','shadow']`
+Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--defaults_crypt_style"></a>`defaults_crypt_style`
 
-Data type: `Useradd::CryptStyle`
+Data type: `Optional[Variant[Useradd::CryptStyle, Enum['absent']]]`
 
 
 
-Default value: `'sha512'`
+Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--defaults_hash_rounds_min"></a>`defaults_hash_rounds_min`
 
-Data type: `Optional[Integer[1000,999999999]]`
+Data type: `Optional[Variant[Integer[1000,999999999], Enum['absent']]]`
 
 
 
@@ -315,7 +413,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--defaults_hash_rounds_max"></a>`defaults_hash_rounds_max`
 
-Data type: `Optional[Integer[1000,999999999]]`
+Data type: `Optional[Variant[Integer[1000,999999999], Enum['absent']]]`
 
 
 
@@ -323,7 +421,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--defaults_mailspooldir"></a>`defaults_mailspooldir`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -331,7 +429,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--defaults_moduledir"></a>`defaults_moduledir`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -339,7 +437,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--defaults_skeleton"></a>`defaults_skeleton`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -347,39 +445,41 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--import_login_defs"></a>`import_login_defs`
 
-Data type: `Stdlib::AbsolutePath`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
-Default value: `'/etc/login.defs'`
+Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--import_default_useradd"></a>`import_default_useradd`
 
-Data type: `Stdlib::AbsolutePath`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
-Default value: `'/etc/default/useradd'`
+Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--userdefaults"></a>`userdefaults`
 
-Data type: `String`
+Data type: `Optional[String]`
 
+`KEY = value` lines for the `[userdefaults]` section. Each key is managed
+on its own; `absent` removes every key in the section.
 
-
-Default value: `"LU_USERNAME = %n\nLU_GIDNUMBER = %u"`
+Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--groupdefaults"></a>`groupdefaults`
 
-Data type: `String`
+Data type: `Optional[String]`
 
+`KEY = value` lines for the `[groupdefaults]` section. Each key is managed
+on its own; `absent` removes every key in the section.
 
-
-Default value: `'LU_GROUPNAME = %n'`
+Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--files_directory"></a>`files_directory`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -387,7 +487,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--files_nonroot"></a>`files_nonroot`
 
-Data type: `Optional[Boolean]`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
@@ -395,7 +495,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--shadow_directory"></a>`shadow_directory`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -403,7 +503,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--libuser_conf--shadow_nonroot"></a>`shadow_nonroot`
 
-Data type: `Optional[Boolean]`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
@@ -497,14 +597,34 @@ Data type: `Optional[String]`
 
 Default value: `undef`
 
+##### <a name="-useradd--libuser_conf--mode"></a>`mode`
+
+Data type: `Optional[Stdlib::Filemode]`
+
+The mode of `/etc/libuser.conf`, owned by `root:root`. Leaves the mode
+alone when unset.
+
+Default value: `undef`
+
+##### <a name="-useradd--libuser_conf--purge"></a>`purge`
+
+Data type: `Boolean`
+
+Remove every key the class doesn't set, in every section. Comments stay.
+Nothing is purged while no key is set.
+
+Default value: `false`
+
 ### <a name="useradd--login_defs"></a>`useradd::login_defs`
 
-Set up the /etc/login.defs configuration file.
+Manage settings in /etc/login.defs
 
+Each parameter manages the login.defs key of the same name, upper-cased,
+editing the file in place. An unset parameter leaves its key alone, and
+`absent` removes the key. Booleans are written as `yes`/`no`, and Arrays are
+joined as login.defs expects.
 
 All option values are taken directly from the system documentation.
-
-Any parameter that is a list will require an array to be passed.
 
 NOTE: pass_min_len and pass_max_len will NOT have any effect on a stock RedHat machine.
     * Max length will only affect 3des encryption, which is not used on modern machines.
@@ -582,42 +702,43 @@ The following parameters are available in the `useradd::login_defs` class:
 * [`userdel_cmd`](#-useradd--login_defs--userdel_cmd)
 * [`usergroups_enab`](#-useradd--login_defs--usergroups_enab)
 * [`mode`](#-useradd--login_defs--mode)
+* [`purge`](#-useradd--login_defs--purge)
 
 ##### <a name="-useradd--login_defs--encrypt_method"></a>`encrypt_method`
 
-Data type: `Enum['DES','MD5','SHA256','SHA512']`
+Data type: `Optional[Variant[Enum['DES','MD5','SHA256','SHA512'], Enum['absent']]]`
 
 
 
-Default value: `'SHA512'`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--chfn_auth"></a>`chfn_auth`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--chfn_restrict"></a>`chfn_restrict`
 
-Data type: `Pattern['^[frwh]+$']`
+Data type: `Optional[Variant[Pattern['^[frwh]+$'], Enum['absent']]]`
 
 
 
-Default value: `'frwh'`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--chsh_auth"></a>`chsh_auth`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--console"></a>`console`
 
-Data type: `Optional[Array[Stdlib::AbsolutePath,1]]`
+Data type: `Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]`
 
 
 
@@ -625,7 +746,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--console_groups"></a>`console_groups`
 
-Data type: `Optional[Array[String,1]]`
+Data type: `Optional[Variant[Array[String,1], Enum['absent']]]`
 
 
 
@@ -633,23 +754,23 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--create_home"></a>`create_home`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--default_home"></a>`default_home`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_hz"></a>`env_hz`
 
-Data type: `Optional[String]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -657,7 +778,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_path"></a>`env_path`
 
-Data type: `Optional[Array[Stdlib::AbsolutePath,1]]`
+Data type: `Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]`
 
 
 
@@ -665,7 +786,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_supath"></a>`env_supath`
 
-Data type: `Optional[Array[Stdlib::AbsolutePath,1]]`
+Data type: `Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]`
 
 
 
@@ -673,7 +794,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--env_tz"></a>`env_tz`
 
-Data type: `Optional[String]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -681,7 +802,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--environ_file"></a>`environ_file`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -689,7 +810,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--erasechar"></a>`erasechar`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -697,23 +818,23 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--fail_delay"></a>`fail_delay`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `4`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--faillog_enab"></a>`faillog_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--fake_shell"></a>`fake_shell`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -721,7 +842,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--ftmp_file"></a>`ftmp_file`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -729,23 +850,23 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--gid_max"></a>`gid_max`
 
-Data type: `Integer[1]`
+Data type: `Optional[Variant[Integer[1], Enum['absent']]]`
 
+Defaults to `simp_options::gid::max`, when set.
 
-
-Default value: `simplib::lookup('simp_options::gid::max', { 'default_value' => pick(fact('login_defs.gid_max'), 500000 ) })`
+Default value: `simplib::lookup('simp_options::gid::max', { 'default_value' => undef })`
 
 ##### <a name="-useradd--login_defs--gid_min"></a>`gid_min`
 
-Data type: `Integer[0]`
+Data type: `Optional[Variant[Integer[0], Enum['absent']]]`
 
+Defaults to `simp_options::gid::min`, when set.
 
-
-Default value: `simplib::lookup('simp_options::gid::min', { 'default_value' => pick(fact('login_defs.gid_min'), 1000 ) })`
+Default value: `simplib::lookup('simp_options::gid::min', { 'default_value' => undef })`
 
 ##### <a name="-useradd--login_defs--hushlogin_file"></a>`hushlogin_file`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -753,15 +874,15 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--issue_file"></a>`issue_file`
 
-Data type: `Stdlib::AbsolutePath`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
-Default value: `'/etc/issue'`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--killchar"></a>`killchar`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -769,15 +890,15 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--lastlog_enab"></a>`lastlog_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--login_string"></a>`login_string`
 
-Data type: `Optional[String]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -785,55 +906,55 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--login_retries"></a>`login_retries`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `3`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--login_timeout"></a>`login_timeout`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `60`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--log_ok_logins"></a>`log_ok_logins`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--log_unkfail_enab"></a>`log_unkfail_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--mail_check_enab"></a>`mail_check_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--mail_dir"></a>`mail_dir`
 
-Data type: `Stdlib::AbsolutePath`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
-Default value: `'/var/spool/mail'`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--mail_file"></a>`mail_file`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -841,7 +962,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--max_members_per_group"></a>`max_members_per_group`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -849,7 +970,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--motd_file"></a>`motd_file`
 
-Data type: `Optional[Array[Stdlib::AbsolutePath,1]]`
+Data type: `Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]`
 
 
 
@@ -857,7 +978,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--nologins_file"></a>`nologins_file`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -865,55 +986,55 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--obscure_checks_enab"></a>`obscure_checks_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--pass_always_warn"></a>`pass_always_warn`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--pass_change_tries"></a>`pass_change_tries`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `3`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--pass_max_days"></a>`pass_max_days`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `180`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--pass_min_days"></a>`pass_min_days`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `1`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--pass_warn_age"></a>`pass_warn_age`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `14`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--pass_max_len"></a>`pass_max_len`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -921,47 +1042,47 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--pass_min_len"></a>`pass_min_len`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `15`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--porttime_checks_enab"></a>`porttime_checks_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--quotas_enab"></a>`quotas_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--sha_crypt_min_rounds"></a>`sha_crypt_min_rounds`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `5000`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--sha_crypt_max_rounds"></a>`sha_crypt_max_rounds`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `10000`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--sulog_file"></a>`sulog_file`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -969,23 +1090,23 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--su_name"></a>`su_name`
 
-Data type: `String`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
-Default value: `'su'`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--su_wheel_only"></a>`su_wheel_only`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--sys_gid_max"></a>`sys_gid_max`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -993,7 +1114,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--sys_gid_min"></a>`sys_gid_min`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -1001,7 +1122,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--sys_uid_max"></a>`sys_uid_max`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -1009,7 +1130,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--sys_uid_min"></a>`sys_uid_min`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -1017,23 +1138,23 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--syslog_sg_enab"></a>`syslog_sg_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--syslog_su_enab"></a>`syslog_su_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--ttygroup"></a>`ttygroup`
 
-Data type: `Optional[String]`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
@@ -1041,7 +1162,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--ttyperm"></a>`ttyperm`
 
-Data type: `Optional[Simplib::Umask]`
+Data type: `Optional[Variant[Simplib::Umask, Enum['absent']]]`
 
 
 
@@ -1049,7 +1170,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--ttytype_file"></a>`ttytype_file`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -1057,31 +1178,31 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--uid_max"></a>`uid_max`
 
-Data type: `Integer[1]`
+Data type: `Optional[Variant[Integer[1], Enum['absent']]]`
 
+Defaults to `simp_options::uid::max`, when set.
 
-
-Default value: `simplib::lookup('simp_options::uid::max', { 'default_value' => pick(fact('login_defs.uid_max'), 1000000 ) })`
+Default value: `simplib::lookup('simp_options::uid::max', { 'default_value' => undef })`
 
 ##### <a name="-useradd--login_defs--uid_min"></a>`uid_min`
 
-Data type: `Integer[0]`
+Data type: `Optional[Variant[Integer[0], Enum['absent']]]`
 
+Defaults to `simp_options::uid::min`, when set.
 
-
-Default value: `simplib::lookup('simp_options::uid::min', { 'default_value' => pick(fact('login_defs.uid_min'), 1000 ) })`
+Default value: `simplib::lookup('simp_options::uid::min', { 'default_value' => undef })`
 
 ##### <a name="-useradd--login_defs--umask"></a>`umask`
 
-Data type: `String`
+Data type: `Optional[Variant[String, Enum['absent']]]`
 
 
 
-Default value: `'007'`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--ulimit"></a>`ulimit`
 
-Data type: `Optional[Integer]`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
@@ -1089,7 +1210,7 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--userdel_cmd"></a>`userdel_cmd`
 
-Data type: `Optional[Stdlib::AbsolutePath]`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
@@ -1097,24 +1218,37 @@ Default value: `undef`
 
 ##### <a name="-useradd--login_defs--usergroups_enab"></a>`usergroups_enab`
 
-Data type: `Boolean`
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
 
 
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-useradd--login_defs--mode"></a>`mode`
 
-Data type: `Stdlib::Filemode`
+Data type: `Optional[Stdlib::Filemode]`
 
-File  mode of the `/etc/login.defs` file
+The mode of `/etc/login.defs`, owned by `root:root`. Leaves the mode alone
+when unset.
 
-Default value: `'0640'`
+Default value: `undef`
+
+##### <a name="-useradd--login_defs--purge"></a>`purge`
+
+Data type: `Boolean`
+
+Remove every key the class doesn't set. Comments stay. Nothing is purged
+while no key is set. `UID_MIN`, `UID_MAX`, `GID_MIN` and `GID_MAX` are
+never purged, so the ranges on the system stay when they aren't set here.
+
+Default value: `false`
 
 ### <a name="useradd--nss"></a>`useradd::nss`
 
-Install and configure the NSS configuration file.
-See nss(5) for more details.
+Deprecated: no longer manages `/etc/default/nss`
+
+Nothing on EL8 or later reads `/etc/default/nss`. The parameters are kept so
+existing Hiera data still compiles, and warn when set.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -1128,51 +1262,74 @@ The following parameters are available in the `useradd::nss` class:
 
 ##### <a name="-useradd--nss--netid_authoritative"></a>`netid_authoritative`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
+Deprecated: ignored.
 
-
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--nss--services_authoritative"></a>`services_authoritative`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
+Deprecated: ignored.
 
-
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--nss--setent_batch_read"></a>`setent_batch_read`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
+Deprecated: ignored.
 
-
-Default value: `true`
+Default value: `undef`
 
 ### <a name="useradd--passwd"></a>`useradd::passwd`
 
-Manage the permissions of shadow and passwd related files
+Manage the ownership and permissions of shadow and passwd related files
 
 author: SIMP Team <simp@simp-project.com>
 
+#### Parameters
+
+The following parameters are available in the `useradd::passwd` class:
+
+* [`files`](#-useradd--passwd--files)
+
+##### <a name="-useradd--passwd--files"></a>`files`
+
+Data type:
+
+```puppet
+Hash[
+    Stdlib::AbsolutePath,
+    Struct[{
+      Optional[owner] => String[1],
+      Optional[group] => String[1],
+      Optional[mode]  => Stdlib::Filemode,
+    }]
+  ]
+```
+
+Files mapped to the `owner`, `group` and `mode` to enforce. Only the
+attributes given are managed, and a missing file is not created.
+
+The `simp:defaults` compliance profile restores the useradd 3.x settings:
+`root:root` for every file, `0644` for `/etc/passwd` and `/etc/group`, and
+`0000` for `/etc/shadow` and `/etc/gshadow`, each with its `-` backup.
+These cover CCE-26953-0, CCE-26856-5, CCE-26868-0, CCE-26947-2,
+CCE-26967-0, CCE-26992-8, CCE-27026-4, CCE-26975-3, CCE-26951-4,
+CCE-26822-7, CCE-26930-8 and CCE-26954-8.
+
+Default value: `{}`
+
 ### <a name="useradd--sysconfig_init"></a>`useradd::sysconfig_init`
 
-Allow for the configuration of /etc/sysconfig/init
+Manage the shell run by the emergency and rescue targets
 
-See /usr/share/doc/initscripts-<version>/sysconfig.txt for variable
-  definitions.
-
-For all `setcolor` variables, use the following color options as a string:
-  * default
-  * black
-  * red
-  * green
-  * yellow
-  * blue
-  * magenta
-  * cyan
-  * white
+`/etc/sysconfig/init` is no longer managed: no EL8 or later package ships
+it, and only the legacy `/etc/rc.d/init.d/functions` reads it. Its
+parameters are kept so existing Hiera data still compiles, and warn when set.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -1180,6 +1337,9 @@ author: SIMP Team <simp@simp-project.com>
 
 The following parameters are available in the `useradd::sysconfig_init` class:
 
+* [`single_user_login`](#-useradd--sysconfig_init--single_user_login)
+* [`purge`](#-useradd--sysconfig_init--purge)
+* [`systemd`](#-useradd--sysconfig_init--systemd)
 * [`bootup`](#-useradd--sysconfig_init--bootup)
 * [`res_col`](#-useradd--sysconfig_init--res_col)
 * [`move_to_col`](#-useradd--sysconfig_init--move_to_col)
@@ -1187,105 +1347,124 @@ The following parameters are available in the `useradd::sysconfig_init` class:
 * [`setcolor_failure`](#-useradd--sysconfig_init--setcolor_failure)
 * [`setcolor_warning`](#-useradd--sysconfig_init--setcolor_warning)
 * [`setcolor_normal`](#-useradd--sysconfig_init--setcolor_normal)
-* [`single_user_login`](#-useradd--sysconfig_init--single_user_login)
 * [`loglvl`](#-useradd--sysconfig_init--loglvl)
 * [`prompt`](#-useradd--sysconfig_init--prompt)
 * [`autoswap`](#-useradd--sysconfig_init--autoswap)
 
+##### <a name="-useradd--sysconfig_init--single_user_login"></a>`single_user_login`
+
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
+
+The command `emergency.service` and `rescue.service` run, written to a
+systemd drop-in for each. `absent` removes the drop-ins.
+
+Default value: `undef`
+
+##### <a name="-useradd--sysconfig_init--purge"></a>`purge`
+
+Data type: `Boolean`
+
+Remove every other drop-in for `emergency.service` and `rescue.service`.
+Acts only while `single_user_login` is set to a command.
+
+Default value: `false`
+
+##### <a name="-useradd--sysconfig_init--systemd"></a>`systemd`
+
+Data type: `Boolean`
+
+Include the `systemd` class, which with its defaults keeps
+`systemd-journald` running.
+
+Default value: `false`
+
 ##### <a name="-useradd--sysconfig_init--bootup"></a>`bootup`
 
-Data type: `Useradd::Bootup`
+Data type: `Optional[Useradd::Bootup]`
 
+Deprecated: ignored.
 
-
-Default value: `'color'`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--res_col"></a>`res_col`
 
-Data type: `Integer`
+Data type: `Optional[Integer]`
 
+Deprecated: ignored.
 
-
-Default value: `60`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--move_to_col"></a>`move_to_col`
 
 Data type: `Optional[String]`
 
-* By default, undef will add the code `"echo -en \\033[${RES_COL}G"` to
-  /etc/sysconfig/init
-* Optional string of code will be substituted if included
+Deprecated: ignored.
 
 Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--setcolor_success"></a>`setcolor_success`
 
-Data type: `String`
+Data type: `Optional[String]`
 
+Deprecated: ignored.
 
-
-Default value: `'green'`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--setcolor_failure"></a>`setcolor_failure`
 
-Data type: `String`
+Data type: `Optional[String]`
 
+Deprecated: ignored.
 
-
-Default value: `'red'`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--setcolor_warning"></a>`setcolor_warning`
 
-Data type: `String`
+Data type: `Optional[String]`
 
+Deprecated: ignored.
 
-
-Default value: `'yellow'`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--setcolor_normal"></a>`setcolor_normal`
 
-Data type: `String`
+Data type: `Optional[String]`
 
+Deprecated: ignored.
 
-
-Default value: `'default'`
-
-##### <a name="-useradd--sysconfig_init--single_user_login"></a>`single_user_login`
-
-Data type: `Stdlib::AbsolutePath`
-
-
-
-Default value: `'/sbin/sulogin'`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--loglvl"></a>`loglvl`
 
-Data type: `Integer[1,8]`
+Data type: `Optional[Integer[1,8]]`
 
+Deprecated: ignored.
 
-
-Default value: `3`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--prompt"></a>`prompt`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
+Deprecated: ignored.
 
-
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-useradd--sysconfig_init--autoswap"></a>`autoswap`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
-AUTOSWAP option is only useful in el6.  Not present in el7 or later.
+Deprecated: ignored.
 
-Default value: `false`
+Default value: `undef`
 
 ### <a name="useradd--useradd"></a>`useradd::useradd`
 
-Install and configure the useradd default configuration file.
-See useradd(8) for more details.
+Manage settings in /etc/default/useradd
+
+See useradd(8) for more details. Each parameter manages the key of the same
+name, upper-cased, editing the file in place. An unset parameter leaves its
+key alone, and `absent` removes the key.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -1300,40 +1479,36 @@ The following parameters are available in the `useradd::useradd` class:
 * [`shell`](#-useradd--useradd--shell)
 * [`skel`](#-useradd--useradd--skel)
 * [`create_mail_spool`](#-useradd--useradd--create_mail_spool)
+* [`mode`](#-useradd--useradd--mode)
+* [`purge`](#-useradd--useradd--purge)
 
 ##### <a name="-useradd--useradd--group"></a>`group`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `100`
+Default value: `undef`
 
 ##### <a name="-useradd--useradd--home"></a>`home`
 
-Data type: `Stdlib::AbsolutePath`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
-Default value: `'/home'`
+Default value: `undef`
 
 ##### <a name="-useradd--useradd--inactive"></a>`inactive`
 
-Data type: `Integer`
+Data type: `Optional[Variant[Integer, Enum['absent']]]`
 
 
 
-Default value: `35`
+Default value: `undef`
 
 ##### <a name="-useradd--useradd--expire"></a>`expire`
 
-Data type:
-
-```puppet
-Optional[
-    Pattern[/^\d{4}-\d{2}-\d{2}$/]
-  ]
-```
+Data type: `Optional[Variant[Pattern[/^\d{4}-\d{2}-\d{2}$/], Enum['absent']]]`
 
 
 
@@ -1341,27 +1516,75 @@ Default value: `undef`
 
 ##### <a name="-useradd--useradd--shell"></a>`shell`
 
-Data type: `Stdlib::AbsolutePath`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
-Default value: `'/bin/bash'`
+Default value: `undef`
 
 ##### <a name="-useradd--useradd--skel"></a>`skel`
 
-Data type: `Stdlib::AbsolutePath`
+Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 
 
-Default value: `'/etc/skel'`
+Default value: `undef`
 
 ##### <a name="-useradd--useradd--create_mail_spool"></a>`create_mail_spool`
 
+Data type: `Optional[Variant[Boolean, Enum['absent']]]`
+
+Written as `yes`/`no`.
+
+Default value: `undef`
+
+##### <a name="-useradd--useradd--mode"></a>`mode`
+
+Data type: `Optional[Stdlib::Filemode]`
+
+The mode of `/etc/default/useradd`, owned by `root:root`. Leaves the mode
+alone when unset.
+
+Default value: `undef`
+
+##### <a name="-useradd--useradd--purge"></a>`purge`
+
 Data type: `Boolean`
 
+Remove every key the class doesn't set. Comments stay. Nothing is purged
+while no key is set.
 
+Default value: `false`
 
-Default value: `true`
+## Functions
+
+### <a name="useradd--entries"></a>`useradd::entries`
+
+Type: Puppet Language
+
+Array entries are applied last, as `present`, so a site's old data still
+wins. An entry written as `--entry` (a Hiera knockout that reached the class)
+becomes `absent`.
+
+#### `useradd::entries(Hash[String[1], Enum['present', 'absent']] $entries, Array[String[1]] $legacy = [])`
+
+Array entries are applied last, as `present`, so a site's old data still
+wins. An entry written as `--entry` (a Hiera knockout that reached the class)
+becomes `absent`.
+
+Returns: `Hash[String[1], Enum['present', 'absent']]`
+
+##### `entries`
+
+Data type: `Hash[String[1], Enum['present', 'absent']]`
+
+The Hash of entry to `present` or `absent`.
+
+##### `legacy`
+
+Data type: `Array[String[1]]`
+
+The deprecated Array parameter.
 
 ## Data types
 
@@ -1382,4 +1605,10 @@ Alias of `Enum['BLOWFISH', 'DES', 'MD5', 'SHA256', 'SHA512', 'blowfish', 'des', 
 Valid libuser modules
 
 Alias of `Enum['files', 'shadow', 'ldap']`
+
+### <a name="Useradd--Tty"></a>`Useradd::Tty`
+
+A tty name, as listed in `/etc/securetty`
+
+Alias of `Pattern[/\A[A-Za-z0-9_.:\/-]+\z/]`
 
