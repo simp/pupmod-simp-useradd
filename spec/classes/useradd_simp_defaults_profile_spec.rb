@@ -77,10 +77,8 @@ describe 'useradd' do
         it { is_expected.to compile.with_all_deps }
 
         checks.each_value do |check|
-          param = check['settings']['parameter']
-          klass, _, name = param.rpartition('::')
-
-          it "sets #{param}" do
+          it "sets #{check['settings']['parameter']}" do
+            klass, _, name = check['settings']['parameter'].rpartition('::')
             is_expected.to contain_class(klass).with(name => check['settings']['value'])
           end
         end

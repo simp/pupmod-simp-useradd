@@ -55,7 +55,11 @@ describe 'useradd::etc_profile' do
   context 'with user_whitelist' do
     let(:params) { { umask: '0077', user_whitelist: ['bob', 'alice'] } }
 
-    it { is_expected.to contain_file('/etc/profile.d/zz-simp-umask.sh').with_content(%r{\A#{HEADER}for user in bob alice; do\n  if \[ "\$USER" == "\$user" \]; then\n    return\n  fi\ndone\n\numask 0077\n\z}) }
+    it do
+      is_expected.to contain_file('/etc/profile.d/zz-simp-umask.sh').with_content(
+        "#{HEADER}for user in bob alice; do\n  if [ \"$USER\" == \"$user\" ]; then\n    return\n  fi\ndone\n\numask 0077\n",
+      )
+    end
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-umask.csh').with_content(%r{foreach user \(bob alice\)\n  if \( "\$user" == "\$USER" \) then\n    exit\n}) }
   end
 
@@ -71,7 +75,7 @@ describe 'useradd::etc_profile' do
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-a-prepend.csh').with_ensure('absent') }
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-z-append.sh').with_content("#{HEADER}echo post\n") }
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-z-append.csh').with_content("#{HEADER}echo cpost\n") }
-    it { expect(catalogue.resources.select { |r| r.type == 'File' }.size).to eq(4) }
+    it { expect(catalogue.resources.count { |r| r.type == 'File' }).to eq(4) }
   end
 
   context 'with legacy_simp_sh => true' do
