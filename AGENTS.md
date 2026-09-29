@@ -58,8 +58,8 @@ itself.
 - **`useradd::etc_profile`** — one `/etc/profile.d` file per setting via
   `useradd::etc_profile::script` (`simp-b-tmout.sh`, `zz-simp-umask.sh`,
   ...). `legacy_simp_sh: true` writes the 3.x `simp.sh`/`simp.csh` from the
-  templates, with `prepend`/`append` inside them as in 3.x; `false` removes
-  them.
+  templates instead of the per-setting files, with `prepend`/`append` inside
+  them as in 3.x; `false` removes them.
 - **`useradd::sysconfig_init`** — `/etc/sysconfig/init`, per-key augeas
   (`Shellvars.lns`), `mode`, `purge`; plus the emergency/rescue drop-ins when
   `single_user_login` is set on systemd hosts, with a refresh-only

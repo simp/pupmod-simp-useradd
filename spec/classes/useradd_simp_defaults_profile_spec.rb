@@ -118,9 +118,10 @@ describe 'useradd' do
           is_expected.to contain_file('/etc/passwd').with(owner: 'root', group: 'root', mode: '0644')
         end
 
-        it 'restores the 3.x login scripts' do
+        it 'restores the 3.x login scripts, and only those' do
           is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{TMOUT=900})
-          is_expected.to contain_file('/etc/profile.d/simp-b-tmout.sh')
+          is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{autologout=15})
+          expect(catalogue.resources.select { |r| r.type == 'Useradd::Etc_profile::Script' }).to be_empty
         end
 
         it 'restores the single-user login drop-ins' do

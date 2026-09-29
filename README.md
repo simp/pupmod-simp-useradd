@@ -84,8 +84,8 @@ drop-ins with plain `file` resources and its own `daemon-reload`.
 `/etc/profile.d/simp.sh` and `simp.csh` are replaced by one file per setting
 (`simp-b-tmout.sh`, `zz-simp-umask.sh`, and so on).
 
-* `useradd::etc_profile::legacy_simp_sh: true` keeps writing the old files.
-  `simp:defaults` sets it.
+* `useradd::etc_profile::legacy_simp_sh: true` keeps writing the old files,
+  and no per-setting files. `simp:defaults` sets it.
 * `false` removes them.
 * Unset, they are left alone. If they are still there and you set `prepend` or
   `append`, that content runs twice at login, and the module warns. Set

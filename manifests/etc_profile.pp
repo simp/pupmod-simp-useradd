@@ -16,6 +16,9 @@
 # `simp.csh` scripts written by useradd 3.x: `TMOUT` is read-only once set, so
 # its script runs first, and the others run last.
 #
+# With `legacy_simp_sh => true`, none of these scripts are written; every
+# setting goes in `simp.sh` and `simp.csh` instead, as in 3.x.
+#
 # @param session_timeout
 #   The number of *minutes* that a user may be idle prior to being
 #   logged out. This is a logical extension of the SCAP Security Guide
@@ -56,8 +59,8 @@
 # @param legacy_simp_sh
 #   Manage `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
 #   scripts useradd 3.x wrote. `true` writes them as 3.x did, from
-#   `session_timeout`, `mesg`, `umask`, `prepend` and `append`. `false`
-#   removes them. Unset leaves them alone.
+#   `session_timeout`, `mesg`, `umask`, `prepend` and `append`, instead of
+#   the per-setting scripts. `false` removes them. Unset leaves them alone.
 #
 # @param manage_tmout
 #   Deprecated: leave `session_timeout` unset instead. `false` stops managing
@@ -90,16 +93,12 @@ class useradd::etc_profile (
     default => $mesg,
   }
 
-  # With the 3.x scripts, prepend and append run inside them, as in 3.x.
-  $_extra = $legacy_simp_sh ? {
-    true    => {},
-    default => {
-      'simp-a-prepend.sh'     => $prepend['sh'],
-      'zz-simp-a-prepend.csh' => $prepend['csh'],
-      'zz-simp-z-append.sh'   => $append['sh'],
-      'zz-simp-z-append.csh'  => $append['csh'],
-    }.filter |$name, $content| { $content =~ NotUndef }.map |$name, $content| { [$name, String($content)] }.convert_to(Hash),
-  }
+  $_extra = {
+    'simp-a-prepend.sh'     => $prepend['sh'],
+    'zz-simp-a-prepend.csh' => $prepend['csh'],
+    'zz-simp-z-append.sh'   => $append['sh'],
+    'zz-simp-z-append.csh'  => $append['csh'],
+  }.filter |$name, $content| { $content =~ NotUndef }.map |$name, $content| { [$name, String($content)] }.convert_to(Hash)
 
   $_scripts = $_extra + {
     'simp-b-tmout.sh'        => $_session_timeout ? {
@@ -128,10 +127,14 @@ class useradd::etc_profile (
     },
   }.filter |$name, $content| { $content =~ NotUndef }
 
-  $_scripts.each |$name, $content| {
-    useradd::etc_profile::script { "/etc/profile.d/${name}":
-      content        => $content,
-      user_whitelist => $user_whitelist,
+  # The 3.x scripts carry every setting, as in 3.x. Per-setting scripts next
+  # to them would run before or after them and override prepend and append.
+  unless $legacy_simp_sh == true {
+    $_scripts.each |$name, $content| {
+      useradd::etc_profile::script { "/etc/profile.d/${name}":
+        content        => $content,
+        user_whitelist => $user_whitelist,
+      }
     }
   }
 

@@ -257,6 +257,9 @@ The names order the scripts so these settings win over the `simp.sh` and
 `simp.csh` scripts written by useradd 3.x: `TMOUT` is read-only once set, so
 its script runs first, and the others run last.
 
+With `legacy_simp_sh => true`, none of these scripts are written; every
+setting goes in `simp.sh` and `simp.csh` instead, as in 3.x.
+
 author: SIMP Team <simp@simp-project.com>
 
 #### Parameters
@@ -345,8 +348,8 @@ Data type: `Optional[Boolean]`
 
 Manage `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
 scripts useradd 3.x wrote. `true` writes them as 3.x did, from
-`session_timeout`, `mesg`, `umask`, `prepend` and `append`. `false`
-removes them. Unset leaves them alone.
+`session_timeout`, `mesg`, `umask`, `prepend` and `append`, instead of
+the per-setting scripts. `false` removes them. Unset leaves them alone.
 
 Default value: `undef`
 

@@ -21,7 +21,7 @@ describe 'useradd class' do
             # Guards against the preview quietly covering nothing if the
             # Compliance Engine layer stops resolving the profile.
             expect(result.output).to match(%r{Augeas\[/etc/login\.defs PASS_MAX_DAYS\]/returns: .*\(noop\)})
-            expect(result.output).to match(%r{File\[/etc/profile\.d/simp-b-tmout\.sh\]/ensure: .*\(noop\)})
+            expect(result.output).to match(%r{File\[/etc/profile\.d/simp\.sh\]/ensure: .*\(noop\)})
           end
         end
       end
@@ -149,6 +149,24 @@ describe 'useradd class' do
           on(host, 'grep -q "TMOUT=900" /etc/profile.d/simp.sh')
           on(host, 'grep -q "autologout=15" /etc/profile.d/simp.csh')
           expect(on(host, 'bash -lc "echo \$TMOUT; umask"').stdout.split).to eq(['900', '0077'])
+        end
+
+        it 'lets a 3.x prepend and append win' do
+          legacy = <<~EOS
+            class { 'useradd::etc_profile':
+              legacy_simp_sh  => true,
+              session_timeout => 15,
+              umask           => '0077',
+              prepend         => { 'sh' => 'TMOUT=3600' },
+              append          => { 'sh' => 'umask 0022' },
+            }
+          EOS
+          apply_manifest_on(host, legacy, catch_failures: true)
+          expect(on(host, 'bash -lc "echo \$TMOUT; umask"').stdout.split).to eq(['3600', '0022'])
+
+          with_simp_defaults_enforced(host) do
+            apply_manifest_on(host, manifest, catch_failures: true)
+          end
         end
 
         it 'restores the single-user login drop-ins' do

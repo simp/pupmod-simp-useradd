@@ -87,6 +87,7 @@ describe 'useradd::etc_profile' do
     it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{umask 0077}) }
     it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{autologout=15}) }
     it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{umask 0077}) }
+    it { expect(catalogue.resources.select { |r| r.type == 'Useradd::Etc_profile::Script' }).to be_empty }
   end
 
   context 'with legacy_simp_sh => true and prepend and append' do
