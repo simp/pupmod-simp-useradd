@@ -23,6 +23,7 @@
 - Add `mode` and `purge` to `login_defs`, `useradd`, `libuser_conf`, `nss` and
   `sysconfig_init`, and `useradd::sysconfig_init::purge_dropins`
 - Add the `useradd_legacy_simp_sh` fact
+- Require puppetlabs/stdlib 9.2.0 or later
 - Deprecate the `manage_*` parameters, `securetty`, `shells_default`,
   `shells` and `useradd::etc_profile::manage_tmout`
 

@@ -91,8 +91,9 @@ itself.
 - **The deprecated Arrays keep their 3.x types**, so `shells`
   (`Array[Stdlib::AbsolutePath]`) can't take a `--` knockout. Use
   `shells_entries`.
-- **Deprecations use `simplib::deprecation(key, msg)`**, which never fails
-  compilation under `strict=error`. Don't use `warning()` for them.
+- **Deprecations use `deprecation(key, msg, false)`**, which never fails
+  compilation under `strict=error`. Don't use `warning()` for them. The
+  third argument needs stdlib 9.2.0.
 - **The drop-in directories are declared with `ensure_resource`** and the
   same attributes as `systemd::dropin_file`, so both can declare them. Keep
   them in sync with puppet/systemd.
@@ -119,8 +120,8 @@ Module dependencies (from `metadata.json`):
 
 - `simp/simplib` `>= 4.9.0 < 8.0.0` — provides `simplib::lookup` and the
   `Simplib::Umask` type.
-- `puppetlabs/stdlib` `>= 8.0.0 < 11.0.0` — provides `Stdlib::AbsolutePath`,
-  `Stdlib::Filemode`, and `pick()`.
+- `puppetlabs/stdlib` `>= 9.2.0 < 11.0.0` — provides `Stdlib::AbsolutePath`,
+  `Stdlib::Filemode`, `pick()`, and the 3-argument `deprecation()`.
 - `puppet/systemd` `>= 4.0.2 < 11.0.0` — the `systemd` class, included only
   when `useradd::sysconfig_init::systemd` is true.
 

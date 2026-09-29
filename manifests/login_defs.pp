@@ -172,7 +172,7 @@ class useradd::login_defs (
   }.filter |$param, $empty| { $empty }.keys
 
   $_empty.each |$param| {
-    simplib::deprecation("useradd::login_defs::${param}", "useradd::login_defs::${param}: an empty value is deprecated and ignored; login.defs can't hold it.")
+    deprecation("useradd::login_defs::${param}", "useradd::login_defs::${param}: an empty value is deprecated and ignored; login.defs can't hold it.", false)
   }
 
   $_env_hz = $env_hz ? {

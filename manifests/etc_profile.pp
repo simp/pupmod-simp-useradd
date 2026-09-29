@@ -76,7 +76,7 @@ class useradd::etc_profile (
   Optional[Boolean]                          $manage_tmout    = undef,
 ) {
   if $manage_tmout =~ NotUndef {
-    simplib::deprecation('useradd::etc_profile::manage_tmout', 'useradd::etc_profile::manage_tmout is deprecated and will be removed in a future release. Leave useradd::etc_profile::session_timeout unset instead.')
+    deprecation('useradd::etc_profile::manage_tmout', 'useradd::etc_profile::manage_tmout is deprecated and will be removed in a future release. Leave useradd::etc_profile::session_timeout unset instead.', false)
   }
 
   $_session_timeout = $manage_tmout ? {

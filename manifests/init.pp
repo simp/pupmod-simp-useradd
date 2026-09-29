@@ -118,7 +118,7 @@ class useradd (
         'passwd' => 'manage_passwd_perms',
         default  => "manage_${class}",
       }
-      simplib::deprecation("useradd::${_param}", "useradd::${_param} is deprecated and will be removed in a future release. Set the parameters of useradd::${class} instead.")
+      deprecation("useradd::${_param}", "useradd::${_param} is deprecated and will be removed in a future release. Set the parameters of useradd::${class} instead.", false)
     }
 
     unless $manage == false {
@@ -132,7 +132,7 @@ class useradd (
         'securetty' => 'securetty_entries',
         default     => 'shells_entries',
       }
-      simplib::deprecation("useradd::${param}", "useradd::${param} is deprecated and will be removed in a future release. Use useradd::${_replacement} instead.")
+      deprecation("useradd::${param}", "useradd::${param} is deprecated and will be removed in a future release. Use useradd::${_replacement} instead.", false)
     }
   }
 
