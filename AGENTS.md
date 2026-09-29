@@ -101,9 +101,11 @@ itself.
   them in sync with puppet/systemd.
 - **A type alias can't share a define's name.** `Useradd::Entry` would
   resolve to the `useradd::entry` resource type, hence `Useradd::ListEntry`.
-- **`useradd::setting` escapes only `"`.** The augeas provider passes `\x`
-  through verbatim, so a value with a backslash before `"` or at the end
-  fails compilation.
+- **`useradd::setting` picks the quoting per value.** The augeas provider
+  unescapes only the quote itself, so a backslash before it or at the end
+  ends the argument early. Double quotes, then single quotes, then no quotes
+  (no space or leading quote); a value none of them can hold fails
+  compilation (a documented BREAKING change).
 - **`pass_min_len` / `pass_max_len`** have no effect on stock EL; minimum
   length is set via PAM / `pwquality.conf`.
 - **`etc_profile::manage_tmout`** is deprecated; leave `session_timeout`

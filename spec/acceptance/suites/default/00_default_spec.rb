@@ -66,13 +66,18 @@ describe 'useradd class' do
       end
 
       context 'with a backslash in a value' do
-        let(:set) { %q(class { 'useradd::login_defs': login_string => 'Pass\\word "%s":' }) }
+        ['Pass\\word "%s":', 'Pass\\', 'Pass \\"%s\\":'].each do |value|
+          it "writes #{value} verbatim" do
+            set = "class { 'useradd::login_defs': login_string => '#{value.gsub(%r{[\\']}) { |c| "\\#{c}" }}' }"
+            apply_manifest_on(host, set, catch_failures: true)
+            apply_manifest_on(host, set, catch_changes: true)
+            expect(on(host, 'grep "^LOGIN_STRING" /etc/login.defs').stdout.strip).to eq("LOGIN_STRING #{value}")
+          end
+        end
 
-        it 'is written verbatim' do
-          apply_manifest_on(host, set, catch_failures: true)
-          apply_manifest_on(host, set, catch_changes: true)
-          expect(on(host, 'grep "^LOGIN_STRING" /etc/login.defs').stdout.strip).to eq('LOGIN_STRING Pass\\word "%s":')
+        it 'is removed with absent' do
           apply_manifest_on(host, "class { 'useradd::login_defs': login_string => 'absent' }", catch_failures: true)
+          expect(on(host, 'grep "^LOGIN_STRING" /etc/login.defs', acceptable_exit_codes: [1]).stdout).to be_empty
         end
       end
 

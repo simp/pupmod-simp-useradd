@@ -63,11 +63,24 @@ describe 'useradd::login_defs' do
     it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes('set LOGIN_STRING "a\\b"') }
   end
 
-  ['a\\', 'a\\"b'].each do |value|
+  {
+    'a\\'          => 'set LOGIN_STRING a\\',
+    'a b\\"c'      => %q(set LOGIN_STRING 'a b\\"c'),
+    "a b\\'c"      => 'set LOGIN_STRING "a b\\\'c"',
+  }.each do |value, changes|
     context "with the value #{value.inspect}" do
       let(:params) { { login_string: value } }
 
-      it { is_expected.to compile.and_raise_error(%r{backslash before a double quote or at the end}) }
+      it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(changes) }
+    end
+  end
+
+  # No quote can hold these, and the space rules out an unquoted argument.
+  ['a b\\', %q(a \\"b\\'c)].each do |value|
+    context "with the value #{value.inspect}" do
+      let(:params) { { login_string: value } }
+
+      it { is_expected.to compile.and_raise_error(%r{augeas can't write a value}) }
     end
   end
 

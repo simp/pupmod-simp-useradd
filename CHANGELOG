@@ -11,6 +11,9 @@
   setting; `useradd::etc_profile::legacy_simp_sh` keeps the old files
 - **BREAKING:** `useradd::passwd` manages only the files in
   `useradd::passwd::files`
+- **BREAKING:** A value with a space or a leading quote that ends in a
+  backslash, or has one before both a `"` and a `'`, fails compilation;
+  augeas can't write it
 - **BREAKING:** `useradd::sysconfig_init` manages the emergency/rescue
   drop-ins with plain `file` resources and its own `daemon-reload` exec, and
   includes `systemd` only when `useradd::sysconfig_init::systemd` is `true`

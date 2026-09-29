@@ -36,16 +36,21 @@ define useradd::setting (
       false   => 'no',
       default => String($value),
     }
-    # The augeas provider passes `\x` through verbatim and unescapes only
-    # `\"`, so only `"` is escaped. A backslash before a `"`, or at the end,
-    # would then end the string early.
-    if $_value =~ /\\("|\z)/ {
-      fail("useradd::setting '${title}': a value can't have a backslash before a double quote or at the end")
-    }
-    $_escaped = $_value.regsubst('"', '\\"', 'G')
+    # The augeas provider unescapes only the quote in a quoted argument, so a
+    # backslash before that quote, or at the end, ends it early. An unquoted
+    # argument is read verbatim up to the next space.
+    $_quote = ['"', "'"].filter |$q| { $_value !~ Regexp("\\\\(${q}|\\z)") }[0]
 
-    $_changes = "set ${key} \"${_escaped}\""
-    $_onlyif  = undef
+    if $_quote {
+      $_changes = "set ${key} ${_quote}${_value.regsubst($_quote, "\\\\${_quote}", 'G')}${_quote}"
+    }
+    elsif $_value =~ /\A[^\s'"]\S*\z/ {
+      $_changes = "set ${key} ${_value}"
+    }
+    else {
+      fail("useradd::setting '${title}': augeas can't write a value with a space or a leading quote that ends in a backslash or has one before both a \" and a '")
+    }
+    $_onlyif = undef
   }
 
   augeas { $title:
