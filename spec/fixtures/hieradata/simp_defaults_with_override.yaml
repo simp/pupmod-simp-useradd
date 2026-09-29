@@ -11,3 +11,6 @@ useradd::securetty_entries:
   console: {}
 # A site turning off one of the profile's destructive toggles.
 useradd::purge_shells: false
+# Deep-merged with the profile's userdefaults_settings.
+useradd::libuser_conf::userdefaults_settings:
+  LU_GIDNUMBER: absent

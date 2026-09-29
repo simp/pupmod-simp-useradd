@@ -392,6 +392,8 @@ The following parameters are available in the `useradd::libuser_conf` class:
 * [`defaults_skeleton`](#-useradd--libuser_conf--defaults_skeleton)
 * [`import_login_defs`](#-useradd--libuser_conf--import_login_defs)
 * [`import_default_useradd`](#-useradd--libuser_conf--import_default_useradd)
+* [`userdefaults_settings`](#-useradd--libuser_conf--userdefaults_settings)
+* [`groupdefaults_settings`](#-useradd--libuser_conf--groupdefaults_settings)
 * [`userdefaults`](#-useradd--libuser_conf--userdefaults)
 * [`groupdefaults`](#-useradd--libuser_conf--groupdefaults)
 * [`files_directory`](#-useradd--libuser_conf--files_directory)
@@ -492,12 +494,31 @@ Data type: `Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]`
 
 Default value: `undef`
 
+##### <a name="-useradd--libuser_conf--userdefaults_settings"></a>`userdefaults_settings`
+
+Data type: `Hash[Pattern[/\A[A-Za-z0-9_]+\z/], Variant[String[1], Integer]]`
+
+Keys of the `[userdefaults]` section, mapped to their values. `absent`
+removes a key.
+
+Default value: `{}`
+
+##### <a name="-useradd--libuser_conf--groupdefaults_settings"></a>`groupdefaults_settings`
+
+Data type: `Hash[Pattern[/\A[A-Za-z0-9_]+\z/], Variant[String[1], Integer]]`
+
+Keys of the `[groupdefaults]` section, mapped to their values. `absent`
+removes a key.
+
+Default value: `{}`
+
 ##### <a name="-useradd--libuser_conf--userdefaults"></a>`userdefaults`
 
 Data type: `Optional[String]`
 
-`KEY = value` lines for the `[userdefaults]` section. Each key is managed
-on its own; `absent` removes every key in the section.
+Deprecated: use `userdefaults_settings`. As in 3.x, `KEY = value` lines
+that make up the whole `[userdefaults]` section: other keys in it are
+removed, and `userdefaults_settings` is ignored.
 
 Default value: `undef`
 
@@ -505,8 +526,9 @@ Default value: `undef`
 
 Data type: `Optional[String]`
 
-`KEY = value` lines for the `[groupdefaults]` section. Each key is managed
-on its own; `absent` removes every key in the section.
+Deprecated: use `groupdefaults_settings`. As in 3.x, `KEY = value` lines
+that make up the whole `[groupdefaults]` section: other keys in it are
+removed, and `groupdefaults_settings` is ignored.
 
 Default value: `undef`
 

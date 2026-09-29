@@ -63,8 +63,8 @@ profiles:
       simp:defaults.useradd.libuser_conf.defaults_crypt_style: true
       simp:defaults.useradd.libuser_conf.import_login_defs: true
       simp:defaults.useradd.libuser_conf.import_default_useradd: true
-      simp:defaults.useradd.libuser_conf.userdefaults: true
-      simp:defaults.useradd.libuser_conf.groupdefaults: true
+      simp:defaults.useradd.libuser_conf.userdefaults_settings: true
+      simp:defaults.useradd.libuser_conf.groupdefaults_settings: true
       simp:defaults.useradd.libuser_conf.mode: true
       simp:defaults.useradd.libuser_conf.purge: true
       simp:defaults.useradd.passwd.files: true

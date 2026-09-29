@@ -6,3 +6,7 @@ lookup_options:
     merge: deep
   useradd::passwd::files:
     merge: deep
+  useradd::libuser_conf::userdefaults_settings:
+    merge: deep
+  useradd::libuser_conf::groupdefaults_settings:
+    merge: deep

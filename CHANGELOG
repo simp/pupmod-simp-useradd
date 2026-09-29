@@ -21,12 +21,14 @@
 - Add `securetty_entries`, `shells_entries`, `purge_securetty`, `purge_shells`,
   `securetty_mode` and `shells_mode`, and the `Useradd::EntryOptions` and
   `Useradd::ListEntry` types
+- Add `useradd::libuser_conf::userdefaults_settings` and `groupdefaults_settings`
 - Add `mode` and `purge` to `login_defs`, `useradd`, `libuser_conf`, `nss` and
   `sysconfig_init`, and `useradd::sysconfig_init::purge_dropins`
 - Add the `useradd_legacy_simp_sh` fact
 - Require puppetlabs/stdlib 9.2.0 or later
 - Deprecate the `manage_*` parameters, `securetty`, `shells_default`,
-  `shells` and `useradd::etc_profile::manage_tmout`
+  `shells`, `useradd::etc_profile::manage_tmout`, and
+  `useradd::libuser_conf::userdefaults` and `groupdefaults`
 
 * Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 3.1.2
 - [puppetsync] Update metadata.json dependency ranges from the Forge

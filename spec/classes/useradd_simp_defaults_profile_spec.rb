@@ -53,7 +53,7 @@ describe 'useradd' do
 
     # The deprecated parameters must not be how the profile restores 3.x.
     it 'sets no deprecated parameter' do
-      deprecated = %r{::(manage_\w+|securetty|shells|shells_default)\z}
+      deprecated = %r{::(manage_\w+|securetty|shells|shells_default|userdefaults|groupdefaults)\z}
       params = checks.values.map { |c| c['settings']['parameter'] }
       expect(params.grep(deprecated)).to be_empty
     end
@@ -170,6 +170,11 @@ describe 'useradd' do
       is_expected.to contain_augeas('/etc/shells /bin/bash')
     end
 
+    it 'merges the site libuser.conf keys with the profile' do
+      is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"')
+      is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER').with_changes('rm userdefaults/LU_GIDNUMBER')
+    end
+
     it 'leaves the rest of the profile in force' do
       is_expected.to contain_augeas('/etc/login.defs PASS_MIN_DAYS')
       is_expected.to contain_augeas('/etc/securetty purge')
@@ -192,6 +197,12 @@ describe 'useradd' do
     it 'leaves /etc/shells alone' do
       is_expected.not_to contain_file('/etc/shells')
       expect(catalogue.resources.select { |r| r.type == 'Augeas' && r.title.start_with?('/etc/shells') }).to be_empty
+    end
+
+    it 'owns the [userdefaults] section as in 3.x' do
+      is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME')
+      is_expected.not_to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER')
+      is_expected.to contain_augeas('/etc/libuser.conf userdefaults').with_changes("rm userdefaults/*[label() != '#comment' and label() != 'LU_USERNAME']")
     end
 
     it 'runs prepend inside simp.sh, as in 3.x' do

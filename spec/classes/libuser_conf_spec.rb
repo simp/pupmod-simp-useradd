@@ -22,7 +22,7 @@ describe 'useradd::libuser_conf' do
         import_login_defs: '/etc/login.defs',
         files_nonroot: false,
         ldap_userbranch: 'ou=People',
-        userdefaults: "# a comment\nLU_USERNAME = %n\n\nLU_GIDNUMBER=%u\n",
+        userdefaults_settings: { 'LU_USERNAME' => '%n', 'LU_GIDNUMBER' => '%u' },
       }
     end
 
@@ -55,21 +55,52 @@ describe 'useradd::libuser_conf' do
     it { is_expected.to contain_augeas('/etc/libuser.conf files/nonroot').with_changes('set files/nonroot "no"') }
   end
 
+  context 'with a section key absent' do
+    let(:params) { { userdefaults_settings: { 'LU_USERNAME' => '%n', 'LU_GIDNUMBER' => 'absent' } } }
+
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER').with_changes('rm userdefaults/LU_GIDNUMBER') }
+    it { is_expected.not_to contain_augeas('/etc/libuser.conf userdefaults') }
+  end
+
+  # The deprecated String is the whole section, as in 3.x.
+  context 'with the deprecated userdefaults' do
+    let(:params) do
+      {
+        userdefaults: "# a comment\nLU_USERNAME = %n\n\nLU_SHELL=/bin/sh\n",
+        userdefaults_settings: { 'LU_GIDNUMBER' => '%u' },
+      }
+    end
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_SHELL').with_changes('set userdefaults/LU_SHELL "/bin/sh"') }
+    it { is_expected.not_to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER') }
+
+    it 'removes the other keys in the section' do
+      is_expected.to contain_augeas('/etc/libuser.conf userdefaults').with(
+        changes: "rm userdefaults/*[label() != '#comment' and label() != 'LU_USERNAME' and label() != 'LU_SHELL']",
+        onlyif: "match userdefaults/*[label() != '#comment' and label() != 'LU_USERNAME' and label() != 'LU_SHELL'] size > 0",
+      )
+    end
+
+    context 'with strict=error' do
+      before(:each) { Puppet[:strict] = :error }
+
+      it { is_expected.to compile.with_all_deps }
+    end
+  end
+
+  context 'with the deprecated userdefaults empty' do
+    let(:params) { { userdefaults: '' } }
+
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults').with_changes("rm userdefaults/*[label() != '#comment']") }
+  end
+
   context 'with a free-form line that is not KEY = value' do
     let(:params) { { groupdefaults: 'LU_GROUPNAME %n' } }
 
     it { is_expected.to compile.and_raise_error(%r{groupdefaults: 'LU_GROUPNAME %n' is not a KEY = value line}) }
-  end
-
-  context 'with userdefaults absent' do
-    let(:params) { { userdefaults: 'absent' } }
-
-    it 'removes every key in the section' do
-      is_expected.to contain_augeas('/etc/libuser.conf userdefaults').with(
-        changes: "rm userdefaults/*[label() != '#comment']",
-        onlyif: "match userdefaults/*[label() != '#comment'] size > 0",
-      )
-    end
   end
 
   context 'with hash_rounds_min >= hash_rounds_max' do
@@ -83,7 +114,7 @@ describe 'useradd::libuser_conf' do
       {
         defaults_crypt_style: 'sha512',
         import_login_defs: '/etc/login.defs',
-        groupdefaults: 'LU_GROUPNAME = %n',
+        groupdefaults_settings: { 'LU_GROUPNAME' => '%n' },
         purge: true,
         mode: '0644',
       }

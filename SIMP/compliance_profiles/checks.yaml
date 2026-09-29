@@ -292,16 +292,19 @@ checks:
     settings:
       parameter: useradd::libuser_conf::import_default_useradd
       value: /etc/default/useradd
-  simp:defaults.useradd.libuser_conf.userdefaults:
+  simp:defaults.useradd.libuser_conf.userdefaults_settings:
     type: puppet-class-parameter
     settings:
-      parameter: useradd::libuser_conf::userdefaults
-      value: "LU_USERNAME = %n\nLU_GIDNUMBER = %u"
-  simp:defaults.useradd.libuser_conf.groupdefaults:
+      parameter: useradd::libuser_conf::userdefaults_settings
+      value:
+        LU_USERNAME: '%n'
+        LU_GIDNUMBER: '%u'
+  simp:defaults.useradd.libuser_conf.groupdefaults_settings:
     type: puppet-class-parameter
     settings:
-      parameter: useradd::libuser_conf::groupdefaults
-      value: LU_GROUPNAME = %n
+      parameter: useradd::libuser_conf::groupdefaults_settings
+      value:
+        LU_GROUPNAME: '%n'
   simp:defaults.useradd.libuser_conf.mode:
     type: puppet-class-parameter
     settings:

@@ -5,5 +5,6 @@ compliance_engine::enforcement:
 # file, as in 3.x, so the profile's entries and purge are ignored for it.
 useradd::securetty: []
 useradd::shells: false
+useradd::libuser_conf::userdefaults: LU_USERNAME = %n
 useradd::etc_profile::prepend:
   sh: echo pre

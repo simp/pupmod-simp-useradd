@@ -22,12 +22,20 @@
 # @param defaults_skeleton
 # @param import_login_defs
 # @param import_default_useradd
+# @param userdefaults_settings
+#   Keys of the `[userdefaults]` section, mapped to their values. `absent`
+#   removes a key.
+# @param groupdefaults_settings
+#   Keys of the `[groupdefaults]` section, mapped to their values. `absent`
+#   removes a key.
 # @param userdefaults
-#   `KEY = value` lines for the `[userdefaults]` section. Each key is managed
-#   on its own; `absent` removes every key in the section.
+#   Deprecated: use `userdefaults_settings`. As in 3.x, `KEY = value` lines
+#   that make up the whole `[userdefaults]` section: other keys in it are
+#   removed, and `userdefaults_settings` is ignored.
 # @param groupdefaults
-#   `KEY = value` lines for the `[groupdefaults]` section. Each key is managed
-#   on its own; `absent` removes every key in the section.
+#   Deprecated: use `groupdefaults_settings`. As in 3.x, `KEY = value` lines
+#   that make up the whole `[groupdefaults]` section: other keys in it are
+#   removed, and `groupdefaults_settings` is ignored.
 # @param files_directory
 # @param files_nonroot
 # @param shadow_directory
@@ -65,6 +73,8 @@ class useradd::libuser_conf (
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]          $defaults_skeleton        = undef,
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]          $import_login_defs        = undef,
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]          $import_default_useradd   = undef,
+  Hash[Pattern[/\A[A-Za-z0-9_]+\z/], Variant[String[1], Integer]]  $userdefaults_settings    = {},
+  Hash[Pattern[/\A[A-Za-z0-9_]+\z/], Variant[String[1], Integer]]  $groupdefaults_settings   = {},
   Optional[String]                                                 $userdefaults             = undef,
   Optional[String]                                                 $groupdefaults            = undef,
   Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]          $files_directory          = undef,
@@ -101,18 +111,33 @@ class useradd::libuser_conf (
     default => useradd::join($defaults_create_modules, ','),
   }
 
-  # `KEY = value` lines become one setting per key.
-  $_free_form = {
+  # Deprecated: the 3.x Strings, parsed into the whole section's keys.
+  $_legacy = {
     'userdefaults'  => $userdefaults,
     'groupdefaults' => $groupdefaults,
-  }.filter |$section, $lines| { $lines =~ NotUndef and $lines != 'absent' }.reduce({}) |$memo, $section| {
-    $memo + $section[1].split("\n").map |$line| { $line.strip }.filter |$line| { $line =~ /\A[^#;]/ }.reduce({}) |$keys, $line| {
+  }.filter |$section, $lines| { $lines =~ NotUndef }.map |$section, $lines| {
+    deprecation("useradd::libuser_conf::${section}", "useradd::libuser_conf::${section} is deprecated and will be removed in a future release. Use useradd::libuser_conf::${section}_settings instead.", false)
+
+    $_keys = $lines.split("\n").map |$line| { $line.strip }.filter |$line| { $line =~ /\A[^#;]/ }.reduce({}) |$keys, $line| {
       $_match = $line.match(/\A([A-Za-z0-9_]+)\s*=\s*(.*)\z/)
       unless $_match {
-        fail("useradd::libuser_conf::${section[0]}: '${line}' is not a KEY = value line")
+        fail("useradd::libuser_conf::${section}: '${line}' is not a KEY = value line")
       }
-      $keys + { "${section[0]}/${_match[1]}" => $_match[2] }
+      $keys + { $_match[1] => $_match[2] }
     }
+    [$section, $_keys]
+  }.convert_to(Hash)
+
+  # A deprecated String replaces its Hash.
+  $_free_form = {
+    'userdefaults'  => $userdefaults_settings,
+    'groupdefaults' => $groupdefaults_settings,
+  }.reduce({}) |$memo, $section| {
+    $_keys = $_legacy[$section[0]] ? {
+      undef   => $section[1],
+      default => $_legacy[$section[0]],
+    }
+    $memo + $_keys.reduce({}) |$keys, $kv| { $keys + { "${section[0]}/${kv[0]}" => $kv[1] } }
   }
 
   $_settings = {
@@ -165,19 +190,18 @@ class useradd::libuser_conf (
     default => File['/etc/libuser.conf'],
   }
 
-  # `absent` for a free-form section removes every key in it.
-  ['userdefaults', 'groupdefaults'].each |$section| {
-    if getvar($section) == 'absent' {
-      $_path = "${section}/*[label() != '#comment']"
+  # A deprecated String is the whole section, as in 3.x: every other key in it
+  # is removed.
+  $_legacy.each |$section, $keys| {
+    $_path = "${section}/*[label() != '#comment'${keys.keys.map |$k| { " and label() != '${k}'" }.join}]"
 
-      augeas { "/etc/libuser.conf ${section}":
-        incl    => '/etc/libuser.conf',
-        lens    => 'Puppet.lns',
-        context => '/files/etc/libuser.conf',
-        changes => "rm ${_path}",
-        onlyif  => "match ${_path} size > 0",
-        before  => $_mode_file,
-      }
+    augeas { "/etc/libuser.conf ${section}":
+      incl    => '/etc/libuser.conf',
+      lens    => 'Puppet.lns',
+      context => '/files/etc/libuser.conf',
+      changes => "rm ${_path}",
+      onlyif  => "match ${_path} size > 0",
+      before  => $_mode_file,
     }
   }
 }

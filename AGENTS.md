@@ -53,6 +53,8 @@ itself.
   if `defaults_hash_rounds_min >= defaults_hash_rounds_max`. With both
   module lists set, `[files]`/`[shadow]`/`[ldap]` keys are written only for a
   module in `defaults_create_modules` and not in `defaults_modules`, as in 3.x.
+  `[userdefaults]`/`[groupdefaults]` keys come from the `*_settings` Hashes;
+  the deprecated `userdefaults`/`groupdefaults` Strings own their section.
 - **`useradd::passwd`** — manages only the files listed in
   `useradd::passwd::files` (Hash of path → owner/group/mode).
 - **`useradd::etc_profile`** — one `/etc/profile.d` file per setting via

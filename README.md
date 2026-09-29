@@ -100,7 +100,10 @@ These still work, and warn when set:
 * `securetty`, `shells_default` and `shells`, replaced by `securetty_entries`
   and `shells_entries`. As in 3.x, each owns its whole file, and the matching
   `*_entries` and `purge_*` parameters are ignored;
-* `useradd::etc_profile::manage_tmout`.
+* `useradd::etc_profile::manage_tmout`;
+* `useradd::libuser_conf::userdefaults` and `groupdefaults`, replaced by
+  `userdefaults_settings` and `groupdefaults_settings`. As in 3.x, each is
+  its whole section, and the matching Hash is ignored.
 
 See the [CHANGELOG](./CHANGELOG) for the full list.
 
