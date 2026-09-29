@@ -10,6 +10,7 @@ describe 'useradd::login_defs' do
   context 'with default parameters' do
     it { is_expected.to compile.with_all_deps }
     it { expect(augeas_resources).to be_empty }
+    it { expect(catalogue.resources.select { |r| r.type == 'File_line' }).to be_empty }
     it { is_expected.not_to contain_file('/etc/login.defs') }
   end
 
@@ -78,6 +79,17 @@ describe 'useradd::login_defs' do
     it { is_expected.not_to contain_augeas('/etc/login.defs LOGIN_STRING') }
     it { is_expected.not_to contain_augeas('/etc/login.defs UMASK') }
     it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes('set CONSOLE_GROUPS "floppy"') }
+
+    ['LOGIN_STRING', 'UMASK', 'CONSOLE_GROUPS'].each do |key|
+      it do
+        is_expected.to contain_file_line("/etc/login.defs #{key} empty").with(
+          ensure: 'absent',
+          match: "^\\s*#{key}\\s*$",
+          match_for_absence: true,
+          multiple: true,
+        ).that_comes_before('Useradd::Settings[/etc/login.defs]')
+      end
+    end
 
     context 'with strict=error' do
       before(:each) { Puppet[:strict] = :error }

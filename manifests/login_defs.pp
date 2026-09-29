@@ -161,8 +161,9 @@ class useradd::login_defs (
   Optional[Variant[Boolean, Enum['absent']]]                             $usergroups_enab       = undef,
   Boolean                                                                $purge                 = false
 ) {
-  # The Login_defs lens can't hold a key with no value, so an empty String,
-  # which 3.x wrote as `KEY` with nothing after it, is skipped.
+  # The Login_defs lens can't hold a key with no value, so an empty String is
+  # skipped. 3.x wrote it as `KEY` with nothing after it, which the lens can't
+  # parse either, so that line is removed before any edit.
   $_empty = {
     'console_groups' => $console_groups =~ Array and '' in $console_groups,
     'login_string'   => $login_string == '',
@@ -173,6 +174,16 @@ class useradd::login_defs (
 
   $_empty.each |$param| {
     deprecation("useradd::login_defs::${param}", "useradd::login_defs::${param}: an empty value is deprecated and ignored; login.defs can't hold it.", false)
+
+    $_key = $param.upcase
+    file_line { "/etc/login.defs ${_key} empty":
+      ensure            => 'absent',
+      path              => '/etc/login.defs',
+      match             => "^\\s*${_key}\\s*$",
+      match_for_absence => true,
+      multiple          => true,
+      before            => Useradd::Settings['/etc/login.defs'],
+    }
   }
 
   $_env_hz = $env_hz ? {

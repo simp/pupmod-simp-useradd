@@ -16,7 +16,8 @@
   includes `systemd` only when `useradd::sysconfig_init::systemd` is `true`
 - The `login.defs` UID/GID ranges are written only when set, directly or
   through `simp_options::uid` and `simp_options::gid`, and are never purged
-- An empty `login_defs` value is deprecated and skipped
+- An empty `login_defs` value is deprecated and skipped, and the bare key line
+  3.x wrote for it is removed
 - Add `securetty_entries`, `shells_entries`, `purge_securetty`, `purge_shells`,
   `securetty_mode` and `shells_mode`, and the `Useradd::EntryOptions` and
   `Useradd::ListEntry` types

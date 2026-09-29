@@ -51,9 +51,10 @@ Values set in site Hiera take precedence over the profile.
 * An empty `login_defs` value (`''`) is skipped with a deprecation warning.
   `login.defs` can't hold a key with no value.
 
-A `login.defs` that 3.x wrote with an empty value (such as `LOGIN_STRING`
-alone on a line) can't be parsed, so every `login_defs` edit fails on it.
-Remove that line by hand before upgrading.
+3.x wrote an empty value as the key alone on a line (such as
+`LOGIN_STRING`), which can't be parsed. While the parameter is still `''`,
+the module removes that line. If you have already removed the `''` from
+Hiera, remove the line by hand, or every `login_defs` edit fails on it.
 
 ### Single-user login drop-ins
 
