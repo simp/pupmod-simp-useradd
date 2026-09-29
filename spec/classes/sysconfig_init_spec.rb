@@ -143,6 +143,12 @@ describe 'useradd::sysconfig_init' do
       it { is_expected.to contain_file('/etc/systemd/system/rescue.service.d').with(purge: false) }
     end
 
+    context 'and purge_dropins => true' do
+      let(:params) { { single_user_login: '/sbin/sulogin', purge_dropins: true } }
+
+      it { is_expected.to compile.with_all_deps }
+    end
+
     context 'and the defaults' do
       let(:params) { { single_user_login: '/sbin/sulogin' } }
 

@@ -70,7 +70,10 @@ drop-ins with plain `file` resources and its own `daemon-reload`.
   in 3.x.
 * If another module declares a `systemd::dropin_file` on `emergency.service`
   or `rescue.service`, set `useradd::sysconfig_init::systemd: true` so both
-  declare the directory the same way.
+  declare the directory the same way. Without `systemd: true`,
+  `purge_dropins: true` also matches while `systemd::purge_dropin_dirs` is
+  at its default; it removes the other drop-ins for those units, as
+  `systemd::dropin_file` would.
 
 ### UID/GID ranges
 

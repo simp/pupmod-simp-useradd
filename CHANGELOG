@@ -16,7 +16,8 @@
   augeas can't write it
 - **BREAKING:** `useradd::sysconfig_init` manages the emergency/rescue
   drop-ins with plain `file` resources and its own `daemon-reload` exec, and
-  includes `systemd` only when `useradd::sysconfig_init::systemd` is `true`
+  includes `systemd` only when `useradd::sysconfig_init::systemd` is `true`;
+  set it where another module declares a drop-in on those units
 - The `login.defs` UID/GID ranges are written only when set, directly or
   through `simp_options::uid` and `simp_options::gid`, and are never purged
 - An empty `login_defs` value is deprecated and skipped, and the bare key line
