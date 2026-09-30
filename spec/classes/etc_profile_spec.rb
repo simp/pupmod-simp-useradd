@@ -78,50 +78,12 @@ describe 'useradd::etc_profile' do
     it { expect(catalogue.resources.count { |r| r.type == 'File' }).to eq(4) }
   end
 
-  context 'with legacy_simp_sh => true' do
-    let(:params) { { legacy_simp_sh: true, session_timeout: 15, mesg: false, umask: '0077' } }
-
-    it { is_expected.to contain_file('/etc/profile.d/simp.sh').with(mode: '0644', seltype: 'bin_t') }
-    it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{TMOUT=900}) }
-    it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{mesg n}) }
-    it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{umask 0077}) }
-    it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{autologout=15}) }
-    it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{umask 0077}) }
-    it { expect(catalogue.resources.select { |r| r.type == 'Useradd::Etc_profile::Script' }).to be_empty }
-  end
-
-  context 'with legacy_simp_sh => true and prepend and append' do
-    let(:params) do
-      {
-        legacy_simp_sh: true,
-        session_timeout: 15,
-        prepend: { 'sh' => 'echo pre', 'csh' => 'echo cpre' },
-        append: { 'sh' => 'echo post', 'csh' => 'absent' },
-      }
-    end
-
-    it 'runs them inside the 3.x scripts' do
-      is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{^echo pre\n\n.*TMOUT=900.*\n\necho post\n\z}m)
-      is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{^echo cpre\n})
-      is_expected.to contain_file('/etc/profile.d/simp.csh').without_content(%r{absent})
-    end
-
-    ['simp-a-prepend.sh', 'zz-simp-a-prepend.csh', 'zz-simp-z-append.sh', 'zz-simp-z-append.csh'].each do |name|
-      it { is_expected.not_to contain_file("/etc/profile.d/#{name}") }
-    end
-  end
-
-  context 'with legacy_simp_sh => true and umask unset' do
-    let(:params) { { legacy_simp_sh: true, session_timeout: 15 } }
-
-    it { is_expected.to contain_file('/etc/profile.d/simp.sh').without_content(%r{umask}) }
-  end
-
-  context 'with legacy_simp_sh => false' do
-    let(:params) { { legacy_simp_sh: false } }
+  context 'with purge_legacy_simp_sh => true' do
+    let(:params) { { purge_legacy_simp_sh: true, session_timeout: 15 } }
 
     it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_ensure('absent') }
     it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_ensure('absent') }
+    it { is_expected.to contain_file('/etc/profile.d/simp-b-tmout.sh').with_ensure('file') }
   end
 
   context 'with a leftover simp.sh and prepend set' do
@@ -130,5 +92,6 @@ describe 'useradd::etc_profile' do
 
     it { is_expected.to compile.with_all_deps }
     it { is_expected.not_to contain_file('/etc/profile.d/simp.sh') }
+    it { is_expected.to contain_file('/etc/profile.d/simp-a-prepend.sh') }
   end
 end

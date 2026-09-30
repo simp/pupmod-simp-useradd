@@ -255,10 +255,8 @@ alone, and `absent` removes them.
 
 The names order the scripts so these settings win over the `simp.sh` and
 `simp.csh` scripts written by useradd 3.x: `TMOUT` is read-only once set, so
-its script runs first, and the others run last.
-
-With `legacy_simp_sh => true`, none of these scripts are written; every
-setting goes in `simp.sh` and `simp.csh` instead, as in 3.x.
+its script runs first, and the others run last. `purge_legacy_simp_sh`
+removes those old scripts.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -272,7 +270,7 @@ The following parameters are available in the `useradd::etc_profile` class:
 * [`user_whitelist`](#-useradd--etc_profile--user_whitelist)
 * [`prepend`](#-useradd--etc_profile--prepend)
 * [`append`](#-useradd--etc_profile--append)
-* [`legacy_simp_sh`](#-useradd--etc_profile--legacy_simp_sh)
+* [`purge_legacy_simp_sh`](#-useradd--etc_profile--purge_legacy_simp_sh)
 * [`manage_tmout`](#-useradd--etc_profile--manage_tmout)
 
 ##### <a name="-useradd--etc_profile--session_timeout"></a>`session_timeout`
@@ -323,9 +321,7 @@ Data type: `Hash`
 
 Content for a script run before the others, as
 `{ 'sh' => <content>, 'csh' => <content> }`. The content is written
-exactly as provided, and `absent` removes the script. With
-`legacy_simp_sh => true`, the content goes inside `simp.sh` and
-`simp.csh` instead, after the `user_whitelist` check, as in 3.x.
+exactly as provided, and `absent` removes the script.
 
 Example:
   { 'sh' => 'if [ $UID -eq 0 ]; then echo "foo"; fi ' }
@@ -337,21 +333,18 @@ Default value: `{}`
 Data type: `Hash`
 
 Content for a script run after the others. See `prepend` for usage.
-With `legacy_simp_sh => true`, it goes at the end of `simp.sh` and
-`simp.csh`.
 
 Default value: `{}`
 
-##### <a name="-useradd--etc_profile--legacy_simp_sh"></a>`legacy_simp_sh`
+##### <a name="-useradd--etc_profile--purge_legacy_simp_sh"></a>`purge_legacy_simp_sh`
 
-Data type: `Optional[Boolean]`
+Data type: `Boolean`
 
-Manage `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
-scripts useradd 3.x wrote. `true` writes them as 3.x did, from
-`session_timeout`, `mesg`, `umask`, `prepend` and `append`, instead of
-the per-setting scripts. `false` removes them. Unset leaves them alone.
+Remove `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
+scripts useradd 3.x wrote. While they are present they still apply the
+3.x settings at login, including ones set to `absent` here.
 
-Default value: `undef`
+Default value: `false`
 
 ##### <a name="-useradd--etc_profile--manage_tmout"></a>`manage_tmout`
 

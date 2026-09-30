@@ -21,7 +21,7 @@ describe 'useradd class' do
             # Guards against the preview quietly covering nothing if the
             # Compliance Engine layer stops resolving the profile.
             expect(result.output).to match(%r{Augeas\[/etc/login\.defs PASS_MAX_DAYS\]/returns: .*\(noop\)})
-            expect(result.output).to match(%r{File\[/etc/profile\.d/simp\.sh\]/ensure: .*\(noop\)})
+            expect(result.output).to match(%r{File\[/etc/profile\.d/simp-b-tmout\.sh\]/ensure: .*\(noop\)})
           end
         end
       end
@@ -127,6 +127,8 @@ describe 'useradd class' do
 
       context 'when enforcing simp:defaults' do
         it 'converges in one run' do
+          # The 3.x login scripts, which the profile removes.
+          on(host, 'echo "umask 0022" > /etc/profile.d/simp.sh && echo "umask 0022" > /etc/profile.d/simp.csh')
           with_simp_defaults_enforced(host) do
             apply_manifest_on(host, manifest, catch_failures: true)
             apply_manifest_on(host, manifest, catch_changes: true)
@@ -164,25 +166,26 @@ describe 'useradd class' do
           expect(on(host, 'stat -c "%a %U %G" /etc/shells').stdout.strip).to eq('644 root root')
         end
 
-        it 'restores the login scripts' do
-          on(host, 'grep -q "TMOUT=900" /etc/profile.d/simp.sh')
-          on(host, 'grep -q "autologout=15" /etc/profile.d/simp.csh')
+        it 'restores the login settings and removes the 3.x scripts' do
+          on(host, 'grep -q "TMOUT=900" /etc/profile.d/simp-b-tmout.sh')
+          on(host, 'grep -q "autologout=15" /etc/profile.d/zz-simp-autologout.csh')
+          on(host, 'test ! -e /etc/profile.d/simp.sh && test ! -e /etc/profile.d/simp.csh')
           expect(on(host, 'bash -lc "echo \$TMOUT; umask"').stdout.split).to eq(['900', '0077'])
         end
 
-        it 'lets a 3.x prepend and append win' do
-          legacy = <<~EOS
+        it 'lets prepend and append win' do
+          extra = <<~EOS
             class { 'useradd::etc_profile':
-              legacy_simp_sh  => true,
               session_timeout => 15,
               umask           => '0077',
               prepend         => { 'sh' => 'TMOUT=3600' },
               append          => { 'sh' => 'umask 0022' },
             }
           EOS
-          apply_manifest_on(host, legacy, catch_failures: true)
+          apply_manifest_on(host, extra, catch_failures: true)
           expect(on(host, 'bash -lc "echo \$TMOUT; umask"').stdout.split).to eq(['3600', '0022'])
 
+          apply_manifest_on(host, "class { 'useradd::etc_profile': prepend => { 'sh' => 'absent' }, append => { 'sh' => 'absent' } }", catch_failures: true)
           with_simp_defaults_enforced(host) do
             apply_manifest_on(host, manifest, catch_failures: true)
           end

@@ -59,9 +59,8 @@ itself.
   `useradd::passwd::files` (Hash of path → owner/group/mode).
 - **`useradd::etc_profile`** — one `/etc/profile.d` file per setting via
   `useradd::etc_profile::script` (`simp-b-tmout.sh`, `zz-simp-umask.sh`,
-  ...). `legacy_simp_sh: true` writes the 3.x `simp.sh`/`simp.csh` from the
-  templates instead of the per-setting files, with `prepend`/`append` inside
-  them as in 3.x; `false` removes them.
+  ...), `simp:defaults` included. `purge_legacy_simp_sh: true` removes the
+  3.x `simp.sh`/`simp.csh`.
 - **`useradd::sysconfig_init`** — `/etc/sysconfig/init`, per-key augeas
   (`Shellvars.lns`), `mode`, `purge`; plus the emergency/rescue drop-ins when
   `single_user_login` is set on systemd hosts, with a refresh-only
@@ -151,8 +150,6 @@ OracleLinux 8/9/10; Rocky 8/9/10; AlmaLinux 8/9/10.
 - `data/common.yaml` + `hiera.yaml` — `lookup_options` (deep merge for the
   `*_entries` and `passwd::files` Hashes). No default values.
 - `lib/facter/useradd_legacy_simp_sh.rb` — the legacy-script fact.
-- `templates/etc/profile.d/simp.{sh,csh}.erb` — used only with
-  `legacy_simp_sh: true`.
 - `SIMP/compliance_profiles/` — the `simp:defaults` profile and checks.
 - `spec/classes/` — unit specs; `spec/fixtures/hieradata/` holds the
   compliance-engine Hiera fixtures.

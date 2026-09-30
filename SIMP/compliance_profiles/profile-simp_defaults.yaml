@@ -71,7 +71,7 @@ profiles:
       simp:defaults.useradd.etc_profile.session_timeout: true
       simp:defaults.useradd.etc_profile.umask: true
       simp:defaults.useradd.etc_profile.mesg: true
-      simp:defaults.useradd.etc_profile.legacy_simp_sh: true
+      simp:defaults.useradd.etc_profile.purge_legacy_simp_sh: true
       simp:defaults.useradd.sysconfig_init.single_user_login: true
       simp:defaults.useradd.sysconfig_init.purge: true
       simp:defaults.useradd.sysconfig_init.systemd: true

@@ -118,10 +118,13 @@ describe 'useradd' do
           is_expected.to contain_file('/etc/passwd').with(owner: 'root', group: 'root', mode: '0644')
         end
 
-        it 'restores the 3.x login scripts, and only those' do
-          is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{TMOUT=900})
-          is_expected.to contain_file('/etc/profile.d/simp.csh').with_content(%r{autologout=15})
-          expect(catalogue.resources.select { |r| r.type == 'Useradd::Etc_profile::Script' }).to be_empty
+        it 'writes the login settings and removes the 3.x scripts' do
+          is_expected.to contain_file('/etc/profile.d/simp-b-tmout.sh').with_content(%r{TMOUT=900})
+          is_expected.to contain_file('/etc/profile.d/zz-simp-autologout.csh').with_content(%r{autologout=15})
+          is_expected.to contain_file('/etc/profile.d/zz-simp-umask.sh').with_content(%r{umask 0077})
+          is_expected.to contain_file('/etc/profile.d/zz-simp-mesg.sh').with_content(%r{mesg n})
+          is_expected.to contain_file('/etc/profile.d/simp.sh').with_ensure('absent')
+          is_expected.to contain_file('/etc/profile.d/simp.csh').with_ensure('absent')
         end
 
         it 'restores the single-user login drop-ins' do
@@ -205,9 +208,8 @@ describe 'useradd' do
       is_expected.to contain_augeas('/etc/libuser.conf userdefaults').with_changes("rm userdefaults/*[label() != '#comment' and label() != 'LU_USERNAME']")
     end
 
-    it 'runs prepend inside simp.sh, as in 3.x' do
-      is_expected.to contain_file('/etc/profile.d/simp.sh').with_content(%r{^echo pre$})
-      is_expected.not_to contain_file('/etc/profile.d/simp-a-prepend.sh')
+    it 'writes prepend to its own script' do
+      is_expected.to contain_file('/etc/profile.d/simp-a-prepend.sh').with_content(%r{^echo pre$})
     end
 
     it 'leaves the rest of the profile in force' do

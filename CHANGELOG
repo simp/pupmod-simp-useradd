@@ -8,7 +8,8 @@
 - **BREAKING:** `/etc/securetty` and `/etc/shells` are edited per entry,
   unless the deprecated `securetty`, `shells_default` or `shells` are set
 - **BREAKING:** `/etc/profile.d/simp.{sh,csh}` are replaced by one file per
-  setting; `useradd::etc_profile::legacy_simp_sh` keeps the old files
+  setting, `simp:defaults` included; `useradd::etc_profile::purge_legacy_simp_sh`
+  removes the old files
 - **BREAKING:** `useradd::passwd` manages only the files in
   `useradd::passwd::files`
 - **BREAKING:** A value with a space or a leading quote that ends in a
