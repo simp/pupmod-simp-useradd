@@ -103,13 +103,13 @@ describe 'useradd' do
         end
 
         it 'restores /etc/default/useradd' do
-          is_expected.to contain_augeas('/etc/default/useradd INACTIVE').with_changes('set INACTIVE "35"')
+          is_expected.to contain_augeas('/etc/default/useradd INACTIVE').with_changes(['rm INACTIVE[position() > 1]', 'set INACTIVE "35"'])
           is_expected.to contain_file('/etc/default/useradd').with_mode('0600')
         end
 
         it 'restores libuser.conf' do
-          is_expected.to contain_augeas('/etc/libuser.conf defaults/crypt_style').with_changes('set defaults/crypt_style "sha512"')
-          is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"')
+          is_expected.to contain_augeas('/etc/libuser.conf defaults/crypt_style').with_changes(['rm defaults/crypt_style[position() > 1]', 'set defaults/crypt_style "sha512"'])
+          is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes(['rm userdefaults/LU_USERNAME[position() > 1]', 'set userdefaults/LU_USERNAME "%n"'])
           is_expected.to contain_file('/etc/libuser.conf').with_mode('0644')
         end
 
@@ -158,7 +158,7 @@ describe 'useradd' do
     it { is_expected.to compile.with_all_deps }
 
     it 'uses the site pass_max_days' do
-      is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').with_changes('set PASS_MAX_DAYS "60"')
+      is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').with_changes(['rm PASS_MAX_DAYS[position() > 1]', 'set PASS_MAX_DAYS "60"'])
     end
 
     it 'merges the site securetty entries with the profile' do
@@ -174,7 +174,7 @@ describe 'useradd' do
     end
 
     it 'merges the site libuser.conf keys with the profile' do
-      is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"')
+      is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes(['rm userdefaults/LU_USERNAME[position() > 1]', 'set userdefaults/LU_USERNAME "%n"'])
       is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER').with_changes('rm userdefaults/LU_GIDNUMBER')
     end
 

@@ -33,32 +33,32 @@ describe 'useradd::libuser_conf' do
         incl: '/etc/libuser.conf',
         lens: 'Puppet.lns',
         context: '/files/etc/libuser.conf',
-        changes: 'set defaults/crypt_style "sha512"',
+        changes: ['rm defaults/crypt_style[position() > 1]', 'set defaults/crypt_style "sha512"'],
       )
     end
 
-    it { is_expected.to contain_augeas('/etc/libuser.conf defaults/modules').with_changes('set defaults/modules "files,shadow"') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf defaults/create_modules').with_changes('set defaults/create_modules "ldap"') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf import/login_defs').with_changes('set import/login_defs "/etc/login.defs"') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf defaults/modules').with_changes(['rm defaults/modules[position() > 1]', 'set defaults/modules "files,shadow"']) }
+    it { is_expected.to contain_augeas('/etc/libuser.conf defaults/create_modules').with_changes(['rm defaults/create_modules[position() > 1]', 'set defaults/create_modules "ldap"']) }
+    it { is_expected.to contain_augeas('/etc/libuser.conf import/login_defs').with_changes(['rm import/login_defs[position() > 1]', 'set import/login_defs "/etc/login.defs"']) }
     # As in 3.x, a module's section is written only for a module in
     # create_modules and not in modules.
     it { is_expected.not_to contain_augeas('/etc/libuser.conf files/nonroot') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf ldap/userBranch').with_changes('set ldap/userBranch "ou=People"') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER').with_changes('set userdefaults/LU_GIDNUMBER "%u"') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf ldap/userBranch').with_changes(['rm ldap/userBranch[position() > 1]', 'set ldap/userBranch "ou=People"']) }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes(['rm userdefaults/LU_USERNAME[position() > 1]', 'set userdefaults/LU_USERNAME "%n"']) }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER').with_changes(['rm userdefaults/LU_GIDNUMBER[position() > 1]', 'set userdefaults/LU_GIDNUMBER "%u"']) }
     it { expect(augeas_resources.size).to eq(7) }
   end
 
   context 'with a section setting and only defaults_modules' do
     let(:params) { { defaults_modules: ['files', 'shadow'], files_nonroot: false } }
 
-    it { is_expected.to contain_augeas('/etc/libuser.conf files/nonroot').with_changes('set files/nonroot "no"') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf files/nonroot').with_changes(['rm files/nonroot[position() > 1]', 'set files/nonroot "no"']) }
   end
 
   context 'with a section key absent' do
     let(:params) { { userdefaults_settings: { 'LU_USERNAME' => '%n', 'LU_GIDNUMBER' => 'absent' } } }
 
-    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes(['rm userdefaults/LU_USERNAME[position() > 1]', 'set userdefaults/LU_USERNAME "%n"']) }
     it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER').with_changes('rm userdefaults/LU_GIDNUMBER') }
     it { is_expected.not_to contain_augeas('/etc/libuser.conf userdefaults') }
   end
@@ -73,8 +73,8 @@ describe 'useradd::libuser_conf' do
     end
 
     it { is_expected.to compile.with_all_deps }
-    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes('set userdefaults/LU_USERNAME "%n"') }
-    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_SHELL').with_changes('set userdefaults/LU_SHELL "/bin/sh"') }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_USERNAME').with_changes(['rm userdefaults/LU_USERNAME[position() > 1]', 'set userdefaults/LU_USERNAME "%n"']) }
+    it { is_expected.to contain_augeas('/etc/libuser.conf userdefaults/LU_SHELL').with_changes(['rm userdefaults/LU_SHELL[position() > 1]', 'set userdefaults/LU_SHELL "/bin/sh"']) }
     it { is_expected.not_to contain_augeas('/etc/libuser.conf userdefaults/LU_GIDNUMBER') }
 
     it 'removes the other keys in the section' do

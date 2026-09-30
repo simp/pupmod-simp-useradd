@@ -39,24 +39,24 @@ describe 'useradd::sysconfig_init' do
       is_expected.to contain_augeas(setting('BOOTUP')).with(
         incl: '/etc/sysconfig/init',
         lens: 'Shellvars.lns',
-        changes: 'set BOOTUP "color"',
+        changes: ['rm BOOTUP[position() > 1]', 'set BOOTUP "color"'],
       )
     end
 
-    it { is_expected.to contain_augeas(setting('RES_COL')).with_changes('set RES_COL "60"') }
-    it { is_expected.to contain_augeas(setting('MOVE_TO_COL')).with_changes('set MOVE_TO_COL "\\"echo -en \\033[${RES_COL}G\\""') }
+    it { is_expected.to contain_augeas(setting('RES_COL')).with_changes(['rm RES_COL[position() > 1]', 'set RES_COL "60"']) }
+    it { is_expected.to contain_augeas(setting('MOVE_TO_COL')).with_changes(['rm MOVE_TO_COL[position() > 1]', 'set MOVE_TO_COL "\\"echo -en \\033[${RES_COL}G\\""']) }
 
     it 'maps a color name to its escape sequence, as in 3.x' do
-      is_expected.to contain_augeas(setting('SETCOLOR_SUCCESS')).with_changes('set SETCOLOR_SUCCESS "\\"echo -en \\\\033[0;32m\\""')
+      is_expected.to contain_augeas(setting('SETCOLOR_SUCCESS')).with_changes(['rm SETCOLOR_SUCCESS[position() > 1]', 'set SETCOLOR_SUCCESS "\\"echo -en \\\\033[0;32m\\""'])
     end
 
     it 'writes any other color verbatim' do
-      is_expected.to contain_augeas(setting('SETCOLOR_FAILURE')).with_changes('set SETCOLOR_FAILURE "\\"echo -en \\033[0;41m\\""')
+      is_expected.to contain_augeas(setting('SETCOLOR_FAILURE')).with_changes(['rm SETCOLOR_FAILURE[position() > 1]', 'set SETCOLOR_FAILURE "\\"echo -en \\033[0;41m\\""'])
     end
 
-    it { is_expected.to contain_augeas(setting('LOGLEVEL')).with_changes('set LOGLEVEL "3"') }
-    it { is_expected.to contain_augeas(setting('PROMPT')).with_changes('set PROMPT "no"') }
-    it { is_expected.to contain_augeas(setting('AUTOSWAP')).with_changes('set AUTOSWAP "yes"') }
+    it { is_expected.to contain_augeas(setting('LOGLEVEL')).with_changes(['rm LOGLEVEL[position() > 1]', 'set LOGLEVEL "3"']) }
+    it { is_expected.to contain_augeas(setting('PROMPT')).with_changes(['rm PROMPT[position() > 1]', 'set PROMPT "no"']) }
+    it { is_expected.to contain_augeas(setting('AUTOSWAP')).with_changes(['rm AUTOSWAP[position() > 1]', 'set AUTOSWAP "yes"']) }
     it { is_expected.not_to contain_augeas(setting('SETCOLOR_NORMAL')) }
     it { is_expected.not_to contain_augeas(setting('SINGLE')) }
     it { is_expected.to contain_augeas('/etc/sysconfig/init purge 0') }
@@ -73,7 +73,7 @@ describe 'useradd::sysconfig_init' do
     let(:params) { { single_user_login: '/sbin/sulogin' } }
 
     it { is_expected.to compile.with_all_deps }
-    it { is_expected.to contain_augeas('/etc/sysconfig/init SINGLE').with_changes('set SINGLE "/sbin/sulogin"') }
+    it { is_expected.to contain_augeas('/etc/sysconfig/init SINGLE').with_changes(['rm SINGLE[position() > 1]', 'set SINGLE "/sbin/sulogin"']) }
 
     ['emergency', 'rescue'].each do |unit|
       it { is_expected.to contain_file("/etc/systemd/system/#{unit}.service.d").with(ensure: 'directory', recurse: false, purge: false) }

@@ -17,11 +17,11 @@ describe 'useradd::nss' do
       is_expected.to contain_augeas('/etc/default/nss NETID_AUTHORITATIVE').with(
         incl: '/etc/default/nss',
         lens: 'Shellvars.lns',
-        changes: 'set NETID_AUTHORITATIVE "TRUE"',
+        changes: ['rm NETID_AUTHORITATIVE[position() > 1]', 'set NETID_AUTHORITATIVE "TRUE"'],
       )
     end
 
-    it { is_expected.to contain_augeas('/etc/default/nss SERVICES_AUTHORITATIVE').with_changes('set SERVICES_AUTHORITATIVE "FALSE"') }
+    it { is_expected.to contain_augeas('/etc/default/nss SERVICES_AUTHORITATIVE').with_changes(['rm SERVICES_AUTHORITATIVE[position() > 1]', 'set SERVICES_AUTHORITATIVE "FALSE"']) }
     it { is_expected.to contain_augeas('/etc/default/nss SETENT_BATCH_READ').with_changes('rm SETENT_BATCH_READ') }
     it { is_expected.to contain_augeas('/etc/default/nss purge 0') }
     it { is_expected.to contain_file('/etc/default/nss').with(owner: 'root', group: 'root', mode: '0640').without_ensure }

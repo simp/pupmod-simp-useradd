@@ -23,12 +23,12 @@ describe 'useradd::useradd' do
         incl: '/etc/default/useradd',
         lens: 'Shellvars.lns',
         context: '/files/etc/default/useradd',
-        changes: 'set INACTIVE "35"',
+        changes: ['rm INACTIVE[position() > 1]', 'set INACTIVE "35"'],
       )
     end
 
-    it { is_expected.to contain_augeas('/etc/default/useradd SHELL').with_changes('set SHELL "/bin/bash"') }
-    it { is_expected.to contain_augeas('/etc/default/useradd CREATE_MAIL_SPOOL').with_changes('set CREATE_MAIL_SPOOL "yes"') }
+    it { is_expected.to contain_augeas('/etc/default/useradd SHELL').with_changes(['rm SHELL[position() > 1]', 'set SHELL "/bin/bash"']) }
+    it { is_expected.to contain_augeas('/etc/default/useradd CREATE_MAIL_SPOOL').with_changes(['rm CREATE_MAIL_SPOOL[position() > 1]', 'set CREATE_MAIL_SPOOL "yes"']) }
     it { is_expected.to contain_augeas('/etc/default/useradd EXPIRE').with_changes('rm EXPIRE') }
     it { expect(augeas_resources.size).to eq(4) }
   end

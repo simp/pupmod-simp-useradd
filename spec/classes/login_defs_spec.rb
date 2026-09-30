@@ -36,18 +36,18 @@ describe 'useradd::login_defs' do
         incl: '/etc/login.defs',
         lens: 'Login_defs.lns',
         context: '/files/etc/login.defs',
-        changes: 'set PASS_MAX_DAYS "90"',
+        changes: ['rm PASS_MAX_DAYS[position() > 1]', 'set PASS_MAX_DAYS "90"'],
       )
     end
 
-    it { is_expected.to contain_augeas('/etc/login.defs UMASK').with_changes('set UMASK "077"') }
-    it { is_expected.to contain_augeas('/etc/login.defs CREATE_HOME').with_changes('set CREATE_HOME "yes"') }
-    it { is_expected.to contain_augeas('/etc/login.defs FAILLOG_ENAB').with_changes('set FAILLOG_ENAB "no"') }
-    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE').with_changes('set CONSOLE "/dev/tty1:/dev/tty2"') }
-    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes('set CONSOLE_GROUPS "floppy,audio"') }
-    it { is_expected.to contain_augeas('/etc/login.defs ENV_TZ').with_changes('set ENV_TZ "TZ=America/New_York"') }
-    it { is_expected.to contain_augeas('/etc/login.defs ENV_HZ').with_changes('set ENV_HZ "HZ=100"') }
-    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes('set LOGIN_STRING "Password for \"%s\": "') }
+    it { is_expected.to contain_augeas('/etc/login.defs UMASK').with_changes(['rm UMASK[position() > 1]', 'set UMASK "077"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs CREATE_HOME').with_changes(['rm CREATE_HOME[position() > 1]', 'set CREATE_HOME "yes"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs FAILLOG_ENAB').with_changes(['rm FAILLOG_ENAB[position() > 1]', 'set FAILLOG_ENAB "no"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE').with_changes(['rm CONSOLE[position() > 1]', 'set CONSOLE "/dev/tty1:/dev/tty2"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes(['rm CONSOLE_GROUPS[position() > 1]', 'set CONSOLE_GROUPS "floppy,audio"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs ENV_TZ').with_changes(['rm ENV_TZ[position() > 1]', 'set ENV_TZ "TZ=America/New_York"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs ENV_HZ').with_changes(['rm ENV_HZ[position() > 1]', 'set ENV_HZ "HZ=100"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', 'set LOGIN_STRING "Password for \"%s\":"']) }
 
     it 'leaves every other key alone' do
       expect(augeas_resources.size).to eq(params.size)
@@ -60,7 +60,7 @@ describe 'useradd::login_defs' do
     let(:params) { { login_string: 'a\\b' } }
 
     # The augeas provider passes `\x` through verbatim.
-    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes('set LOGIN_STRING "a\\b"') }
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', 'set LOGIN_STRING "a\\b"']) }
   end
 
   {
@@ -71,8 +71,16 @@ describe 'useradd::login_defs' do
     context "with the value #{value.inspect}" do
       let(:params) { { login_string: value } }
 
-      it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(changes) }
+      it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', changes]) }
     end
+  end
+
+  # The Login_defs lens can't store leading or trailing whitespace, and
+  # login.defs readers ignore it.
+  context 'with whitespace around a value' do
+    let(:params) { { login_string: ' Password: ' } }
+
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', 'set LOGIN_STRING "Password:"']) }
   end
 
   # No quote can hold these, and the space rules out an unquoted argument.
@@ -91,7 +99,7 @@ describe 'useradd::login_defs' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.not_to contain_augeas('/etc/login.defs LOGIN_STRING') }
     it { is_expected.not_to contain_augeas('/etc/login.defs UMASK') }
-    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes('set CONSOLE_GROUPS "floppy"') }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes(['rm CONSOLE_GROUPS[position() > 1]', 'set CONSOLE_GROUPS "floppy"']) }
 
     ['LOGIN_STRING', 'UMASK', 'CONSOLE_GROUPS'].each do |key|
       it do
@@ -125,8 +133,8 @@ describe 'useradd::login_defs' do
   context 'with the UID/GID ranges from simp_options' do
     let(:facts) { on_supported_os.first[1].merge(custom_hiera: 'simp_options_uid_gid') }
 
-    it { is_expected.to contain_augeas('/etc/login.defs UID_MIN').with_changes('set UID_MIN "1000"') }
-    it { is_expected.to contain_augeas('/etc/login.defs GID_MAX').with_changes('set GID_MAX "600000"') }
+    it { is_expected.to contain_augeas('/etc/login.defs UID_MIN').with_changes(['rm UID_MIN[position() > 1]', 'set UID_MIN "1000"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs GID_MAX').with_changes(['rm GID_MAX[position() > 1]', 'set GID_MAX "600000"']) }
   end
 
   context 'with purge' do

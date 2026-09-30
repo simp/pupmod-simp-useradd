@@ -63,6 +63,14 @@ describe 'useradd class' do
           apply_manifest_on(host, "class { 'useradd::login_defs': pass_max_days => 77 }", catch_failures: true)
           on(host, 'useradd -M ua_one && chage -l ua_one | grep -E "^Maximum.*: 77$"; rc=$?; userdel ua_one; exit $rc')
         end
+
+        it 'replaces every copy of a duplicated key' do
+          on(host, 'printf "PASS_MAX_DAYS 99999\\nPASS_MAX_DAYS 90\\n" >> /etc/login.defs')
+          apply_manifest_on(host, set, catch_failures: true)
+          apply_manifest_on(host, set, catch_changes: true)
+          expect(on(host, 'grep -cE "^PASS_MAX_DAYS" /etc/login.defs').stdout.strip).to eq('1')
+          expect(on(host, 'grep -E "^PASS_MAX_DAYS\s+42$" /etc/login.defs').exit_code).to eq(0)
+        end
       end
 
       context 'with a backslash in a value' do
@@ -73,6 +81,13 @@ describe 'useradd class' do
             apply_manifest_on(host, set, catch_changes: true)
             expect(on(host, 'grep "^LOGIN_STRING" /etc/login.defs').stdout.strip).to eq("LOGIN_STRING #{value}")
           end
+        end
+
+        it 'writes a value with surrounding whitespace, trimmed' do
+          set = "class { 'useradd::login_defs': login_string => ' Password: ' }"
+          apply_manifest_on(host, set, catch_failures: true)
+          apply_manifest_on(host, set, catch_changes: true)
+          expect(on(host, 'grep "^LOGIN_STRING" /etc/login.defs').stdout.strip).to eq('LOGIN_STRING Password:')
         end
 
         it 'is removed with absent' do

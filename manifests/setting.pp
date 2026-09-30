@@ -14,7 +14,7 @@
 #
 # @param value
 #   The value to set, or `absent` to remove the key. Booleans are written as
-#   `yes`/`no`.
+#   `yes`/`no`, and leading and trailing whitespace is removed.
 #
 # @api private
 #
@@ -34,7 +34,7 @@ define useradd::setting (
     $_value = $value ? {
       true    => 'yes',
       false   => 'no',
-      default => String($value),
+      default => String($value).strip,
     }
     # The augeas provider unescapes only the quote in a quoted argument, so a
     # backslash before that quote, or at the end, ends it early. An unquoted
@@ -42,15 +42,18 @@ define useradd::setting (
     $_quote = ['"', "'"].filter |$q| { $_value !~ Regexp("\\\\(${q}|\\z)") }[0]
 
     if $_quote {
-      $_changes = "set ${key} ${_quote}${_value.regsubst($_quote, "\\\\${_quote}", 'G')}${_quote}"
+      $_set = "set ${key} ${_quote}${_value.regsubst($_quote, "\\\\${_quote}", 'G')}${_quote}"
     }
     elsif $_value =~ /\A[^\s'"]\S*\z/ {
-      $_changes = "set ${key} ${_value}"
+      $_set = "set ${key} ${_value}"
     }
     else {
       fail("useradd::setting '${title}': augeas can't write a value with a space or a leading quote that ends in a backslash or has one before both a \" and a '")
     }
-    $_onlyif = undef
+    # augeas can't set a key that appears more than once, so the extra copies
+    # are removed first.
+    $_changes = ["rm ${key}[position() > 1]", $_set]
+    $_onlyif  = undef
   }
 
   augeas { $title:
