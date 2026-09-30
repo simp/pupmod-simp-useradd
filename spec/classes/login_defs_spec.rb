@@ -119,6 +119,34 @@ describe 'useradd::login_defs' do
     end
   end
 
+  context 'with a whitespace-only string' do
+    let(:params) { { login_string: '   ', su_name: "\t", ttygroup: ' ', umask: '  ', console_groups: ['  ', 'floppy'] } }
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.not_to contain_augeas('/etc/login.defs LOGIN_STRING') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs SU_NAME') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs TTYGROUP') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs UMASK') }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes(['rm CONSOLE_GROUPS[position() > 1]', 'set CONSOLE_GROUPS "floppy"']) }
+
+    ['LOGIN_STRING', 'SU_NAME', 'TTYGROUP', 'UMASK', 'CONSOLE_GROUPS'].each do |key|
+      it { is_expected.to contain_file_line("/etc/login.defs #{key} empty").with_ensure('absent') }
+    end
+
+    context 'with strict=error' do
+      before(:each) { Puppet[:strict] = :error }
+
+      it { is_expected.to compile.with_all_deps }
+    end
+  end
+
+  context 'with only whitespace-only console_groups' do
+    let(:params) { { console_groups: [' '] } }
+
+    it { is_expected.not_to contain_augeas('/etc/login.defs CONSOLE_GROUPS') }
+    it { is_expected.to contain_file_line('/etc/login.defs CONSOLE_GROUPS empty') }
+  end
+
   context 'with a setting absent' do
     let(:params) { { pass_max_days: 'absent' } }
 

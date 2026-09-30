@@ -110,6 +110,20 @@ describe 'useradd class' do
         end
       end
 
+      # 3.x wrote `login_string => '   '` verbatim, as the key and whitespace.
+      context 'with a 3.x whitespace-only value in login.defs' do
+        let(:set) { "class { 'useradd::login_defs': login_string => '   ', pass_max_days => 42 }" }
+
+        it 'removes the line and applies the rest' do
+          on(host, 'echo "LOGIN_STRING    " >> /etc/login.defs')
+          apply_manifest_on(host, set, catch_failures: true)
+          apply_manifest_on(host, set, catch_changes: true)
+          expect(on(host, 'grep -c "^LOGIN_STRING" /etc/login.defs', acceptable_exit_codes: [1]).stdout.strip).to eq('0')
+          expect(on(host, 'grep -E "^PASS_MAX_DAYS\s+42$" /etc/login.defs').exit_code).to eq(0)
+          apply_manifest_on(host, "class { 'useradd::login_defs': pass_max_days => 'absent' }", catch_failures: true)
+        end
+      end
+
       context 'with securetty_mode and no /etc/securetty' do
         let(:mode_only) { "class { 'useradd': securetty_mode => '0400' }" }
 

@@ -161,15 +161,17 @@ class useradd::login_defs (
   Optional[Variant[Boolean, Enum['absent']]]                             $usergroups_enab       = undef,
   Boolean                                                                $purge                 = false
 ) {
-  # The Login_defs lens can't hold a key with no value, so an empty String is
-  # skipped. 3.x wrote it as `KEY` with nothing after it, which the lens can't
-  # parse either, so that line is removed before any edit.
+  # The Login_defs lens can't hold a key with no value, so an empty or
+  # whitespace-only String is skipped. 3.x wrote it as `KEY` with nothing, or
+  # only whitespace, after it, which the lens can't parse either, so that line
+  # is removed before any edit.
+  $_blank = Pattern[/\A\s*\z/]
   $_empty = {
-    'console_groups' => $console_groups =~ Array and '' in $console_groups,
-    'login_string'   => $login_string == '',
-    'su_name'        => $su_name == '',
-    'ttygroup'       => $ttygroup == '',
-    'umask'          => $umask == '',
+    'console_groups' => $console_groups =~ Array and $console_groups.any |$g| { $g =~ $_blank },
+    'login_string'   => $login_string =~ $_blank,
+    'su_name'        => $su_name =~ $_blank,
+    'ttygroup'       => $ttygroup =~ $_blank,
+    'umask'          => $umask =~ $_blank,
   }.filter |$param, $empty| { $empty }.keys
 
   $_empty.each |$param| {
@@ -204,7 +206,7 @@ class useradd::login_defs (
     'CHFN_RESTRICT'         => $chfn_restrict,
     'CHSH_AUTH'             => $chsh_auth,
     'CONSOLE'               => useradd::join($console, ':'),
-    'CONSOLE_GROUPS'        => useradd::join($console_groups ? { Array => $console_groups - [''], default => $console_groups }, ','),
+    'CONSOLE_GROUPS'        => useradd::join($console_groups ? { Array => $console_groups.filter |$g| { $g !~ $_blank }, default => $console_groups }, ','),
     'CREATE_HOME'           => $create_home,
     'DEFAULT_HOME'          => $default_home,
     'ENCRYPT_METHOD'        => $encrypt_method,
@@ -265,7 +267,7 @@ class useradd::login_defs (
     'ULIMIT'                => $ulimit,
     'USERDEL_CMD'           => $userdel_cmd,
     'USERGROUPS_ENAB'       => $usergroups_enab,
-  }.filter |$key, $value| { $value =~ NotUndef and $value != '' }
+  }.filter |$key, $value| { $value =~ NotUndef and $value !~ $_blank }
 
   useradd::settings { '/etc/login.defs':
     lens          => 'Login_defs.lns',

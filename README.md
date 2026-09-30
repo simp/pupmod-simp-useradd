@@ -48,16 +48,17 @@ Values set in site Hiera take precedence over the profile.
   `securetty_entries` and `shells_entries`.
 * Keys and entries the module doesn't set are kept, unless you turn on the
   matching `purge` parameter. `simp:defaults` turns them on.
-* An empty `login_defs` value (`''`) is skipped with a deprecation warning.
-  `login.defs` can't hold a key with no value.
+* An empty or whitespace-only `login_defs` value (such as `''`) is skipped
+  with a deprecation warning. `login.defs` can't hold a key with no value.
 * A value with a space or a leading quote that ends in a backslash, or has a
   backslash before both a `"` and a `'`, fails compilation. Augeas can't
   write it; 3.x wrote it verbatim.
 
 3.x wrote an empty value as the key alone on a line (such as
-`LOGIN_STRING`), which can't be parsed. While the parameter is still `''`,
-the module removes that line. If you have already removed the `''` from
-Hiera, remove the line by hand, or every `login_defs` edit fails on it.
+`LOGIN_STRING`, perhaps followed by whitespace), which can't be parsed. While
+the parameter is still empty, the module removes that line. If you have
+already removed the value from Hiera, remove the line by hand, or every
+`login_defs` edit fails on it.
 
 ### Single-user login drop-ins
 
