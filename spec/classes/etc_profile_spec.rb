@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'useradd::etc_profile' do
   let(:facts) { on_supported_os.first[1] }
 
-  HEADER = "# This file managed by Puppet.\n# Any changes will be overwritten at the next run.\n\n".freeze
+  HEADER = "# This file managed by Puppet - DO NOT EDIT\n# Any changes will be overwritten at the next run.\n\n".freeze
 
   context 'with default parameters' do
     it { is_expected.to compile.with_all_deps }

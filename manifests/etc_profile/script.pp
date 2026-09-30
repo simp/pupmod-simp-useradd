@@ -36,7 +36,7 @@ define useradd::etc_profile::script (
       group   => 'root',
       mode    => '0644',
       seltype => 'bin_t',
-      content => "# This file managed by Puppet.\n# Any changes will be overwritten at the next run.\n\n${_whitelist}${content}\n",
+      content => "# This file managed by Puppet - DO NOT EDIT\n# Any changes will be overwritten at the next run.\n\n${_whitelist}${content}\n",
     }
   }
 }
