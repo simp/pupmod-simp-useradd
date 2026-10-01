@@ -1,0 +1,92 @@
+---
+# Restores the behavior of useradd 3.x when enforced with
+#
+#   compliance_engine::enforcement:
+#     - simp:defaults
+#
+# Values set in site Hiera take precedence over these.
+version: 2.0.0
+profiles:
+  simp:defaults:
+    checks:
+      simp:defaults.useradd.securetty_entries: true
+      simp:defaults.useradd.purge_securetty: true
+      simp:defaults.useradd.securetty_mode: true
+      simp:defaults.useradd.shells_entries: true
+      simp:defaults.useradd.purge_shells: true
+      simp:defaults.useradd.shells_mode: true
+      simp:defaults.useradd.login_defs.encrypt_method: true
+      simp:defaults.useradd.login_defs.chfn_auth: true
+      simp:defaults.useradd.login_defs.chfn_restrict: true
+      simp:defaults.useradd.login_defs.chsh_auth: true
+      simp:defaults.useradd.login_defs.create_home: true
+      simp:defaults.useradd.login_defs.default_home: true
+      simp:defaults.useradd.login_defs.fail_delay: true
+      simp:defaults.useradd.login_defs.faillog_enab: true
+      simp:defaults.useradd.login_defs.issue_file: true
+      simp:defaults.useradd.login_defs.lastlog_enab: true
+      simp:defaults.useradd.login_defs.login_retries: true
+      simp:defaults.useradd.login_defs.login_timeout: true
+      simp:defaults.useradd.login_defs.log_ok_logins: true
+      simp:defaults.useradd.login_defs.log_unkfail_enab: true
+      simp:defaults.useradd.login_defs.mail_check_enab: true
+      simp:defaults.useradd.login_defs.mail_dir: true
+      simp:defaults.useradd.login_defs.mode: true
+      simp:defaults.useradd.login_defs.obscure_checks_enab: true
+      simp:defaults.useradd.login_defs.pass_always_warn: true
+      simp:defaults.useradd.login_defs.pass_change_tries: true
+      simp:defaults.useradd.login_defs.pass_max_days: true
+      simp:defaults.useradd.login_defs.pass_min_days: true
+      simp:defaults.useradd.login_defs.pass_warn_age: true
+      simp:defaults.useradd.login_defs.pass_min_len: true
+      simp:defaults.useradd.login_defs.porttime_checks_enab: true
+      simp:defaults.useradd.login_defs.quotas_enab: true
+      simp:defaults.useradd.login_defs.sha_crypt_min_rounds: true
+      simp:defaults.useradd.login_defs.sha_crypt_max_rounds: true
+      simp:defaults.useradd.login_defs.su_name: true
+      simp:defaults.useradd.login_defs.su_wheel_only: true
+      simp:defaults.useradd.login_defs.syslog_sg_enab: true
+      simp:defaults.useradd.login_defs.syslog_su_enab: true
+      simp:defaults.useradd.login_defs.umask: true
+      simp:defaults.useradd.login_defs.usergroups_enab: true
+      simp:defaults.useradd.login_defs.purge: true
+      simp:defaults.useradd.useradd.group: true
+      simp:defaults.useradd.useradd.home: true
+      simp:defaults.useradd.useradd.inactive: true
+      simp:defaults.useradd.useradd.shell: true
+      simp:defaults.useradd.useradd.skel: true
+      simp:defaults.useradd.useradd.create_mail_spool: true
+      simp:defaults.useradd.useradd.mode: true
+      simp:defaults.useradd.useradd.purge: true
+      simp:defaults.useradd.libuser_conf.defaults_modules: true
+      simp:defaults.useradd.libuser_conf.defaults_create_modules: true
+      simp:defaults.useradd.libuser_conf.defaults_crypt_style: true
+      simp:defaults.useradd.libuser_conf.import_login_defs: true
+      simp:defaults.useradd.libuser_conf.import_default_useradd: true
+      simp:defaults.useradd.libuser_conf.userdefaults_settings: true
+      simp:defaults.useradd.libuser_conf.groupdefaults_settings: true
+      simp:defaults.useradd.libuser_conf.mode: true
+      simp:defaults.useradd.libuser_conf.purge: true
+      simp:defaults.useradd.passwd.files: true
+      simp:defaults.useradd.etc_profile.session_timeout: true
+      simp:defaults.useradd.etc_profile.umask: true
+      simp:defaults.useradd.etc_profile.mesg: true
+      simp:defaults.useradd.sysconfig_init.single_user_login: true
+      simp:defaults.useradd.sysconfig_init.purge: true
+      simp:defaults.useradd.sysconfig_init.systemd: true
+      simp:defaults.useradd.sysconfig_init.bootup: true
+      simp:defaults.useradd.sysconfig_init.res_col: true
+      simp:defaults.useradd.sysconfig_init.move_to_col: true
+      simp:defaults.useradd.sysconfig_init.setcolor_success: true
+      simp:defaults.useradd.sysconfig_init.setcolor_failure: true
+      simp:defaults.useradd.sysconfig_init.setcolor_warning: true
+      simp:defaults.useradd.sysconfig_init.setcolor_normal: true
+      simp:defaults.useradd.sysconfig_init.loglvl: true
+      simp:defaults.useradd.sysconfig_init.prompt: true
+      simp:defaults.useradd.sysconfig_init.autoswap: true
+      simp:defaults.useradd.sysconfig_init.mode: true
+      simp:defaults.useradd.nss.netid_authoritative: true
+      simp:defaults.useradd.nss.services_authoritative: true
+      simp:defaults.useradd.nss.setent_batch_read: true
+      simp:defaults.useradd.nss.mode: true
+      simp:defaults.useradd.nss.purge: true

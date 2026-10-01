@@ -1,69 +1,193 @@
 require 'spec_helper'
 
 describe 'useradd::login_defs' do
-  context 'supported operating systems' do
-    on_supported_os.each do |os, os_facts|
-      context "on #{os}" do
-        let(:facts) do
-          os_facts.merge({
-                           login_defs: { 'gid_min' => 1000, 'gid_max' => 500_000 }
-                         })
-        end
+  let(:facts) { on_supported_os.first[1] }
 
-        context 'with default parameters' do
-          let(:expected) { File.read('spec/expected/default_login_defs') }
+  def augeas_resources
+    catalogue.resources.select { |r| r.type == 'Augeas' }
+  end
 
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_class('useradd::login_defs') }
-          it { is_expected.to create_file('/etc/login.defs').with_content(expected) }
-        end
+  context 'with default parameters' do
+    it { is_expected.to compile.with_all_deps }
+    it { expect(augeas_resources).to be_empty }
+    it { expect(catalogue.resources.select { |r| r.type == 'File_line' }).to be_empty }
+    it { is_expected.not_to contain_file('/etc/login.defs') }
+  end
 
-        context 'with everything defined or true' do
-          let(:expected) { File.read('spec/expected/default_login_defs_all_true') }
-          let(:params) do
-            {
-              chfn_auth: true,
-           chsh_auth: true,
-           default_home: true,
-           su_wheel_only: true,
-           erasechar: 100,
-           killchar: 100,
-           max_members_per_group: 100,
-           pass_min_len: 100,
-           sys_gid_max: 100,
-           sys_gid_min: 100,
-           gid_min: 100,
-           gid_max: 100,
-           sys_uid_max: 100,
-           sys_uid_min: 100,
-           uid_min: 100,
-           uid_max: 100,
-           ulimit: 100,
-           env_hz: 'HZ=100',
-           env_tz: 'TZ=CST6CDT',
-           fake_shell: '/usr/sbin/nologin',
-           ftmp_file: '/tmp/ftmp',
-           hushlogin_file: '/tmp/hushlogin',
-           login_string: 'Password: ',
-           mail_file: '/tmp/mailfile',
-           nologins_file: '/tmp/nologins',
-           sulog_file: '/tmp/sulog',
-           ttygroup: 'puppet',
-           ttyperm: '0600',
-           ttytype_file: '/tmp/ttytype',
-           userdel_cmd: '/usr/sbin/userdel',
-           console: ['/dev/tty1'],
-           env_path: ['/usr/bin', '/usr/local/bin'],
-           env_supath: ['/usr/bin', '/usr/sbin/', '/usr/local/bin'],
-           motd_file: ['/etc/motd', '/etc/issue']
-            }
-          end
+  context 'with settings' do
+    let(:params) do
+      {
+        pass_max_days: 90,
+        umask: '077',
+        create_home: true,
+        faillog_enab: false,
+        console: ['/dev/tty1', '/dev/tty2'],
+        console_groups: ['floppy', 'audio'],
+        env_tz: 'America/New_York',
+        env_hz: '100',
+        login_string: 'Password for "%s": ',
+      }
+    end
 
-          it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_class('useradd::login_defs') }
-          it { is_expected.to create_file('/etc/login.defs').with_content(expected) }
-        end
+    it { is_expected.to compile.with_all_deps }
+
+    it 'edits one key per parameter in place' do
+      is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').with(
+        incl: '/etc/login.defs',
+        lens: 'Login_defs.lns',
+        context: '/files/etc/login.defs',
+        changes: ['rm PASS_MAX_DAYS[position() > 1]', 'set PASS_MAX_DAYS "90"'],
+      )
+    end
+
+    it { is_expected.to contain_augeas('/etc/login.defs UMASK').with_changes(['rm UMASK[position() > 1]', 'set UMASK "077"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs CREATE_HOME').with_changes(['rm CREATE_HOME[position() > 1]', 'set CREATE_HOME "yes"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs FAILLOG_ENAB').with_changes(['rm FAILLOG_ENAB[position() > 1]', 'set FAILLOG_ENAB "no"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE').with_changes(['rm CONSOLE[position() > 1]', 'set CONSOLE "/dev/tty1:/dev/tty2"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes(['rm CONSOLE_GROUPS[position() > 1]', 'set CONSOLE_GROUPS "floppy,audio"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs ENV_TZ').with_changes(['rm ENV_TZ[position() > 1]', 'set ENV_TZ "TZ=America/New_York"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs ENV_HZ').with_changes(['rm ENV_HZ[position() > 1]', 'set ENV_HZ "HZ=100"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', 'set LOGIN_STRING "Password for \"%s\":"']) }
+
+    it 'leaves every other key alone' do
+      expect(augeas_resources.size).to eq(params.size)
+    end
+
+    it { is_expected.not_to contain_augeas('/etc/login.defs purge 0') }
+  end
+
+  context 'with a backslash in a value' do
+    let(:params) { { login_string: 'a\\b' } }
+
+    # The augeas provider passes `\x` through verbatim.
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', 'set LOGIN_STRING "a\\b"']) }
+  end
+
+  {
+    'a\\'          => 'set LOGIN_STRING a\\',
+    'a b\\"c'      => %q(set LOGIN_STRING 'a b\\"c'),
+    "a b\\'c"      => 'set LOGIN_STRING "a b\\\'c"',
+  }.each do |value, changes|
+    context "with the value #{value.inspect}" do
+      let(:params) { { login_string: value } }
+
+      it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', changes]) }
+    end
+  end
+
+  # The Login_defs lens can't store leading or trailing whitespace, and
+  # login.defs readers ignore it.
+  context 'with whitespace around a value' do
+    let(:params) { { login_string: ' Password: ' } }
+
+    it { is_expected.to contain_augeas('/etc/login.defs LOGIN_STRING').with_changes(['rm LOGIN_STRING[position() > 1]', 'set LOGIN_STRING "Password:"']) }
+  end
+
+  # No quote can hold these, and the space rules out an unquoted argument.
+  ['a b\\', %q(a \\"b\\'c)].each do |value|
+    context "with the value #{value.inspect}" do
+      let(:params) { { login_string: value } }
+
+      it { is_expected.to compile.and_raise_error(%r{augeas can't write a value}) }
+    end
+  end
+
+  # 3.x accepted '', but the Login_defs lens can't parse a key with no value.
+  context 'with an empty string' do
+    let(:params) { { login_string: '', umask: '', console_groups: ['', 'floppy'] } }
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.not_to contain_augeas('/etc/login.defs LOGIN_STRING') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs UMASK') }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes(['rm CONSOLE_GROUPS[position() > 1]', 'set CONSOLE_GROUPS "floppy"']) }
+
+    ['LOGIN_STRING', 'UMASK', 'CONSOLE_GROUPS'].each do |key|
+      it do
+        is_expected.to contain_file_line("/etc/login.defs #{key} empty").with(
+          ensure: 'absent',
+          match: "^\\s*#{key}\\s*$",
+          match_for_absence: true,
+          multiple: true,
+        ).that_comes_before('Useradd::Settings[/etc/login.defs]')
       end
     end
+
+    context 'with strict=error' do
+      before(:each) { Puppet[:strict] = :error }
+
+      it { is_expected.to compile.with_all_deps }
+    end
+  end
+
+  context 'with a whitespace-only string' do
+    let(:params) { { login_string: '   ', su_name: "\t", ttygroup: ' ', umask: '  ', console_groups: ['  ', 'floppy'] } }
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.not_to contain_augeas('/etc/login.defs LOGIN_STRING') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs SU_NAME') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs TTYGROUP') }
+    it { is_expected.not_to contain_augeas('/etc/login.defs UMASK') }
+    it { is_expected.to contain_augeas('/etc/login.defs CONSOLE_GROUPS').with_changes(['rm CONSOLE_GROUPS[position() > 1]', 'set CONSOLE_GROUPS "floppy"']) }
+
+    ['LOGIN_STRING', 'SU_NAME', 'TTYGROUP', 'UMASK', 'CONSOLE_GROUPS'].each do |key|
+      it { is_expected.to contain_file_line("/etc/login.defs #{key} empty").with_ensure('absent') }
+    end
+
+    context 'with strict=error' do
+      before(:each) { Puppet[:strict] = :error }
+
+      it { is_expected.to compile.with_all_deps }
+    end
+  end
+
+  context 'with only whitespace-only console_groups' do
+    let(:params) { { console_groups: [' '] } }
+
+    it { is_expected.not_to contain_augeas('/etc/login.defs CONSOLE_GROUPS') }
+    it { is_expected.to contain_file_line('/etc/login.defs CONSOLE_GROUPS empty') }
+  end
+
+  context 'with a setting absent' do
+    let(:params) { { pass_max_days: 'absent' } }
+
+    it do
+      is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').with(
+        changes: 'rm PASS_MAX_DAYS',
+        onlyif: 'match PASS_MAX_DAYS size > 0',
+      )
+    end
+  end
+
+  context 'with the UID/GID ranges from simp_options' do
+    let(:facts) { on_supported_os.first[1].merge(custom_hiera: 'simp_options_uid_gid') }
+
+    it { is_expected.to contain_augeas('/etc/login.defs UID_MIN').with_changes(['rm UID_MIN[position() > 1]', 'set UID_MIN "1000"']) }
+    it { is_expected.to contain_augeas('/etc/login.defs GID_MAX').with_changes(['rm GID_MAX[position() > 1]', 'set GID_MAX "600000"']) }
+  end
+
+  context 'with purge' do
+    let(:params) { { pass_max_days: 90, umask: 'absent', purge: true } }
+
+    it 'keeps the set keys and the UID/GID ranges' do
+      is_expected.to contain_augeas('/etc/login.defs purge 0').with_changes(
+        "rm *[label() != '#comment' and label() != 'PASS_MAX_DAYS' and label() != 'UID_MIN' and label() != 'UID_MAX' and label() != 'GID_MIN' and label() != 'GID_MAX']",
+      )
+    end
+  end
+
+  context 'with purge and nothing set' do
+    let(:params) { { purge: true } }
+
+    it { expect(augeas_resources).to be_empty }
+  end
+
+  context 'with mode' do
+    let(:params) { { pass_max_days: 90, mode: '0640' } }
+
+    it 'sets the mode without creating the file' do
+      is_expected.to contain_file('/etc/login.defs').with(owner: 'root', group: 'root', mode: '0640').without_ensure
+    end
+
+    it { is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS').that_comes_before('File[/etc/login.defs]') }
   end
 end

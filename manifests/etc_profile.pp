@@ -1,8 +1,22 @@
-# This class takes various SIMP security-related settings and
-# applies them to the appropriate /etc/profile.d/simp.* files to
-# enforce them at login for all users.
+# Manage login settings for all users with scripts in /etc/profile.d
 #
-# Currently only supports csh and sh files in profile.d.
+# Each setting is written to its own pair of `sh` and `csh` scripts, so it can
+# be managed, or removed, on its own. An unset parameter leaves its scripts
+# alone, and `absent` removes them.
+#
+# | Setting           | sh script                | csh script               |
+# |-------------------|--------------------------|--------------------------|
+# | `prepend`         | `simp-a-prepend.sh`      | `zz-simp-a-prepend.csh`  |
+# | `session_timeout` | `simp-b-tmout.sh`        | `zz-simp-autologout.csh` |
+# | `mesg`            | `zz-simp-mesg.sh`        | `zz-simp-mesg.csh`       |
+# | `umask`           | `zz-simp-umask.sh`       | `zz-simp-umask.csh`      |
+# | `append`          | `zz-simp-z-append.sh`    | `zz-simp-z-append.csh`   |
+#
+# `TMOUT` is read-only once set, so its script runs first, and the others run
+# last.
+#
+# The `simp.sh` and `simp.csh` scripts written by useradd 3.x are always
+# removed. While present, they would still apply the 3.x settings at login.
 #
 # @param session_timeout
 #   The number of *minutes* that a user may be idle prior to being
@@ -11,70 +25,104 @@
 #   a terminal screen lock since we haven't found one that works in
 #   100% of the authentication scenarios.
 #
-# @param manage_tmout
-#   If true, manage the idle session timeout in the SIMP profile.d
-#   scripts (`TMOUT` for sh, `autologout` for csh).
-#
-#   Set this to false when another file in `/etc/profile.d` already
-#   manages `TMOUT` as read-only. In that scenario, leaving this enabled
-#   produces a `TMOUT: readonly variable` warning at every login
-#   depending on the order in which the profile scripts are sourced.
+#   Sets a read-only `TMOUT` for sh, unless one is already set, and
+#   `autologout` for csh.
 #
 # @param umask
 #   The umask that will be applied to the user upon login.
 #   Covers CCE-26917-5, CCE-27034-8, and CCE-26669-2
 #
-# @param mesg Boolean
+# @param mesg
 #   If true, set mesg to allow writes to user terminals using wall,
 #   etc...
 #
 # @param user_whitelist
 #   A list of users that you don't want to be affected by these
-#   settings.
+#   settings. Every script skips them.
 #
 # @param prepend
-#   Content that you want prepended to the settings scripts.
-#   The hash takes the form 'extension' => 'content'.
-#   Content will be written exactly as provided, no custom formatting
-#   will be performed.
+#   Content for a script run before the others, as
+#   `{ 'sh' => <content>, 'csh' => <content> }`. The content is written
+#   exactly as provided, and `absent` removes the script.
 #
 #   Example:
 #     { 'sh' => 'if [ $UID -eq 0 ]; then echo "foo"; fi ' }
-#   Result:
-#     = /etc/profile.d/simp.sh =
-#      if [ $UID -eq 0 ]; then echo "foo"; fi
-#      <usual content>
 #
 # @param append
-#   Content that you want appended to the settings scripts.
-#   See $prepend for usage.
+#   Content for a script run after the others. See `prepend` for usage.
+#
+# @param manage_tmout
+#   Deprecated: leave `session_timeout` unset instead. `false` stops managing
+#   the session timeout.
 #
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::etc_profile (
-  Integer $session_timeout = 15,
-  Boolean $manage_tmout    = true,
-  String  $umask           = '0077',
-  Boolean $mesg            = false,
-  Array   $user_whitelist  = [],
-  Hash    $prepend         = {},
-  Hash    $append          = {}
+  Optional[Variant[Integer, Enum['absent']]] $session_timeout = undef,
+  Optional[String]                           $umask           = undef,
+  Optional[Variant[Boolean, Enum['absent']]] $mesg            = undef,
+  Array                                      $user_whitelist  = [],
+  Hash                                       $prepend         = {},
+  Hash                                       $append          = {},
+  Optional[Boolean]                          $manage_tmout    = undef,
 ) {
-  file { '/etc/profile.d/simp.sh':
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    seltype => 'bin_t',
-    content => template('useradd/etc/profile.d/simp.sh.erb')
+  if $manage_tmout =~ NotUndef {
+    deprecation('useradd::etc_profile::manage_tmout', 'useradd::etc_profile::manage_tmout is deprecated and will be removed in a future release. Leave useradd::etc_profile::session_timeout unset instead.', false)
   }
 
-  file { '/etc/profile.d/simp.csh':
-    ensure  => 'file',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    seltype => 'bin_t',
-    content => template('useradd/etc/profile.d/simp.csh.erb')
+  $_session_timeout = $manage_tmout ? {
+    false   => undef,
+    default => $session_timeout,
+  }
+
+  $_mesg           = $mesg ? {
+    true    => 'y',
+    false   => 'n',
+    default => $mesg,
+  }
+
+  $_extra          = {
+    'simp-a-prepend.sh'     => $prepend['sh'],
+    'zz-simp-a-prepend.csh' => $prepend['csh'],
+    'zz-simp-z-append.sh'   => $append['sh'],
+    'zz-simp-z-append.csh'  => $append['csh'],
+  }.filter |$name, $content| { $content =~ NotUndef }.map |$name, $content| { [$name, String($content)] }.convert_to(Hash)
+
+  $_scripts        = $_extra + {
+    'simp-b-tmout.sh'        => $_session_timeout ? {
+      Integer => "[ \$TMOUT ] || export TMOUT=${$_session_timeout * 60}\nreadonly TMOUT",
+      default => $_session_timeout,
+    },
+    'zz-simp-autologout.csh' => $_session_timeout ? {
+      Integer => "set autologout=${_session_timeout}",
+      default => $_session_timeout,
+    },
+    'zz-simp-mesg.sh'        => $_mesg ? {
+      /\A[yn]\z/ => "if tty -s; then\n  mesg ${_mesg}\nfi",
+      default    => $_mesg,
+    },
+    'zz-simp-mesg.csh'       => $_mesg ? {
+      /\A[yn]\z/ => "tty -s\nif ( \$? == 0 ) mesg ${_mesg}",
+      default    => $_mesg,
+    },
+    'zz-simp-umask.sh'       => $umask ? {
+      'absent' => 'absent',
+      default  => $umask.then |$u| { "umask ${u}" },
+    },
+    'zz-simp-umask.csh'      => $umask ? {
+      'absent' => 'absent',
+      default  => $umask.then |$u| { "umask ${u}" },
+    },
+  }.filter |$name, $content| { $content =~ NotUndef }
+
+  $_scripts.each |$name, $content| {
+    useradd::etc_profile::script { "/etc/profile.d/${name}":
+      content        => $content,
+      user_whitelist => $user_whitelist,
+    }
+  }
+
+  file { ['/etc/profile.d/simp.sh', '/etc/profile.d/simp.csh']:
+    ensure => 'absent',
   }
 }

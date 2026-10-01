@@ -1,0 +1,12 @@
+---
+lookup_options:
+  useradd::securetty_entries:
+    merge: deep
+  useradd::shells_entries:
+    merge: deep
+  useradd::passwd::files:
+    merge: deep
+  useradd::libuser_conf::userdefaults_settings:
+    merge: deep
+  useradd::libuser_conf::groupdefaults_settings:
+    merge: deep

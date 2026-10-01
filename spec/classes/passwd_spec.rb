@@ -1,34 +1,25 @@
 require 'spec_helper'
 
 describe 'useradd::passwd' do
-  context 'supported operating systems' do
-    on_supported_os.each_value do |os_facts|
-      let(:facts) { os_facts }
+  let(:facts) { on_supported_os.first[1] }
 
-      it { is_expected.to compile.with_all_deps }
-      it { is_expected.to create_class('useradd::passwd') }
-      it {
-        expected_params = {
-          owner: 'root',
-          group: 'root',
-          mode: '0644'
+  context 'with default parameters' do
+    it { is_expected.to compile.with_all_deps }
+    it { expect(catalogue.resources.select { |r| r.type == 'File' }).to be_empty }
+  end
+
+  context 'with files' do
+    let(:params) do
+      {
+        files: {
+          '/etc/passwd' => { 'owner' => 'root', 'group' => 'root', 'mode' => '0644' },
+          '/etc/shadow' => { 'mode' => '0000' },
         }
-        is_expected.to create_file('/etc/passwd').with(expected_params)
-        is_expected.to create_file('/etc/passwd-').with(expected_params)
-        is_expected.to create_file('/etc/group').with(expected_params)
-        is_expected.to create_file('/etc/group-').with(expected_params)
-      }
-      it {
-        expected_params = {
-          owner: 'root',
-          group: 'root',
-          mode: '0000'
-        }
-        is_expected.to create_file('/etc/shadow').with(expected_params)
-        is_expected.to create_file('/etc/shadow-').with(expected_params)
-        is_expected.to create_file('/etc/gshadow').with(expected_params)
-        is_expected.to create_file('/etc/gshadow-').with(expected_params)
       }
     end
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.to contain_file('/etc/passwd').with(owner: 'root', group: 'root', mode: '0644').without_ensure }
+    it { is_expected.to contain_file('/etc/shadow').with_mode('0000').without_owner.without_group.without_ensure }
   end
 end

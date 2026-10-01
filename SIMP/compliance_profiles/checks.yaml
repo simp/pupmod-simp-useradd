@@ -1,0 +1,464 @@
+---
+# Restores the behavior of useradd 3.x when enforced with
+#
+#   compliance_engine::enforcement:
+#     - simp:defaults
+#
+# Values set in site Hiera take precedence over these.
+version: 2.0.0
+checks:
+  simp:defaults.useradd.securetty_entries:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::securetty_entries
+      value:
+        tty0: {}
+        tty1: {}
+        tty2: {}
+        tty3: {}
+        tty4: {}
+  simp:defaults.useradd.purge_securetty:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::purge_securetty
+      value: true
+  simp:defaults.useradd.securetty_mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::securetty_mode
+      value: '0400'
+  simp:defaults.useradd.shells_entries:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::shells_entries
+      value:
+        /bin/sh: {}
+        /bin/bash: {}
+        /sbin/nologin: {}
+        /usr/bin/sh: {}
+        /usr/bin/bash: {}
+        /usr/sbin/nologin: {}
+  simp:defaults.useradd.purge_shells:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::purge_shells
+      value: true
+  simp:defaults.useradd.shells_mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::shells_mode
+      value: '0644'
+  simp:defaults.useradd.login_defs.encrypt_method:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::encrypt_method
+      value: SHA512
+  simp:defaults.useradd.login_defs.chfn_auth:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::chfn_auth
+      value: false
+  simp:defaults.useradd.login_defs.chfn_restrict:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::chfn_restrict
+      value: frwh
+  simp:defaults.useradd.login_defs.chsh_auth:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::chsh_auth
+      value: false
+  simp:defaults.useradd.login_defs.create_home:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::create_home
+      value: true
+  simp:defaults.useradd.login_defs.default_home:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::default_home
+      value: false
+  simp:defaults.useradd.login_defs.fail_delay:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::fail_delay
+      value: 4
+  simp:defaults.useradd.login_defs.faillog_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::faillog_enab
+      value: true
+  simp:defaults.useradd.login_defs.issue_file:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::issue_file
+      value: /etc/issue
+  simp:defaults.useradd.login_defs.lastlog_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::lastlog_enab
+      value: true
+  simp:defaults.useradd.login_defs.login_retries:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::login_retries
+      value: 3
+  simp:defaults.useradd.login_defs.login_timeout:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::login_timeout
+      value: 60
+  simp:defaults.useradd.login_defs.log_ok_logins:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::log_ok_logins
+      value: true
+  simp:defaults.useradd.login_defs.log_unkfail_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::log_unkfail_enab
+      value: true
+  simp:defaults.useradd.login_defs.mail_check_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::mail_check_enab
+      value: true
+  simp:defaults.useradd.login_defs.mail_dir:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::mail_dir
+      value: /var/spool/mail
+  simp:defaults.useradd.login_defs.mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::mode
+      value: '0640'
+  simp:defaults.useradd.login_defs.obscure_checks_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::obscure_checks_enab
+      value: true
+  simp:defaults.useradd.login_defs.pass_always_warn:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::pass_always_warn
+      value: true
+  simp:defaults.useradd.login_defs.pass_change_tries:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::pass_change_tries
+      value: 3
+  simp:defaults.useradd.login_defs.pass_max_days:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::pass_max_days
+      value: 180
+  simp:defaults.useradd.login_defs.pass_min_days:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::pass_min_days
+      value: 1
+  simp:defaults.useradd.login_defs.pass_warn_age:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::pass_warn_age
+      value: 14
+  simp:defaults.useradd.login_defs.pass_min_len:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::pass_min_len
+      value: 15
+  simp:defaults.useradd.login_defs.porttime_checks_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::porttime_checks_enab
+      value: true
+  simp:defaults.useradd.login_defs.quotas_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::quotas_enab
+      value: true
+  simp:defaults.useradd.login_defs.sha_crypt_min_rounds:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::sha_crypt_min_rounds
+      value: 5000
+  simp:defaults.useradd.login_defs.sha_crypt_max_rounds:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::sha_crypt_max_rounds
+      value: 10000
+  simp:defaults.useradd.login_defs.su_name:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::su_name
+      value: su
+  simp:defaults.useradd.login_defs.su_wheel_only:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::su_wheel_only
+      value: false
+  simp:defaults.useradd.login_defs.syslog_sg_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::syslog_sg_enab
+      value: true
+  simp:defaults.useradd.login_defs.syslog_su_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::syslog_su_enab
+      value: true
+  simp:defaults.useradd.login_defs.umask:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::umask
+      value: '007'
+  simp:defaults.useradd.login_defs.usergroups_enab:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::usergroups_enab
+      value: true
+  simp:defaults.useradd.login_defs.purge:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::login_defs::purge
+      value: true
+  simp:defaults.useradd.useradd.group:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::group
+      value: 100
+  simp:defaults.useradd.useradd.home:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::home
+      value: /home
+  simp:defaults.useradd.useradd.inactive:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::inactive
+      value: 35
+  simp:defaults.useradd.useradd.shell:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::shell
+      value: /bin/bash
+  simp:defaults.useradd.useradd.skel:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::skel
+      value: /etc/skel
+  simp:defaults.useradd.useradd.create_mail_spool:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::create_mail_spool
+      value: true
+  simp:defaults.useradd.useradd.mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::mode
+      value: '0600'
+  simp:defaults.useradd.useradd.purge:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::useradd::purge
+      value: true
+  simp:defaults.useradd.libuser_conf.defaults_modules:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::defaults_modules
+      value:
+      - files
+      - shadow
+  simp:defaults.useradd.libuser_conf.defaults_create_modules:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::defaults_create_modules
+      value:
+      - files
+      - shadow
+  simp:defaults.useradd.libuser_conf.defaults_crypt_style:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::defaults_crypt_style
+      value: sha512
+  simp:defaults.useradd.libuser_conf.import_login_defs:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::import_login_defs
+      value: /etc/login.defs
+  simp:defaults.useradd.libuser_conf.import_default_useradd:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::import_default_useradd
+      value: /etc/default/useradd
+  simp:defaults.useradd.libuser_conf.userdefaults_settings:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::userdefaults_settings
+      value:
+        LU_USERNAME: '%n'
+        LU_GIDNUMBER: '%u'
+  simp:defaults.useradd.libuser_conf.groupdefaults_settings:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::groupdefaults_settings
+      value:
+        LU_GROUPNAME: '%n'
+  simp:defaults.useradd.libuser_conf.mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::mode
+      value: '0644'
+  simp:defaults.useradd.libuser_conf.purge:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::libuser_conf::purge
+      value: true
+  simp:defaults.useradd.passwd.files:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::passwd::files
+      value:
+        /etc/passwd:
+          owner: root
+          group: root
+          mode: '0644'
+        /etc/passwd-:
+          owner: root
+          group: root
+          mode: '0644'
+        /etc/group:
+          owner: root
+          group: root
+          mode: '0644'
+        /etc/group-:
+          owner: root
+          group: root
+          mode: '0644'
+        /etc/shadow:
+          owner: root
+          group: root
+          mode: '0000'
+        /etc/shadow-:
+          owner: root
+          group: root
+          mode: '0000'
+        /etc/gshadow:
+          owner: root
+          group: root
+          mode: '0000'
+        /etc/gshadow-:
+          owner: root
+          group: root
+          mode: '0000'
+  simp:defaults.useradd.etc_profile.session_timeout:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::etc_profile::session_timeout
+      value: 15
+  simp:defaults.useradd.etc_profile.umask:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::etc_profile::umask
+      value: '0077'
+  simp:defaults.useradd.etc_profile.mesg:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::etc_profile::mesg
+      value: false
+  simp:defaults.useradd.sysconfig_init.single_user_login:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::single_user_login
+      value: /sbin/sulogin
+  simp:defaults.useradd.sysconfig_init.purge:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::purge
+      value: true
+  simp:defaults.useradd.sysconfig_init.systemd:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::systemd
+      value: true
+  simp:defaults.useradd.sysconfig_init.bootup:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::bootup
+      value: color
+  simp:defaults.useradd.sysconfig_init.res_col:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::res_col
+      value: 60
+  simp:defaults.useradd.sysconfig_init.move_to_col:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::move_to_col
+      value: '"echo -en \\033[${RES_COL}G"'
+  simp:defaults.useradd.sysconfig_init.setcolor_success:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_success
+      value: green
+  simp:defaults.useradd.sysconfig_init.setcolor_failure:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_failure
+      value: red
+  simp:defaults.useradd.sysconfig_init.setcolor_warning:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_warning
+      value: yellow
+  simp:defaults.useradd.sysconfig_init.setcolor_normal:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::setcolor_normal
+      value: default
+  simp:defaults.useradd.sysconfig_init.loglvl:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::loglvl
+      value: 3
+  simp:defaults.useradd.sysconfig_init.prompt:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::prompt
+      value: false
+  simp:defaults.useradd.sysconfig_init.autoswap:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::autoswap
+      value: false
+  simp:defaults.useradd.sysconfig_init.mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::sysconfig_init::mode
+      value: '0644'
+  simp:defaults.useradd.nss.netid_authoritative:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::netid_authoritative
+      value: false
+  simp:defaults.useradd.nss.services_authoritative:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::services_authoritative
+      value: false
+  simp:defaults.useradd.nss.setent_batch_read:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::setent_batch_read
+      value: true
+  simp:defaults.useradd.nss.mode:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::mode
+      value: '0640'
+  simp:defaults.useradd.nss.purge:
+    type: puppet-class-parameter
+    settings:
+      parameter: useradd::nss::purge
+      value: true

@@ -1,9 +1,11 @@
-# Set up the /etc/login.defs configuration file.
+# Manage settings in /etc/login.defs
 #
+# Each parameter manages the login.defs key of the same name, upper-cased,
+# editing the file in place. An unset parameter leaves its key alone, and
+# `absent` removes the key. Booleans are written as `yes`/`no`, and Arrays are
+# joined as login.defs expects.
 #
 # All option values are taken directly from the system documentation.
-#
-# Any parameter that is a list will require an array to be passed.
 #
 # @param encrypt_method
 # @param chfn_auth
@@ -24,7 +26,9 @@
 # @param fake_shell
 # @param ftmp_file
 # @param gid_max
+#   Defaults to `simp_options::gid::max`, when set.
 # @param gid_min
+#   Defaults to `simp_options::gid::min`, when set.
 # @param hushlogin_file
 # @param issue_file
 # @param killchar
@@ -65,7 +69,9 @@
 # @param ttyperm
 # @param ttytype_file
 # @param uid_max
+#   Defaults to `simp_options::uid::max`, when set.
 # @param uid_min
+#   Defaults to `simp_options::uid::min`, when set.
 # @param umask
 # @param ulimit
 # @param userdel_cmd
@@ -76,82 +82,198 @@
 #     * Min length should be configured using /etc/pam.d/ or /etc/security/pwquality.conf.
 #
 # @param mode
-#   File  mode of the `/etc/login.defs` file
+#   The mode of `/etc/login.defs`, owned by `root:root`. Leaves the mode alone
+#   when unset.
+#
+# @param purge
+#   Remove every key the class doesn't set. Comments stay. Nothing is purged
+#   while no key is set. `UID_MIN`, `UID_MAX`, `GID_MIN` and `GID_MAX` are
+#   never purged, so the ranges on the system stay when they aren't set here.
 #
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::login_defs (
-  Enum['DES','MD5','SHA256','SHA512']     $encrypt_method        = 'SHA512',  # CCE-27228-6
-  Boolean                                 $chfn_auth             = false,
-  Pattern['^[frwh]+$']                    $chfn_restrict         = 'frwh',
-  Boolean                                 $chsh_auth             = false,
-  Optional[Array[Stdlib::AbsolutePath,1]] $console               = undef,
-  Optional[Array[String,1]]               $console_groups        = undef,
-  Boolean                                 $create_home           = true,
-  Boolean                                 $default_home          = false,
-  Optional[String]                        $env_hz                = undef,
-  Optional[Array[Stdlib::AbsolutePath,1]] $env_path              = undef,
-  Optional[Array[Stdlib::AbsolutePath,1]] $env_supath            = undef,
-  Optional[String]                        $env_tz                = undef,
-  Optional[Stdlib::AbsolutePath]          $environ_file          = undef,
-  Optional[Integer]                       $erasechar             = undef,
-  Integer                                 $fail_delay            = 4,
-  Boolean                                 $faillog_enab          = true,
-  Optional[Stdlib::AbsolutePath]          $fake_shell            = undef,
-  Optional[Stdlib::AbsolutePath]          $ftmp_file             = undef,
-  Integer[0]                              $gid_min               = simplib::lookup('simp_options::gid::min', { 'default_value' => pick(fact('login_defs.gid_min'), 1000 ) }),
-  Integer[1]                              $gid_max               = simplib::lookup('simp_options::gid::max', { 'default_value' => pick(fact('login_defs.gid_max'), 500000 ) }),
-  Optional[Stdlib::AbsolutePath]          $hushlogin_file        = undef,
-  Stdlib::AbsolutePath                    $issue_file            = '/etc/issue',
-  Optional[Integer]                       $killchar              = undef,
-  Boolean                                 $lastlog_enab          = true,
-  Optional[String]                        $login_string          = undef,
-  Integer                                 $login_retries         = 3,
-  Integer                                 $login_timeout         = 60,
-  Boolean                                 $log_ok_logins         = true,
-  Boolean                                 $log_unkfail_enab      = true,
-  Boolean                                 $mail_check_enab       = true,
-  Stdlib::AbsolutePath                    $mail_dir              = '/var/spool/mail',
-  Optional[Stdlib::AbsolutePath]          $mail_file             = undef,
-  Optional[Integer]                       $max_members_per_group = undef,
-  Optional[Array[Stdlib::AbsolutePath,1]] $motd_file             = undef,
-  Stdlib::Filemode                        $mode                  = '0640',
-  Optional[Stdlib::AbsolutePath]          $nologins_file         = undef,
-  Boolean                                 $obscure_checks_enab   = true,
-  Boolean                                 $pass_always_warn      = true,
-  Integer                                 $pass_change_tries     = 3,
-  Integer                                 $pass_max_days         = 180,  # CCE-26985-2
-  Integer                                 $pass_min_days         = 1,    # CCE-27013-2
-  Integer                                 $pass_warn_age         = 14,   # CCE-26998-6
-  Optional[Integer]                       $pass_max_len          = undef,
-  Integer                                 $pass_min_len          = 15,   # CCE-27002-5
-  Boolean                                 $porttime_checks_enab  = true,
-  Boolean                                 $quotas_enab           = true,
-  Integer                                 $sha_crypt_min_rounds  = 5000,
-  Integer                                 $sha_crypt_max_rounds  = 10000,
-  Optional[Stdlib::AbsolutePath]          $sulog_file            = undef,
-  String                                  $su_name               = 'su',
-  Boolean                                 $su_wheel_only         = false,
-  Optional[Integer]                       $sys_gid_max           = undef,
-  Optional[Integer]                       $sys_gid_min           = undef,
-  Optional[Integer]                       $sys_uid_max           = undef,
-  Optional[Integer]                       $sys_uid_min           = undef,
-  Boolean                                 $syslog_sg_enab        = true,
-  Boolean                                 $syslog_su_enab        = true,
-  Optional[String]                        $ttygroup              = undef,
-  Optional[Simplib::Umask]                $ttyperm               = undef,
-  Optional[Stdlib::AbsolutePath]          $ttytype_file          = undef,
-  Integer[0]                              $uid_min               = simplib::lookup('simp_options::uid::min', { 'default_value' => pick(fact('login_defs.uid_min'), 1000 ) }),
-  Integer[1]                              $uid_max               = simplib::lookup('simp_options::uid::max', { 'default_value' => pick(fact('login_defs.uid_max'), 1000000 ) }),
-  String                                  $umask                 = '007',  # CCE-26371-5
-  Optional[Integer]                       $ulimit                = undef,  # The maximum file size in 512 byte units. Noted here since the man page isn't helpful.
-  Optional[Stdlib::AbsolutePath]          $userdel_cmd           = undef,
-  Boolean                                 $usergroups_enab       = true
+  Optional[Variant[Enum['DES','MD5','SHA256','SHA512'], Enum['absent']]] $encrypt_method        = undef,  # CCE-27228-6
+  Optional[Variant[Boolean, Enum['absent']]]                             $chfn_auth             = undef,
+  Optional[Variant[Pattern['^[frwh]+$'], Enum['absent']]]                $chfn_restrict         = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $chsh_auth             = undef,
+  Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]       $console               = undef,
+  Optional[Variant[Array[String,1], Enum['absent']]]                     $console_groups        = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $create_home           = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $default_home          = undef,
+  Optional[Variant[String, Enum['absent']]]                              $env_hz                = undef,
+  Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]       $env_path              = undef,
+  Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]       $env_supath            = undef,
+  Optional[Variant[String, Enum['absent']]]                              $env_tz                = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $environ_file          = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $erasechar             = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $fail_delay            = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $faillog_enab          = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $fake_shell            = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $ftmp_file             = undef,
+  Optional[Variant[Integer[0], Enum['absent']]]                          $gid_min               = simplib::lookup('simp_options::gid::min', { 'default_value' => undef }),
+  Optional[Variant[Integer[1], Enum['absent']]]                          $gid_max               = simplib::lookup('simp_options::gid::max', { 'default_value' => undef }),
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $hushlogin_file        = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $issue_file            = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $killchar              = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $lastlog_enab          = undef,
+  Optional[Variant[String, Enum['absent']]]                              $login_string          = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $login_retries         = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $login_timeout         = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $log_ok_logins         = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $log_unkfail_enab      = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $mail_check_enab       = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $mail_dir              = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $mail_file             = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $max_members_per_group = undef,
+  Optional[Variant[Array[Stdlib::AbsolutePath,1], Enum['absent']]]       $motd_file             = undef,
+  Optional[Stdlib::Filemode]                                             $mode                  = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $nologins_file         = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $obscure_checks_enab   = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $pass_always_warn      = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $pass_change_tries     = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $pass_max_days         = undef,  # CCE-26985-2
+  Optional[Variant[Integer, Enum['absent']]]                             $pass_min_days         = undef,  # CCE-27013-2
+  Optional[Variant[Integer, Enum['absent']]]                             $pass_warn_age         = undef,  # CCE-26998-6
+  Optional[Variant[Integer, Enum['absent']]]                             $pass_max_len          = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $pass_min_len          = undef,  # CCE-27002-5
+  Optional[Variant[Boolean, Enum['absent']]]                             $porttime_checks_enab  = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $quotas_enab           = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $sha_crypt_min_rounds  = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $sha_crypt_max_rounds  = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $sulog_file            = undef,
+  Optional[Variant[String, Enum['absent']]]                              $su_name               = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $su_wheel_only         = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $sys_gid_max           = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $sys_gid_min           = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $sys_uid_max           = undef,
+  Optional[Variant[Integer, Enum['absent']]]                             $sys_uid_min           = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $syslog_sg_enab        = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $syslog_su_enab        = undef,
+  Optional[Variant[String, Enum['absent']]]                              $ttygroup              = undef,
+  Optional[Variant[Simplib::Umask, Enum['absent']]]                      $ttyperm               = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $ttytype_file          = undef,
+  Optional[Variant[Integer[0], Enum['absent']]]                          $uid_min               = simplib::lookup('simp_options::uid::min', { 'default_value' => undef }),
+  Optional[Variant[Integer[1], Enum['absent']]]                          $uid_max               = simplib::lookup('simp_options::uid::max', { 'default_value' => undef }),
+  Optional[Variant[String, Enum['absent']]]                              $umask                 = undef,  # CCE-26371-5
+  Optional[Variant[Integer, Enum['absent']]]                             $ulimit                = undef,  # The maximum file size in 512 byte units. Noted here since the man page isn't helpful.
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]                $userdel_cmd           = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                             $usergroups_enab       = undef,
+  Boolean                                                                $purge                 = false
 ) {
-  file { '/etc/login.defs':
-    owner   => 'root',
-    group   => 'root',
-    mode    => $mode,
-    content => template('useradd/etc/login_defs.erb')
+  # The Login_defs lens can't hold a key with no value, so an empty or
+  # whitespace-only String is skipped. 3.x wrote it as `KEY` with nothing, or
+  # only whitespace, after it, which the lens can't parse either, so that line
+  # is removed before any edit.
+  $_blank = Pattern[/\A\s*\z/]
+  $_empty = {
+    'console_groups' => $console_groups =~ Array and $console_groups.any |$g| { $g =~ $_blank },
+    'login_string'   => $login_string =~ $_blank,
+    'su_name'        => $su_name =~ $_blank,
+    'ttygroup'       => $ttygroup =~ $_blank,
+    'umask'          => $umask =~ $_blank,
+  }.filter |$param, $empty| { $empty }.keys
+
+  $_empty.each |$param| {
+    deprecation("useradd::login_defs::${param}", "useradd::login_defs::${param}: an empty value is deprecated and ignored; login.defs can't hold it.", false)
+
+    $_key = $param.upcase
+    file_line { "/etc/login.defs ${_key} empty":
+      ensure            => 'absent',
+      path              => '/etc/login.defs',
+      match             => "^\\s*${_key}\\s*$",
+      match_for_absence => true,
+      multiple          => true,
+      before            => Useradd::Settings['/etc/login.defs'],
+    }
+  }
+
+  $_env_hz = $env_hz ? {
+    Undef       => undef,
+    'absent'    => 'absent',
+    /^HZ=/      => $env_hz,
+    default     => "HZ=${env_hz}",
+  }
+  $_env_tz = $env_tz ? {
+    Undef       => undef,
+    'absent'    => 'absent',
+    /^(\/|TZ=)/ => $env_tz,
+    default     => "TZ=${env_tz}",
+  }
+
+  $_settings = {
+    'CHFN_AUTH'             => $chfn_auth,
+    'CHFN_RESTRICT'         => $chfn_restrict,
+    'CHSH_AUTH'             => $chsh_auth,
+    'CONSOLE'               => useradd::join($console, ':'),
+    'CONSOLE_GROUPS'        => useradd::join($console_groups ? { Array => $console_groups.filter |$g| { $g !~ $_blank }, default => $console_groups }, ','),
+    'CREATE_HOME'           => $create_home,
+    'DEFAULT_HOME'          => $default_home,
+    'ENCRYPT_METHOD'        => $encrypt_method,
+    'ENV_HZ'                => $_env_hz,
+    'ENV_PATH'              => useradd::join($env_path, ':'),
+    'ENV_SUPATH'            => useradd::join($env_supath, ':'),
+    'ENV_TZ'                => $_env_tz,
+    'ENVIRON_FILE'          => $environ_file,
+    'ERASECHAR'             => $erasechar,
+    'FAIL_DELAY'            => $fail_delay,
+    'FAILLOG_ENAB'          => $faillog_enab,
+    'FAKE_SHELL'            => $fake_shell,
+    'FTMP_FILE'             => $ftmp_file,
+    'GID_MAX'               => $gid_max,
+    'GID_MIN'               => $gid_min,
+    'HUSHLOGIN_FILE'        => $hushlogin_file,
+    'ISSUE_FILE'            => $issue_file,
+    'KILLCHAR'              => $killchar,
+    'LASTLOG_ENAB'          => $lastlog_enab,
+    'LOG_OK_LOGINS'         => $log_ok_logins,
+    'LOG_UNKFAIL_ENAB'      => $log_unkfail_enab,
+    'LOGIN_RETRIES'         => $login_retries,
+    'LOGIN_STRING'          => $login_string,
+    'LOGIN_TIMEOUT'         => $login_timeout,
+    'MAIL_CHECK_ENAB'       => $mail_check_enab,
+    'MAIL_DIR'              => $mail_dir,
+    'MAIL_FILE'             => $mail_file,
+    'MAX_MEMBERS_PER_GROUP' => $max_members_per_group,
+    'MOTD_FILE'             => useradd::join($motd_file, ':'),
+    'NOLOGINS_FILE'         => $nologins_file,
+    'OBSCURE_CHECKS_ENAB'   => $obscure_checks_enab,
+    'PASS_ALWAYS_WARN'      => $pass_always_warn,
+    'PASS_CHANGE_TRIES'     => $pass_change_tries,
+    'PASS_MAX_DAYS'         => $pass_max_days,
+    'PASS_MIN_DAYS'         => $pass_min_days,
+    'PASS_WARN_AGE'         => $pass_warn_age,
+    'PASS_MAX_LEN'          => $pass_max_len,
+    'PASS_MIN_LEN'          => $pass_min_len,
+    'PORTTIME_CHECKS_ENAB'  => $porttime_checks_enab,
+    'QUOTAS_ENAB'           => $quotas_enab,
+    'SHA_CRYPT_MIN_ROUNDS'  => $sha_crypt_min_rounds,
+    'SHA_CRYPT_MAX_ROUNDS'  => $sha_crypt_max_rounds,
+    'SULOG_FILE'            => $sulog_file,
+    'SU_NAME'               => $su_name,
+    'SU_WHEEL_ONLY'         => $su_wheel_only,
+    'SYS_GID_MAX'           => $sys_gid_max,
+    'SYS_GID_MIN'           => $sys_gid_min,
+    'SYS_UID_MAX'           => $sys_uid_max,
+    'SYS_UID_MIN'           => $sys_uid_min,
+    'SYSLOG_SG_ENAB'        => $syslog_sg_enab,
+    'SYSLOG_SU_ENAB'        => $syslog_su_enab,
+    'TTYGROUP'              => $ttygroup,
+    'TTYPERM'               => $ttyperm,
+    'TTYTYPE_FILE'          => $ttytype_file,
+    'UID_MAX'               => $uid_max,
+    'UID_MIN'               => $uid_min,
+    'UMASK'                 => $umask,
+    'ULIMIT'                => $ulimit,
+    'USERDEL_CMD'           => $userdel_cmd,
+    'USERGROUPS_ENAB'       => $usergroups_enab,
+  }.filter |$key, $value| { $value =~ NotUndef and $value !~ $_blank }
+
+  useradd::settings { '/etc/login.defs':
+    lens          => 'Login_defs.lns',
+    settings      => $_settings,
+    mode          => $mode,
+    purge         => $purge,
+    purge_exclude => ['UID_MIN', 'UID_MAX', 'GID_MIN', 'GID_MAX'],
   }
 }

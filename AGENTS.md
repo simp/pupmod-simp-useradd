@@ -5,141 +5,125 @@ This file provides guidance to AI agents when working with code in this reposito
 ## What this module does
 
 `simp-useradd` is a SIMP Puppet module that manages **system-wide user-account
-creation defaults and login policy files** — it does **not** create or manage
-individual user accounts. Instead it owns the config files that dictate how
-accounts get created and how logins behave: `/etc/login.defs`,
-`/etc/default/useradd`, `/etc/libuser.conf`, `/etc/default/nss`,
-`/etc/sysconfig/init`, the `/etc/profile.d/simp.{sh,csh}` login fragments, and
-the permissions of the passwd/shadow/group files. Many defaults carry inline
-`CCE-*` benchmark IDs, so this is primarily a hardening/compliance module.
+creation defaults and login policy files**. It does **not** create or manage
+individual user accounts. It edits `/etc/login.defs`, `/etc/default/useradd`,
+`/etc/libuser.conf`, `/etc/securetty`, `/etc/shells`, login scripts in
+`/etc/profile.d`, the permissions of the passwd/shadow/group files, and the
+systemd emergency/rescue drop-ins.
+
+### A bare include manages nothing (4.0.0)
+
+Since 4.0.0, `include useradd` declares no File, Augeas or Exec resource.
+Every setting is managed only when its parameter is set, with three states:
+
+- `undef` (the default): left alone;
+- a value: set, replacing the old value;
+- `'absent'` (or `false` for a Boolean): removed.
+
+Lists are `*_entries` Hashes of entry → `Useradd::EntryOptions`, merged `deep`
+(`data/common.yaml`). Purging unmanaged keys or entries is opt-in through
+`purge*` parameters.
+
+The 3.x behavior comes back through the shipped `simp:defaults` compliance
+profile (`SIMP/compliance_profiles/`), enforced with
+`compliance_engine::enforcement: [simp:defaults]`. The profile sets no
+deprecated parameter and no UID/GID range.
 
 ### Business logic
 
-`useradd` is a class collection: a single orchestrator (`useradd`) that
-conditionally `include`s seven component classes, each of which owns one config
-file. There are no defines. **No class is `assert_private()`'d** — the component
-classes are technically includable directly, but the intended entry point is
-`include useradd`.
+`useradd` (`manifests/init.pp`) includes seven component classes, each owning
+one file or group of files. It also edits `/etc/securetty` and `/etc/shells`
+itself.
 
-- **`useradd` (`manifests/init.pp`)** — Orchestrator. Seven
-  `manage_*` Boolean toggles (all default `true`,
-  `init.pp`) gate the `include` of each component class
-  (`init.pp`). It also directly manages two files of its own:
-  - `/etc/securetty` (`init.pp`), driven by `$securetty`
-    (`Variant[Boolean,Array[String]]`, default
-    `['tty0'..'tty4']`). **Tri-state, non-obvious** — see Gotchas.
-  - `/etc/shells` (`init.pp`), the union of `$shells_default` +
-    `$shells`, written only when `$shells` is truthy and the combined list is
-    non-empty.
-- **`useradd::login_defs` (`manifests/login_defs.pp`)** — Manages
-  `/etc/login.defs` from `templates/etc/login_defs.erb` (mode `$mode`, default
-  `0640`, `login_defs.pp`). This is the biggest class (~65
-  parameters): password aging (`pass_max_days` 180, `pass_min_days` 1,
-  `pass_warn_age` 14, `pass_min_len` 15 — all CCE-tagged), crypt settings
-  (`encrypt_method` `SHA512`, `sha_crypt_min/max_rounds`), UID/GID ranges, umask
-  (`007`, CCE-26371-5), and login/tty behavior. **The UID/GID range parameters
-  are the module's `simp_options` seam — see the table below.**
-- **`useradd::useradd` (`manifests/useradd.pp`)** — Manages
-  `/etc/default/useradd` (mode `0600`) from `templates/etc/default/useradd.erb`.
-  Defaults for new accounts: `group` 100, `home` `/home`, `inactive` 35,
-  `shell` `/bin/bash`, `skel` `/etc/skel`, `create_mail_spool` true.
-- **`useradd::libuser_conf` (`manifests/libuser_conf.pp`)** — Manages
-  `/etc/libuser.conf` (mode `0644`) from `templates/etc/libuser.conf.erb`.
-  Default crypt style `sha512` (`Useradd::CryptStyle`), modules
-  `['files','shadow']` (`Useradd::LibuserModule`). **Guard:** fails compilation
-  if `defaults_hash_rounds_min >= defaults_hash_rounds_max` when both are set
-  (`libuser_conf.pp`).
-- **`useradd::nss` (`manifests/nss.pp`)** — Manages `/etc/default/nss`
-  (mode `0640`) from `templates/etc/default/nss.erb`. Three Booleans:
-  `netid_authoritative` false, `services_authoritative` false,
-  `setent_batch_read` true.
-- **`useradd::passwd` (`manifests/passwd.pp`)** — **Parameterless.**
-  Enforces ownership/permissions on the passwd/shadow/group family: `passwd`,
-  `passwd-`, `group`, `group-` → `root:root 0644`; `shadow`, `shadow-`,
-  `gshadow`, `gshadow-` → `root:root 0000`. Numerous CCE IDs in comments.
-- **`useradd::etc_profile` (`manifests/etc_profile.pp`)** — Manages
-  `/etc/profile.d/simp.sh` and `simp.csh` (mode `0644`, `seltype => bin_t`) from
-  the matching `.erb` templates. Enforces an idle-session timeout
-  (`session_timeout` 15 minutes, gated by `manage_tmout`) and a login umask
-  (`0077`, covers CCE-26917-5/27034-8/26669-2). Supports per-shell `prepend` /
-  `append` content hashes and a `user_whitelist`.
-- **`useradd::sysconfig_init` (`manifests/sysconfig_init.pp`)** — Manages
-  `/etc/sysconfig/init` (mode `0644`) from `templates/etc/sysconfig/init.erb`
-  (bootup mode via `Useradd::Bootup`, console colors, `loglvl`, etc.).
-  **Also** — on systemd hosts (`'systemd' in $facts['init_systems']`,
-  `sysconfig_init.pp`) — writes `emergency.service` and `rescue.service`
-  drop-ins via `systemd::dropin_file` so single-user/emergency mode requires the
-  root password (`$single_user_login`, default `/sbin/sulogin`). This is why
-  `puppet/systemd` is a runtime dependency.
+- **`useradd`** — `securetty_entries`, `shells_entries`, `purge_securetty`,
+  `purge_shells`, `securetty_mode`, `shells_mode`. Entries map to
+  `Useradd::EntryOptions` (`{}` = present), applied by the private
+  `useradd::entry::list`. The deprecated `securetty`, `shells_default` and
+  `shells` keep their 3.x behavior: set, each owns its whole file (3.x modes
+  `0400`/`0644`) and the matching `*_entries`/`purge_*` are ignored.
+  The deprecated `manage_*` Booleans still skip a class when `false`.
+- **`useradd::login_defs`** — per-key augeas (`Login_defs.lns`), `mode`,
+  `purge`. The purge always keeps `UID_MIN`, `UID_MAX`, `GID_MIN` and
+  `GID_MAX`. An empty value is deprecated and skipped: the lens can't parse a
+  key with no value.
+- **`useradd::useradd`** — `/etc/default/useradd`, per-key augeas
+  (`Shellvars.lns`), `mode`, `purge`.
+- **`useradd::libuser_conf`** — `/etc/libuser.conf`, per-key augeas
+  (`Puppet.lns`, keys as `section/key`), `mode`, `purge`. Fails compilation
+  if `defaults_hash_rounds_min >= defaults_hash_rounds_max`. With both
+  module lists set, `[files]`/`[shadow]`/`[ldap]` keys are written only for a
+  module in `defaults_create_modules` and not in `defaults_modules`, as in 3.x.
+  `[userdefaults]`/`[groupdefaults]` keys come from the `*_settings` Hashes;
+  the deprecated `userdefaults`/`groupdefaults` Strings own their section.
+- **`useradd::passwd`** — manages only the files listed in
+  `useradd::passwd::files` (Hash of path → owner/group/mode).
+- **`useradd::etc_profile`** — one `/etc/profile.d` file per setting via
+  `useradd::etc_profile::script` (`simp-b-tmout.sh`, `zz-simp-umask.sh`,
+  ...), `simp:defaults` included. The 3.x `simp.sh`/`simp.csh` are always
+  removed.
+- **`useradd::sysconfig_init`** — `/etc/sysconfig/init`, per-key augeas
+  (`Shellvars.lns`), `mode`, `purge`; plus the emergency/rescue drop-ins when
+  `single_user_login` is set on systemd hosts, with a refresh-only
+  `daemon-reload` exec. Includes `systemd` only when `systemd => true`.
+- **`useradd::nss`** — `/etc/default/nss`, per-key augeas (`Shellvars.lns`),
+  `mode`, `purge`.
+
+### Shared building blocks
+
+- `useradd::setting` / `useradd::settings` — set or remove one key (or a
+  Hash of keys) with augeas, with explicit `incl`, `lens` and `context`.
+- `useradd::purge` — remove every key except the listed ones.
+- `useradd::entry` / `useradd::entry::purge` — the same for
+  one-entry-per-line files (securetty, shells).
+- `useradd::join` — joins Array values (e.g. `CONSOLE` with `:`).
 
 ## Gotchas / non-obvious details
 
-- **This module does not manage user accounts.** It manages the *defaults and
-  policy* that govern account creation and login. If you need to create a user,
-  this is the wrong module.
-- **`$securetty` is tri-state** (`init.pp`):
-  - `false` → management of `/etc/securetty` is disabled entirely.
-  - `true` or an empty array (the default is a populated array) → root cannot
-    log in on any physical console.
-  - an array containing the literal string `'ANY_SHELL'` → `/etc/securetty` is
-    **removed** (`ensure => absent`), allowing root login from anywhere.
-  - otherwise the array is written verbatim, one tty per line.
-- **`/etc/shells` is only written when `$shells` is truthy** (`init.pp`);
-  with the default `$shells = []` (falsey-for-this-guard because the guard also
-  requires a non-empty combined list) the file is not managed. `$shells` also
-  accepts `false` to disable management explicitly.
-- **UID/GID range defaults use a fact-then-fallback pattern**, not a static
-  literal:
-  `pick(fact('login_defs.<key>'), <literal>)` inside the `simp_options` lookup
-  default (`login_defs.pp`). The live system value (from the
-  `login_defs` fact provided by `simp/simplib`) wins over the hard-coded
-  fallback.
-- **`useradd::sysconfig_init` reaches beyond its named file** — it also writes
-  systemd `emergency`/`rescue` service drop-ins on systemd hosts
-  (`sysconfig_init.pp`). Editing this class can affect single-user-mode
-  authentication, not just `/etc/sysconfig/init`.
-- **`login_defs` note in the docstring** (`login_defs.pp`): `pass_min_len`
-  / `pass_max_len` have no effect on a stock RedHat machine — min length must be
-  set via PAM / `pwquality.conf`. Don't expect these params to enforce anything
-  on modern EL.
-- **`etc_profile::manage_tmout`** exists specifically to avoid a `TMOUT:
-  readonly variable` login warning when another `/etc/profile.d` file already
-  marks `TMOUT` read-only (`etc_profile.pp`). Set it `false` in that case.
-- **Manifests still use leading-`::` namespaced includes** (e.g.
-  `include '::useradd::login_defs'`, `init.pp`) — legacy style, preserved
-  as-is.
-- **There is no `data/` dir and no `hiera.yaml`** — this module ships no
-  module-level Hiera data. All defaults live in the class parameter lists.
+- **This module does not manage user accounts.**
+- **Never add a default that writes a value.** A new parameter defaults to
+  `undef`; restore any 3.x value in `SIMP/compliance_profiles/checks.yaml`.
+- **Check IDs use dots:** `simp:defaults.useradd.login_defs.umask`.
+  `spec/classes/useradd_simp_defaults_profile_spec.rb` enforces the naming,
+  that every check's parameter exists, and that no deprecated parameter is
+  set.
+- **The deprecated Arrays keep their 3.x types**, so `shells`
+  (`Array[Stdlib::AbsolutePath]`) can't take a `--` knockout. Use
+  `shells_entries`.
+- **Deprecations use `deprecation(key, msg, false)`**, which never fails
+  compilation under `strict=error`. Don't use `warning()` for them. The
+  third argument needs stdlib 9.2.0.
+- **The drop-in directories are declared with `ensure_resource`** and the
+  same attributes as `systemd::dropin_file`, so both can declare them. Keep
+  them in sync with puppet/systemd.
+- **A type alias can't share a define's name.** `Useradd::Entry` would
+  resolve to the `useradd::entry` resource type, hence `Useradd::ListEntry`.
+- **`useradd::setting` picks the quoting per value.** The augeas provider
+  unescapes only the quote itself, so a backslash before it or at the end
+  ends the argument early. Double quotes, then single quotes, then no quotes
+  (no space or leading quote); a value none of them can hold fails
+  compilation (a documented BREAKING change).
+- **`pass_min_len` / `pass_max_len`** have no effect on stock EL; minimum
+  length is set via PAM / `pwquality.conf`.
+- **`etc_profile::manage_tmout`** is deprecated; leave `session_timeout`
+  unset instead.
 
 ## The `simp_options` / `simplib::lookup` seam
 
-The module's SIMP feature-toggle seam is the UID/GID range configuration, all in
-`manifests/login_defs.pp`. Each routes through `simplib::lookup` with an
-explicit `default_value` (never assuming `simp_options` is included):
-
-| File | Key | `default_value` |
-|------|-----|-----------------|
-| `login_defs.pp` | `simp_options::gid::min` | `pick(fact('login_defs.gid_min'), 1000)` |
-| `login_defs.pp` | `simp_options::gid::max` | `pick(fact('login_defs.gid_max'), 500000)` |
-| `login_defs.pp` | `simp_options::uid::min` | `pick(fact('login_defs.uid_min'), 1000)` |
-| `login_defs.pp` | `simp_options::uid::max` | `pick(fact('login_defs.uid_max'), 1000000)` |
-
-Keep routing SIMP feature toggles through `simplib::lookup('simp_options::*', {
-'default_value' => ... })` with an explicit default rather than assuming
-`simp_options` is included. Note `simp/simp_options` is **not** a declared
-dependency in `metadata.json`; the `simp_options::*` keys are consumed via
-`simplib::lookup` (from `simp/simplib`).
+The UID/GID ranges in `manifests/login_defs.pp` default to
+`simplib::lookup('simp_options::{uid,gid}::{min,max}', { 'default_value' => undef })`.
+Unset, nothing is written. The profile deliberately doesn't set them.
+`simp/simp_options` is not a declared dependency.
 
 ## Dependencies
 
 Module dependencies (from `metadata.json`):
 
-- `simp/simplib` `>= 4.9.0 < 6.0.0` — provides `simplib::lookup`, the
-  `Simplib::Umask` type, and the `login_defs` fact backing the UID/GID defaults.
-- `puppetlabs/stdlib` `>= 8.0.0 < 10.0.0` — provides `Stdlib::AbsolutePath`,
-  `Stdlib::Filemode`, and `pick()`.
-- `puppet/systemd` `>= 4.0.2 < 10.0.0` — provides `systemd::dropin_file`, used by
-  `useradd::sysconfig_init` for the emergency/rescue drop-ins.
+- `simp/simplib` `>= 4.9.0 < 8.0.0` — provides `simplib::lookup` and the
+  `Simplib::Umask` type.
+- `puppetlabs/stdlib` `>= 9.2.0 < 11.0.0` — provides `Stdlib::AbsolutePath`,
+  `Stdlib::Filemode`, `pick()`, and the 3-argument `deprecation()`.
+- `puppet/systemd` `>= 4.0.2 < 11.0.0` — the `systemd` class, included only
+  when `useradd::sysconfig_init::systemd` is true.
 
 There are **no optional dependencies** (`metadata.json` has no
 `simp.optional_dependencies` block) and no `simplib::assert_optional_dependency`
@@ -154,32 +138,20 @@ OracleLinux 8/9/10; Rocky 8/9/10; AlmaLinux 8/9/10.
 
 ## Repository layout
 
-- `manifests/init.pp` — the `useradd` orchestrator class (`manage_*` toggles,
-  `/etc/securetty`, `/etc/shells`).
-- `manifests/login_defs.pp` — `/etc/login.defs` (the largest class; UID/GID seam,
-  password aging, crypt settings).
-- `manifests/useradd.pp` — `/etc/default/useradd`.
-- `manifests/libuser_conf.pp` — `/etc/libuser.conf`.
-- `manifests/nss.pp` — `/etc/default/nss`.
-- `manifests/passwd.pp` — passwd/shadow/group file permissions (parameterless).
-- `manifests/etc_profile.pp` — `/etc/profile.d/simp.{sh,csh}` (timeout, umask).
-- `manifests/sysconfig_init.pp` — `/etc/sysconfig/init` + systemd
-  emergency/rescue drop-ins.
-- `types/` — three custom data types: `Useradd::Bootup`
-  (`Enum['graphical','color','verbose','plain']`, `types/bootup.pp`),
-  `Useradd::CryptStyle` (upper/lowercase `BLOWFISH/DES/MD5/SHA256/SHA512`,
-  `types/cryptstyle.pp`), and `Useradd::LibuserModule`
-  (`Enum['files','shadow','ldap']`, `types/libusermodule.pp`).
-- `templates/` — seven ERB templates mirroring the managed file paths:
-  `etc/login_defs.erb`, `etc/default/useradd.erb`, `etc/default/nss.erb`,
-  `etc/libuser.conf.erb`, `etc/sysconfig/init.erb`, `etc/profile.d/simp.sh.erb`,
-  `etc/profile.d/simp.csh.erb`.
-- `metadata.json` — deps, OS matrix, and the OpenVox runtime requirement.
-- `spec/spec_helper.rb` — `require 'puppetlabs_spec_helper/module_spec_helper'`.
-- `spec/acceptance/suites/default/00_default_spec.rb` — the single beaker
-  acceptance suite.
-- No `data/`, `hiera.yaml`, or `lib/` — no module Hiera data and no Ruby
-  types/providers/functions/facts of its own.
+- `manifests/` — the eight classes above, plus the `useradd::setting`,
+  `settings`, `purge`, `entry`, `entry::list`, `entry::purge` and `etc_profile::script`
+  defines.
+- `functions/` — `useradd::join`.
+- `types/` — `Useradd::Bootup`, `Useradd::CryptStyle`, `Useradd::EntryOptions`,
+  `Useradd::LibuserModule`, `Useradd::ListEntry`, `Useradd::Tty`.
+- `data/common.yaml` + `hiera.yaml` — `lookup_options` (deep merge for the
+  `*_entries` and `passwd::files` Hashes). No default values.
+- `SIMP/compliance_profiles/` — the `simp:defaults` profile and checks.
+- `spec/classes/` — unit specs; `spec/fixtures/hieradata/` holds the
+  compliance-engine Hiera fixtures.
+- `spec/acceptance/suites/default/00_default_spec.rb` — the beaker suite
+  (noop preview, bare include, single-setting enforce/un-enforce/absent,
+  `simp:defaults` convergence).
 - `REFERENCE.md` — generated Puppet Strings reference.
 
 ### CI
@@ -247,23 +219,17 @@ dependency is removed from other gems."
 
 ## Conventions
 
-- Preserve the `@summary` / `@param` puppet-strings docstrings on each class —
-  they drive `REFERENCE.md`. Regenerate `REFERENCE.md` after changing docs or
-  parameters.
-- One class per managed config file; gate each in the orchestrator with its
-  `manage_*` Boolean (`init.pp`). Add new file-management logic as a new
-  component class + toggle, following that pattern.
-- Route SIMP feature toggles through `simplib::lookup('simp_options::*', {
-  'default_value' => ... })` with an explicit default — as the UID/GID params do
-  (`login_defs.pp`) — rather than assuming `simp_options` is
-  included.
-- Constrain enumerable parameters with the `Useradd::*` custom types (or
-  `Stdlib::*` / `Simplib::*`) rather than bare `String`, following the existing
-  parameter declarations.
-- Keep the inline `CCE-*` compliance comments next to the defaults they justify;
-  they document the hardening rationale.
+- Preserve the `@summary` / `@param` puppet-strings docstrings; regenerate
+  `REFERENCE.md` after changing docs or parameters.
+- New settings: an `Optional[...]` parameter defaulting to `undef`, edited in
+  place with `useradd::setting`, plus a check in
+  `SIMP/compliance_profiles/checks.yaml` if 3.x wrote it. Never a `manage_*`
+  toggle.
+- Constrain parameters with the `Useradd::*`, `Stdlib::*` or `Simplib::*`
+  types rather than bare `String`.
 - `Gemfile`, `spec/spec_helper.rb`, and `.github/workflows/pr_tests.yml` carry a
-  **puppetsync** notice — they are baseline-managed and the next sync overwrites
-  local edits. Push changes to those files upstream to the baseline, not here.
+  **puppetsync** notice — the next sync overwrites local edits. The Gemfile's
+  `observer` gem (needed by compliance_engine on Ruby 3.4) must also go to
+  the baseline.
 - Match the existing 2-space Puppet indentation and aligned-arrow /
   aligned-parameter style used throughout `manifests/`.

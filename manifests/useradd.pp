@@ -1,5 +1,8 @@
-# Install and configure the useradd default configuration file.
-# See useradd(8) for more details.
+# Manage settings in /etc/default/useradd
+#
+# See useradd(8) for more details. Each parameter manages the key of the same
+# name, upper-cased, editing the file in place. An unset parameter leaves its
+# key alone, and `absent` removes the key.
 #
 # @param group
 # @param home
@@ -8,24 +11,43 @@
 # @param shell
 # @param skel
 # @param create_mail_spool
+#   Written as `yes`/`no`.
+#
+# @param mode
+#   The mode of `/etc/default/useradd`, owned by `root:root`. Leaves the mode
+#   alone when unset.
+#
+# @param purge
+#   Remove every key the class doesn't set. Comments stay. Nothing is purged
+#   while no key is set.
 #
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::useradd (
-  Integer              $group             = 100,
-  Stdlib::AbsolutePath $home              = '/home',
-  Integer              $inactive          = 35,
-  Optional[
-    Pattern[/^\d{4}-\d{2}-\d{2}$/]
-  ]                    $expire            = undef,
-  Stdlib::AbsolutePath $shell             = '/bin/bash',
-  Stdlib::AbsolutePath $skel              = '/etc/skel',
-  Boolean              $create_mail_spool = true,
+  Optional[Variant[Integer, Enum['absent']]]                        $group             = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]           $home              = undef,
+  Optional[Variant[Integer, Enum['absent']]]                        $inactive          = undef,
+  Optional[Variant[Pattern[/^\d{4}-\d{2}-\d{2}$/], Enum['absent']]] $expire            = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]           $shell             = undef,
+  Optional[Variant[Stdlib::AbsolutePath, Enum['absent']]]           $skel              = undef,
+  Optional[Variant[Boolean, Enum['absent']]]                        $create_mail_spool = undef,
+  Optional[Stdlib::Filemode]                                        $mode              = undef,
+  Boolean                                                           $purge             = false,
 ) {
-  file { '/etc/default/useradd':
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0600',
-    content => template('useradd/etc/default/useradd.erb')
+  $_settings = {
+    'GROUP'             => $group,
+    'HOME'              => $home,
+    'INACTIVE'          => $inactive,
+    'EXPIRE'            => $expire,
+    'SHELL'             => $shell,
+    'SKEL'              => $skel,
+    'CREATE_MAIL_SPOOL' => $create_mail_spool,
+  }.filter |$key, $value| { $value =~ NotUndef }
+
+  useradd::settings { '/etc/default/useradd':
+    lens     => 'Shellvars.lns',
+    settings => $_settings,
+    mode     => $mode,
+    purge    => $purge,
   }
 }

@@ -1,0 +1,16 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+# Explicit site values. They sit above the compliance engine layer, so they
+# must win over the profile.
+useradd::login_defs::pass_max_days: 60
+# Deep-merged with the profile's securetty_entries.
+useradd::securetty_entries:
+  tty4:
+    ensure: absent
+  console: {}
+# A site turning off one of the profile's destructive toggles.
+useradd::purge_shells: false
+# Deep-merged with the profile's userdefaults_settings.
+useradd::libuser_conf::userdefaults_settings:
+  LU_GIDNUMBER: absent

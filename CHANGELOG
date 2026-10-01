@@ -1,3 +1,40 @@
+* Mon Sep 28 2026 Hazel Caballero <hazel@sicura.us> - 4.0.0
+- **BREAKING:** `include useradd` no longer manages anything. Enforce the
+  `simp:defaults` compliance profile to restore the 3.x behavior, or set the
+  parameters you need
+- **BREAKING:** `login.defs`, `/etc/default/useradd`, `/etc/default/nss`,
+  `/etc/libuser.conf` and `/etc/sysconfig/init` are edited in place, one key
+  per parameter; unset parameters leave their key alone and `absent` removes it
+- **BREAKING:** `/etc/securetty` and `/etc/shells` are edited per entry,
+  unless the deprecated `securetty`, `shells_default` or `shells` are set
+- **BREAKING:** `/etc/profile.d/simp.{sh,csh}` are replaced by one file per
+  setting, `simp:defaults` included, and the old files are always removed, by
+  a bare include too; set the `useradd::etc_profile` parameters, or enforce
+  `simp:defaults`, to keep the login settings
+- **BREAKING:** `useradd::passwd` manages only the files in
+  `useradd::passwd::files`
+- **BREAKING:** A value with a space or a leading quote that ends in a
+  backslash, or has one before both a `"` and a `'`, fails compilation;
+  augeas can't write it
+- **BREAKING:** `useradd::sysconfig_init` manages the emergency/rescue
+  drop-ins with plain `file` resources and its own `daemon-reload` exec, and
+  includes `systemd` only when `useradd::sysconfig_init::systemd` is `true`;
+  set it where another module declares a drop-in on those units
+- The `login.defs` UID/GID ranges are written only when set, directly or
+  through `simp_options::uid` and `simp_options::gid`, and are never purged
+- An empty or whitespace-only `login_defs` value is deprecated and skipped,
+  and the bare key line 3.x wrote for it is removed
+- Add `securetty_entries`, `shells_entries`, `purge_securetty`, `purge_shells`,
+  `securetty_mode` and `shells_mode`, and the `Useradd::EntryOptions` and
+  `Useradd::ListEntry` types
+- Add `useradd::libuser_conf::userdefaults_settings` and `groupdefaults_settings`
+- Add `mode` and `purge` to `login_defs`, `useradd`, `libuser_conf`, `nss` and
+  `sysconfig_init`, and `useradd::sysconfig_init::purge_dropins`
+- Require puppetlabs/stdlib 9.2.0 or later
+- Deprecate the `manage_*` parameters, `securetty`, `shells_default`,
+  `shells`, `useradd::etc_profile::manage_tmout`, and
+  `useradd::libuser_conf::userdefaults` and `groupdefaults`
+
 * Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 3.1.2
 - [puppetsync] Update metadata.json dependency ranges from the Forge
 
