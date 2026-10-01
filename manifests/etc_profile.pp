@@ -12,10 +12,11 @@
 # | `umask`           | `zz-simp-umask.sh`       | `zz-simp-umask.csh`      |
 # | `append`          | `zz-simp-z-append.sh`    | `zz-simp-z-append.csh`   |
 #
-# The names order the scripts so these settings win over the `simp.sh` and
-# `simp.csh` scripts written by useradd 3.x: `TMOUT` is read-only once set, so
-# its script runs first, and the others run last. `purge_legacy_simp_sh`
-# removes those old scripts.
+# `TMOUT` is read-only once set, so its script runs first, and the others run
+# last.
+#
+# The `simp.sh` and `simp.csh` scripts written by useradd 3.x are always
+# removed. While present, they would still apply the 3.x settings at login.
 #
 # @param session_timeout
 #   The number of *minutes* that a user may be idle prior to being
@@ -50,11 +51,6 @@
 # @param append
 #   Content for a script run after the others. See `prepend` for usage.
 #
-# @param purge_legacy_simp_sh
-#   Remove `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
-#   scripts useradd 3.x wrote. While they are present they still apply the
-#   3.x settings at login, including ones set to `absent` here.
-#
 # @param manage_tmout
 #   Deprecated: leave `session_timeout` unset instead. `false` stops managing
 #   the session timeout.
@@ -62,14 +58,13 @@
 # author: SIMP Team <simp@simp-project.com>
 #
 class useradd::etc_profile (
-  Optional[Variant[Integer, Enum['absent']]] $session_timeout      = undef,
-  Optional[String]                           $umask                = undef,
-  Optional[Variant[Boolean, Enum['absent']]] $mesg                 = undef,
-  Array                                      $user_whitelist       = [],
-  Hash                                       $prepend              = {},
-  Hash                                       $append               = {},
-  Boolean                                    $purge_legacy_simp_sh = false,
-  Optional[Boolean]                          $manage_tmout         = undef,
+  Optional[Variant[Integer, Enum['absent']]] $session_timeout = undef,
+  Optional[String]                           $umask           = undef,
+  Optional[Variant[Boolean, Enum['absent']]] $mesg            = undef,
+  Array                                      $user_whitelist  = [],
+  Hash                                       $prepend         = {},
+  Hash                                       $append          = {},
+  Optional[Boolean]                          $manage_tmout    = undef,
 ) {
   if $manage_tmout =~ NotUndef {
     deprecation('useradd::etc_profile::manage_tmout', 'useradd::etc_profile::manage_tmout is deprecated and will be removed in a future release. Leave useradd::etc_profile::session_timeout unset instead.', false)
@@ -80,20 +75,20 @@ class useradd::etc_profile (
     default => $session_timeout,
   }
 
-  $_mesg = $mesg ? {
+  $_mesg           = $mesg ? {
     true    => 'y',
     false   => 'n',
     default => $mesg,
   }
 
-  $_extra = {
+  $_extra          = {
     'simp-a-prepend.sh'     => $prepend['sh'],
     'zz-simp-a-prepend.csh' => $prepend['csh'],
     'zz-simp-z-append.sh'   => $append['sh'],
     'zz-simp-z-append.csh'  => $append['csh'],
   }.filter |$name, $content| { $content =~ NotUndef }.map |$name, $content| { [$name, String($content)] }.convert_to(Hash)
 
-  $_scripts = $_extra + {
+  $_scripts        = $_extra + {
     'simp-b-tmout.sh'        => $_session_timeout ? {
       Integer => "[ \$TMOUT ] || export TMOUT=${$_session_timeout * 60}\nreadonly TMOUT",
       default => $_session_timeout,
@@ -127,16 +122,7 @@ class useradd::etc_profile (
     }
   }
 
-  if $purge_legacy_simp_sh {
-    file { ['/etc/profile.d/simp.sh', '/etc/profile.d/simp.csh']:
-      ensure => 'absent',
-    }
-  }
-  elsif $facts['useradd_legacy_simp_sh'] {
-    $_twice = ($prepend + $append).filter |$ext, $content| { $ext in ['sh', 'csh'] and $content != 'absent' }
-
-    unless $_twice.empty {
-      warning('useradd::etc_profile: /etc/profile.d/simp.sh or simp.csh from useradd 3.x is still present, so prepend and append content may run twice at login. Set useradd::etc_profile::purge_legacy_simp_sh to true to remove the old scripts.')
-    }
+  file { ['/etc/profile.d/simp.sh', '/etc/profile.d/simp.csh']:
+    ensure => 'absent',
   }
 }

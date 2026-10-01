@@ -59,8 +59,8 @@ itself.
   `useradd::passwd::files` (Hash of path → owner/group/mode).
 - **`useradd::etc_profile`** — one `/etc/profile.d` file per setting via
   `useradd::etc_profile::script` (`simp-b-tmout.sh`, `zz-simp-umask.sh`,
-  ...), `simp:defaults` included. `purge_legacy_simp_sh: true` removes the
-  3.x `simp.sh`/`simp.csh`.
+  ...), `simp:defaults` included. The 3.x `simp.sh`/`simp.csh` are always
+  removed.
 - **`useradd::sysconfig_init`** — `/etc/sysconfig/init`, per-key augeas
   (`Shellvars.lns`), `mode`, `purge`; plus the emergency/rescue drop-ins when
   `single_user_login` is set on systemd hosts, with a refresh-only
@@ -76,9 +76,6 @@ itself.
 - `useradd::entry` / `useradd::entry::purge` — the same for
   one-entry-per-line files (securetty, shells).
 - `useradd::join` — joins Array values (e.g. `CONSOLE` with `:`).
-- Fact `useradd_legacy_simp_sh` (`lib/facter/`) — true when the 3.x
-  `simp.sh`/`simp.csh` are still present; drives a warning when
-  `prepend`/`append` would run twice.
 
 ## Gotchas / non-obvious details
 
@@ -149,7 +146,6 @@ OracleLinux 8/9/10; Rocky 8/9/10; AlmaLinux 8/9/10.
   `Useradd::LibuserModule`, `Useradd::ListEntry`, `Useradd::Tty`.
 - `data/common.yaml` + `hiera.yaml` — `lookup_options` (deep merge for the
   `*_entries` and `passwd::files` Hashes). No default values.
-- `lib/facter/useradd_legacy_simp_sh.rb` — the legacy-script fact.
 - `SIMP/compliance_profiles/` — the `simp:defaults` profile and checks.
 - `spec/classes/` — unit specs; `spec/fixtures/hieradata/` holds the
   compliance-engine Hiera fixtures.

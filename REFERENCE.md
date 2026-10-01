@@ -6,7 +6,7 @@
 
 ### Classes
 
-* [`useradd`](#useradd): Manage settings regarding users and user creation  A bare `include useradd` manages nothing. Each setting is managed only when its parameter 
+* [`useradd`](#useradd): Manage settings regarding users and user creation  A bare `include useradd` manages nothing except removing the `/etc/profile.d/simp.sh` and 
 * [`useradd::etc_profile`](#useradd--etc_profile): Manage login settings for all users with scripts in /etc/profile.d  Each setting is written to its own pair of `sh` and `csh` scripts, so it 
 * [`useradd::libuser_conf`](#useradd--libuser_conf): Manage settings in /etc/libuser.conf  See libuser.conf(5) for information on the various variables. Each parameter manages one key, editing t
 * [`useradd::login_defs`](#useradd--login_defs): Manage settings in /etc/login.defs  Each parameter manages the login.defs key of the same name, upper-cased, editing the file in place. An un
@@ -48,8 +48,9 @@
 
 Manage settings regarding users and user creation
 
-A bare `include useradd` manages nothing. Each setting is managed only when
-its parameter is set. To restore the behavior of useradd 3.x, enforce the
+A bare `include useradd` manages nothing except removing the
+`/etc/profile.d/simp.sh` and `simp.csh` scripts written by useradd 3.x. Each
+setting is managed only when its parameter is set. To restore the behavior of useradd 3.x, enforce the
 `simp:defaults` compliance profile:
 
   compliance_engine::enforcement:
@@ -253,10 +254,11 @@ alone, and `absent` removes them.
 | `umask`           | `zz-simp-umask.sh`       | `zz-simp-umask.csh`      |
 | `append`          | `zz-simp-z-append.sh`    | `zz-simp-z-append.csh`   |
 
-The names order the scripts so these settings win over the `simp.sh` and
-`simp.csh` scripts written by useradd 3.x: `TMOUT` is read-only once set, so
-its script runs first, and the others run last. `purge_legacy_simp_sh`
-removes those old scripts.
+`TMOUT` is read-only once set, so its script runs first, and the others run
+last.
+
+The `simp.sh` and `simp.csh` scripts written by useradd 3.x are always
+removed. While present, they would still apply the 3.x settings at login.
 
 author: SIMP Team <simp@simp-project.com>
 
@@ -270,7 +272,6 @@ The following parameters are available in the `useradd::etc_profile` class:
 * [`user_whitelist`](#-useradd--etc_profile--user_whitelist)
 * [`prepend`](#-useradd--etc_profile--prepend)
 * [`append`](#-useradd--etc_profile--append)
-* [`purge_legacy_simp_sh`](#-useradd--etc_profile--purge_legacy_simp_sh)
 * [`manage_tmout`](#-useradd--etc_profile--manage_tmout)
 
 ##### <a name="-useradd--etc_profile--session_timeout"></a>`session_timeout`
@@ -335,16 +336,6 @@ Data type: `Hash`
 Content for a script run after the others. See `prepend` for usage.
 
 Default value: `{}`
-
-##### <a name="-useradd--etc_profile--purge_legacy_simp_sh"></a>`purge_legacy_simp_sh`
-
-Data type: `Boolean`
-
-Remove `/etc/profile.d/simp.sh` and `/etc/profile.d/simp.csh`, the
-scripts useradd 3.x wrote. While they are present they still apply the
-3.x settings at login, including ones set to `absent` here.
-
-Default value: `false`
 
 ##### <a name="-useradd--etc_profile--manage_tmout"></a>`manage_tmout`
 

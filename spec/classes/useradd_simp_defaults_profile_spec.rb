@@ -143,8 +143,10 @@ describe 'useradd' do
 
     it { is_expected.to compile.with_all_deps }
 
-    it 'manages nothing' do
-      expect(catalogue.resources.select { |r| ['File', 'Augeas', 'Exec'].include?(r.type) }.map(&:ref)).to eq([])
+    it 'manages nothing but the removal of the 3.x login scripts' do
+      expect(catalogue.resources.select { |r| ['File', 'Augeas', 'Exec'].include?(r.type) }.map(&:ref)).to contain_exactly(
+        'File[/etc/profile.d/simp.sh]', 'File[/etc/profile.d/simp.csh]'
+      )
     end
   end
 

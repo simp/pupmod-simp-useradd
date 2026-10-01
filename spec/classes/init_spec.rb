@@ -4,8 +4,11 @@ describe 'useradd' do
   # Every resource type the module can declare to change a node.
   MANAGING_TYPES = ['File', 'Augeas', 'Exec'].freeze
 
+  # The 3.x login scripts, which are always removed.
+  LEGACY_SCRIPTS = ['File[/etc/profile.d/simp.sh]', 'File[/etc/profile.d/simp.csh]'].freeze
+
   def managing_resources
-    catalogue.resources.select { |r| MANAGING_TYPES.include?(r.type) }
+    catalogue.resources.select { |r| MANAGING_TYPES.include?(r.type) && !LEGACY_SCRIPTS.include?(r.ref) }
   end
 
   on_supported_os.each do |os, os_facts|
@@ -19,9 +22,12 @@ describe 'useradd' do
           it { is_expected.to contain_class("useradd::#{klass}") }
         end
 
-        it 'manages nothing' do
+        it 'manages nothing but the removal of the 3.x login scripts' do
           expect(managing_resources.map(&:ref)).to eq([])
         end
+
+        it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_ensure('absent') }
+        it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_ensure('absent') }
       end
     end
   end
@@ -189,6 +195,13 @@ describe 'useradd' do
       let(:params) { { shells_entries: { "/bin/a'b" => {} } } }
 
       it { is_expected.to compile.and_raise_error(%r{expects a match for Useradd::ListEntry}) }
+    end
+
+    context 'with manage_etc_profile => false' do
+      let(:params) { { manage_etc_profile: false } }
+
+      it { is_expected.not_to contain_file('/etc/profile.d/simp.sh') }
+      it { is_expected.not_to contain_file('/etc/profile.d/simp.csh') }
     end
 
     context 'with manage_login_defs => false' do

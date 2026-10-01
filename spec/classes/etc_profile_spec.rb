@@ -7,7 +7,9 @@ describe 'useradd::etc_profile' do
 
   context 'with default parameters' do
     it { is_expected.to compile.with_all_deps }
-    it { expect(catalogue.resources.select { |r| r.type == 'File' }).to be_empty }
+    it { expect(catalogue.resources.select { |r| r.type == 'File' }.map(&:ref)).to contain_exactly('File[/etc/profile.d/simp.sh]', 'File[/etc/profile.d/simp.csh]') }
+    it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_ensure('absent') }
+    it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_ensure('absent') }
   end
 
   context 'with every setting' do
@@ -31,7 +33,7 @@ describe 'useradd::etc_profile' do
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-mesg.csh').with_content("#{HEADER}tty -s\nif ( $? == 0 ) mesg n\n") }
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-umask.sh').with_content("#{HEADER}umask 0077\n") }
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-umask.csh').with_content("#{HEADER}umask 0077\n") }
-    it { is_expected.not_to contain_file('/etc/profile.d/simp.sh') }
+    it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_ensure('absent') }
   end
 
   context 'with a setting absent' do
@@ -75,23 +77,6 @@ describe 'useradd::etc_profile' do
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-a-prepend.csh').with_ensure('absent') }
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-z-append.sh').with_content("#{HEADER}echo post\n") }
     it { is_expected.to contain_file('/etc/profile.d/zz-simp-z-append.csh').with_content("#{HEADER}echo cpost\n") }
-    it { expect(catalogue.resources.count { |r| r.type == 'File' }).to eq(4) }
-  end
-
-  context 'with purge_legacy_simp_sh => true' do
-    let(:params) { { purge_legacy_simp_sh: true, session_timeout: 15 } }
-
-    it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_ensure('absent') }
-    it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_ensure('absent') }
-    it { is_expected.to contain_file('/etc/profile.d/simp-b-tmout.sh').with_ensure('file') }
-  end
-
-  context 'with a leftover simp.sh and prepend set' do
-    let(:facts) { on_supported_os.first[1].merge(useradd_legacy_simp_sh: true) }
-    let(:params) { { prepend: { 'sh' => 'echo pre' } } }
-
-    it { is_expected.to compile.with_all_deps }
-    it { is_expected.not_to contain_file('/etc/profile.d/simp.sh') }
-    it { is_expected.to contain_file('/etc/profile.d/simp-a-prepend.sh') }
+    it { expect(catalogue.resources.count { |r| r.type == 'File' }).to eq(6) }
   end
 end

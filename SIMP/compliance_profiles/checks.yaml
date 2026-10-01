@@ -367,11 +367,6 @@ checks:
     settings:
       parameter: useradd::etc_profile::mesg
       value: false
-  simp:defaults.useradd.etc_profile.purge_legacy_simp_sh:
-    type: puppet-class-parameter
-    settings:
-      parameter: useradd::etc_profile::purge_legacy_simp_sh
-      value: true
   simp:defaults.useradd.sysconfig_init.single_user_login:
     type: puppet-class-parameter
     settings:

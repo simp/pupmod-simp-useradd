@@ -32,6 +32,13 @@ describe 'useradd class' do
           apply_manifest_on(host, manifest, catch_changes: true)
           expect(on(host, UseraddTestUtil::STATE_CMD).stdout).to eq(before)
         end
+
+        it 'removes the 3.x login scripts' do
+          on(host, 'echo "umask 0022" > /etc/profile.d/simp.sh && echo "umask 0022" > /etc/profile.d/simp.csh')
+          apply_manifest_on(host, manifest, catch_failures: true)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          on(host, 'test ! -e /etc/profile.d/simp.sh && test ! -e /etc/profile.d/simp.csh')
+        end
       end
 
       # A single setting enforced alone, then un-enforced, then removed.

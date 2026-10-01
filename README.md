@@ -24,7 +24,9 @@
 ### A bare include manages nothing
 
 `include useradd` no longer writes any file. Each setting is managed only when
-its parameter is set, and an unset parameter leaves the system alone.
+its parameter is set, and an unset parameter leaves the system alone. The one
+exception: the 3.x `/etc/profile.d/simp.sh` and `simp.csh` are removed (see
+[Login scripts](#login-scripts)).
 
 To get the 3.x behavior back, either:
 
@@ -92,11 +94,10 @@ drop-ins with plain `file` resources and its own `daemon-reload`.
 `/etc/profile.d/simp.sh` and `simp.csh` are replaced by one file per setting
 (`simp-b-tmout.sh`, `zz-simp-umask.sh`, and so on), `simp:defaults` included.
 
-* `useradd::etc_profile::purge_legacy_simp_sh: true` removes the old files.
-  `simp:defaults` sets it.
-* Otherwise they are left alone, and still apply their settings at login,
-  including ones you set to `absent`. If you set `prepend` or `append`, that
-  content runs twice, and the module warns.
+* The old files are always removed, by a bare include too, unless
+  `useradd::manage_etc_profile` is `false`. Set the `useradd::etc_profile`
+  parameters, or enforce `simp:defaults`, to keep `TMOUT`, `umask` and `mesg`
+  at login.
 * The csh `prepend` now runs after the other `/etc/profile.d` csh scripts
   that sort after `simp.csh`.
 * A `prepend` that returns early no longer skips the other settings.

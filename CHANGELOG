@@ -8,8 +8,9 @@
 - **BREAKING:** `/etc/securetty` and `/etc/shells` are edited per entry,
   unless the deprecated `securetty`, `shells_default` or `shells` are set
 - **BREAKING:** `/etc/profile.d/simp.{sh,csh}` are replaced by one file per
-  setting, `simp:defaults` included; `useradd::etc_profile::purge_legacy_simp_sh`
-  removes the old files
+  setting, `simp:defaults` included, and the old files are always removed, by
+  a bare include too; set the `useradd::etc_profile` parameters, or enforce
+  `simp:defaults`, to keep the login settings
 - **BREAKING:** `useradd::passwd` manages only the files in
   `useradd::passwd::files`
 - **BREAKING:** A value with a space or a leading quote that ends in a
@@ -29,7 +30,6 @@
 - Add `useradd::libuser_conf::userdefaults_settings` and `groupdefaults_settings`
 - Add `mode` and `purge` to `login_defs`, `useradd`, `libuser_conf`, `nss` and
   `sysconfig_init`, and `useradd::sysconfig_init::purge_dropins`
-- Add the `useradd_legacy_simp_sh` fact
 - Require puppetlabs/stdlib 9.2.0 or later
 - Deprecate the `manage_*` parameters, `securetty`, `shells_default`,
   `shells`, `useradd::etc_profile::manage_tmout`, and

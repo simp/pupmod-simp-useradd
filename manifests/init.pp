@@ -1,7 +1,8 @@
 # Manage settings regarding users and user creation
 #
-# A bare `include useradd` manages nothing. Each setting is managed only when
-# its parameter is set. To restore the behavior of useradd 3.x, enforce the
+# A bare `include useradd` manages nothing except removing the
+# `/etc/profile.d/simp.sh` and `simp.csh` scripts written by useradd 3.x. Each
+# setting is managed only when its parameter is set. To restore the behavior of useradd 3.x, enforce the
 # `simp:defaults` compliance profile:
 #
 #   compliance_engine::enforcement:
