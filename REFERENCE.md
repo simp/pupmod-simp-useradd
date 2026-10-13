@@ -6,13 +6,13 @@
 
 ### Classes
 
-* [`useradd`](#useradd): Manage settings regarding users and user creation  A bare `include useradd` manages nothing except removing the `/etc/profile.d/simp.sh` and 
-* [`useradd::etc_profile`](#useradd--etc_profile): Manage login settings for all users with scripts in /etc/profile.d  Each setting is written to its own pair of `sh` and `csh` scripts, so it 
+* [`useradd`](#useradd): Manage settings regarding users and user creation  A bare `include useradd` manages nothing except removing the `/etc/profile.d/simp.sh` and
+* [`useradd::etc_profile`](#useradd--etc_profile): Manage login settings for all users with scripts in /etc/profile.d  Each setting is written to its own pair of `sh` and `csh` scripts, so it
 * [`useradd::libuser_conf`](#useradd--libuser_conf): Manage settings in /etc/libuser.conf  See libuser.conf(5) for information on the various variables. Each parameter manages one key, editing t
 * [`useradd::login_defs`](#useradd--login_defs): Manage settings in /etc/login.defs  Each parameter manages the login.defs key of the same name, upper-cased, editing the file in place. An un
-* [`useradd::nss`](#useradd--nss): Manage settings in /etc/default/nss  Read by `libnss_nis`. Each parameter manages the key of the same name, upper-cased, editing the file in 
+* [`useradd::nss`](#useradd--nss): Manage settings in /etc/default/nss  Read by `libnss_nis`. Each parameter manages the key of the same name, upper-cased, editing the file in
 * [`useradd::passwd`](#useradd--passwd): Manage the ownership and permissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
-* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Manage settings in /etc/sysconfig/init, and the shell run by the emergency and rescue targets  Each display parameter manages the key of the 
+* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Manage settings in /etc/sysconfig/init, and the shell run by the emergency and rescue targets  Each display parameter manages the key of the
 * [`useradd::useradd`](#useradd--useradd): Manage settings in /etc/default/useradd  See useradd(8) for more details. Each parameter manages the key of the same name, upper-cased, editi
 
 ### Defined types
@@ -1686,4 +1686,3 @@ Alias of `Pattern[/\A[^\s#'"\\]+\z/]`
 A tty name, as listed in `/etc/securetty`
 
 Alias of `Useradd::ListEntry`
-
