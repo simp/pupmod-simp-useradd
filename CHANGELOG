@@ -1,3 +1,10 @@
+* Sat Oct 17 2026 Steven Pritchard <steve@sicura.us> - 4.2.0
+- Add support for Ubuntu 22.04 and 24.04
+- On Ubuntu, the `simp:defaults` profile doesn't set the
+  `useradd::sysconfig_init` parameters, `useradd::passwd::files`,
+  `useradd::login_defs::purge`, `useradd::shells_entries` or
+  `useradd::purge_shells`, which would break or strip a stock Ubuntu system
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 4.1.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge

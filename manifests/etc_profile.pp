@@ -15,6 +15,9 @@
 # `TMOUT` is read-only once set, so its script runs first, and the others run
 # last.
 #
+# On Ubuntu, `/etc/profile` reads the `sh` scripts for login shells only, and
+# csh and tcsh don't read `/etc/profile.d` by default.
+#
 # The `simp.sh` and `simp.csh` scripts written by useradd 3.x are always
 # removed. While present, they would still apply the 3.x settings at login.
 #

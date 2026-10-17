@@ -142,6 +142,7 @@ This module is optimally designed for use within a larger SIMP ecosystem, but it
 ### What useradd affects
 
 This module can configure:
+  * `/etc/default/nss`
   * `/etc/default/useradd`
   * `/etc/group`
   * `/etc/group-`
@@ -156,6 +157,7 @@ This module can configure:
   * `/etc/shadow`
   * `/etc/shadow-`
   * `/etc/shells`
+  * `/etc/sysconfig/init`
   * `/etc/systemd/system/{emergency,rescue}.service.d/`
 
 
@@ -215,7 +217,34 @@ As of version 1.0.0, this module will no longer manage `/etc/security/opasswd`. 
 
 ## Limitations
 
-SIMP Puppet modules are generally intended for use on Red Hat Enterprise Linux and compatible distributions, such as CentOS. Please see the [`metadata.json` file](./metadata.json) for the most up-to-date list of supported operating systems, Puppet versions, and module dependencies.
+SIMP Puppet modules are generally intended for use on Red Hat Enterprise Linux and compatible distributions, such as CentOS. This module also supports Ubuntu 22.04 and 24.04. Please see the [`metadata.json` file](./metadata.json) for the most up-to-date list of supported operating systems, Puppet versions, and module dependencies.
+
+### Ubuntu
+
+The classes edit the same files on EL and Ubuntu, with these differences:
+
+| Class | On Ubuntu |
+|-------|-----------|
+| `useradd::login_defs` | Works. `pam_umask` applies `UMASK` to login sessions. |
+| `useradd::useradd` | Works. `INACTIVE` is the value `useradd -D -f` sets. |
+| `useradd::passwd` | Works. Ubuntu's `/etc/shadow` and `/etc/gshadow` are `root:shadow` `0640`, and `unix_chkpwd` needs to read them through the `shadow` group. |
+| `useradd::etc_profile` | Works. `/etc/profile` reads the `sh` scripts for login shells only, and csh and tcsh don't read `/etc/profile.d` by default. |
+| `useradd` (`/etc/shells`, `/etc/securetty`) | Works. Ubuntu ships no `/etc/securetty`, and its PAM configuration doesn't use `pam_securetty`, so the entries have no effect. |
+| `useradd::nss` | Works. Ubuntu ships no `/etc/default/nss`; setting a key creates it. |
+| `useradd::libuser_conf` | libuser isn't installed by default; setting a key creates `/etc/libuser.conf`. |
+| `useradd::sysconfig_init` | EL only. `/etc/sysconfig/init` doesn't exist, so any key the class sets fails to apply, `SINGLE` from `single_user_login` included. |
+
+On Ubuntu, the `simp:defaults` profile leaves out these 3.x settings, which
+would break or strip parts of a stock Ubuntu system:
+
+* every `useradd::sysconfig_init` parameter;
+* `useradd::passwd::files`, which made `/etc/shadow` and `/etc/gshadow`
+  `root:root` `0000`;
+* `useradd::login_defs::purge`, which would remove the `login.defs` settings
+  Ubuntu ships that the profile doesn't set, such as `HOME_MODE`, `ENV_PATH`
+  and the `SUB_UID_*`/`SUB_GID_*` ranges;
+* `useradd::shells_entries` and `useradd::purge_shells`, whose EL list would
+  replace the shells Ubuntu registers, such as `dash` and `rbash`.
 
 
 ## Development

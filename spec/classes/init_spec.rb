@@ -1,4 +1,5 @@
 require 'spec_helper'
+require_relative '../support/supported_os'
 
 describe 'useradd' do
   # Every resource type the module can declare to change a node.
@@ -11,7 +12,7 @@ describe 'useradd' do
     catalogue.resources.select { |r| MANAGING_TYPES.include?(r.type) && !LEGACY_SCRIPTS.include?(r.ref) }
   end
 
-  on_supported_os.each do |os, os_facts|
+  supported_os_facts.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) { os_facts }
 
@@ -28,6 +29,49 @@ describe 'useradd' do
 
         it { is_expected.to contain_file('/etc/profile.d/simp.sh').with_ensure('absent') }
         it { is_expected.to contain_file('/etc/profile.d/simp.csh').with_ensure('absent') }
+      end
+
+      # The account settings the DISA STIGs set, written to the same files on
+      # EL and Ubuntu.
+      context 'with the STIG account settings' do
+        let(:pre_condition) do
+          <<~PP
+            class { 'useradd::login_defs':
+              encrypt_method => 'SHA512',
+              pass_min_days  => 1,
+              pass_max_days  => 60,
+              umask          => '077',
+            }
+            class { 'useradd::useradd':
+              inactive => 35,
+            }
+          PP
+        end
+
+        it { is_expected.to compile.with_all_deps }
+
+        {
+          'ENCRYPT_METHOD' => 'SHA512',
+          'PASS_MIN_DAYS' => '1',
+          'PASS_MAX_DAYS' => '60',
+          'UMASK' => '077',
+        }.each do |key, value|
+          it {
+            is_expected.to contain_augeas("/etc/login.defs #{key}").with(
+              incl: '/etc/login.defs',
+              lens: 'Login_defs.lns',
+              changes: ["rm #{key}[position() > 1]", "set #{key} \"#{value}\""],
+            )
+          }
+        end
+
+        it {
+          is_expected.to contain_augeas('/etc/default/useradd INACTIVE').with(
+            incl: '/etc/default/useradd',
+            lens: 'Shellvars.lns',
+            changes: ['rm INACTIVE[position() > 1]', 'set INACTIVE "35"'],
+          )
+        }
       end
     end
   end

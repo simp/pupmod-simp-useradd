@@ -5,6 +5,10 @@
 # manages `LOGLEVEL`), editing the file in place. An unset parameter leaves its
 # key alone, and `absent` removes the key.
 #
+# `/etc/sysconfig/init` exists only on EL. On Ubuntu, any key this class sets,
+# `SINGLE` from `single_user_login` included, fails to apply because the
+# directory doesn't exist.
+#
 # @param single_user_login
 #   The command `emergency.service` and `rescue.service` run, written to a
 #   systemd drop-in for each, and to `SINGLE`. `absent` removes the drop-ins
