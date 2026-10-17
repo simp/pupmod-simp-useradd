@@ -257,6 +257,9 @@ alone, and `absent` removes them.
 `TMOUT` is read-only once set, so its script runs first, and the others run
 last.
 
+On Ubuntu, `/etc/profile` reads the `sh` scripts for login shells only, and
+csh and tcsh don't read `/etc/profile.d` by default.
+
 The `simp.sh` and `simp.csh` scripts written by useradd 3.x are always
 removed. While present, they would still apply the 3.x settings at login.
 
@@ -355,6 +358,9 @@ manages one key, editing the file in place: `defaults_*` the `[defaults]`
 section, `files_*` the `[files]` section, and so on. An unset parameter
 leaves its key alone, and `absent` removes the key. Booleans are written as
 `yes`/`no`.
+
+On Ubuntu, libuser isn't installed by default, and setting a key creates
+`/etc/libuser.conf`, which only the optional `libuser` package reads.
 
 With both `defaults_modules` and `defaults_create_modules` set, as in 3.x,
 the `files_*`, `shadow_*` and `ldap_*` keys are written only when their
@@ -1235,7 +1241,7 @@ Default value: `simplib::lookup('simp_options::uid::min', { 'default_value' => u
 
 Data type: `Optional[Variant[String, Enum['absent']]]`
 
-
+On Ubuntu, `pam_umask` applies it to login sessions.
 
 Default value: `undef`
 
@@ -1391,6 +1397,10 @@ and rescue targets
 Each display parameter manages the key of the same name, upper-cased (`loglvl`
 manages `LOGLEVEL`), editing the file in place. An unset parameter leaves its
 key alone, and `absent` removes the key.
+
+`/etc/sysconfig/init` exists only on EL. On Ubuntu, any key this class sets,
+`SINGLE` from `single_user_login` included, fails to apply because the
+directory doesn't exist.
 
 author: SIMP Team <simp@simp-project.com>
 

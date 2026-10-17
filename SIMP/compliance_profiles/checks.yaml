@@ -5,6 +5,12 @@
 #     - simp:defaults
 #
 # Values set in site Hiera take precedence over these.
+#
+# Checks confined to os.family RedHat restore 3.x behavior that is wrong on
+# Ubuntu: /etc/sysconfig/init doesn't exist there, /etc/shadow and
+# /etc/gshadow must stay readable by the setgid-shadow helpers, and purging
+# login.defs or /etc/shells would remove settings and shells Ubuntu ships
+# that this profile doesn't restore.
 version: 2.0.0
 checks:
   simp:defaults.useradd.securetty_entries:
@@ -38,11 +44,15 @@ checks:
         /usr/bin/sh: {}
         /usr/bin/bash: {}
         /usr/sbin/nologin: {}
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.purge_shells:
     type: puppet-class-parameter
     settings:
       parameter: useradd::purge_shells
       value: true
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.shells_mode:
     type: puppet-class-parameter
     settings:
@@ -223,6 +233,8 @@ checks:
     settings:
       parameter: useradd::login_defs::purge
       value: true
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.useradd.group:
     type: puppet-class-parameter
     settings:
@@ -352,6 +364,8 @@ checks:
           owner: root
           group: root
           mode: '0000'
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.etc_profile.session_timeout:
     type: puppet-class-parameter
     settings:
@@ -372,71 +386,99 @@ checks:
     settings:
       parameter: useradd::sysconfig_init::single_user_login
       value: /sbin/sulogin
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.purge:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::purge
       value: true
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.systemd:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::systemd
       value: true
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.bootup:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::bootup
       value: color
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.res_col:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::res_col
       value: 60
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.move_to_col:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::move_to_col
       value: '"echo -en \\033[${RES_COL}G"'
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.setcolor_success:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::setcolor_success
       value: green
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.setcolor_failure:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::setcolor_failure
       value: red
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.setcolor_warning:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::setcolor_warning
       value: yellow
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.setcolor_normal:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::setcolor_normal
       value: default
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.loglvl:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::loglvl
       value: 3
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.prompt:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::prompt
       value: false
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.autoswap:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::autoswap
       value: false
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.sysconfig_init.mode:
     type: puppet-class-parameter
     settings:
       parameter: useradd::sysconfig_init::mode
       value: '0644'
+    confine:
+      os.family: RedHat
   simp:defaults.useradd.nss.netid_authoritative:
     type: puppet-class-parameter
     settings:

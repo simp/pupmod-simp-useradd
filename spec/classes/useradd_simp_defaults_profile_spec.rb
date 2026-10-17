@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'yaml'
+require_relative '../support/supported_os'
 
 # Tests the `simp:defaults` compliance profile end to end: with
 # `compliance_engine::enforcement: [simp:defaults]` in Hiera, the otherwise
@@ -15,6 +16,14 @@ describe 'useradd' do
 
   def self.checks
     YAML.safe_load_file(File.join(profile_dir, 'checks.yaml'))['checks']
+  end
+
+  # Whether the check's `confine` matches the facts, comparing each dotted
+  # fact path with its value.
+  def self.applies?(check, facts)
+    (check['confine'] || {}).all? do |path, value|
+      facts.dig(*path.split('.').map(&:to_sym)).to_s == value.to_s
+    end
   end
 
   let(:hiera_config) do
@@ -66,19 +75,29 @@ describe 'useradd' do
   end
 
   # ---------------------------------------------------------------------------
-  # Enforced, no overrides: reproduces the 3.x catalogue.
+  # Enforced, no overrides: reproduces the 3.x catalogue, except for the
+  # checks confined to EL on Ubuntu.
   # ---------------------------------------------------------------------------
   context 'when enforcing simp:defaults' do
-    on_supported_os.each do |os, os_facts|
+    supported_os_facts.each do |os, os_facts|
       context "on #{os}" do
         let(:facts) { os_facts.merge(custom_hiera: 'simp_defaults_enforced', init_systems: ['systemd']) }
+
+        redhat = os_facts[:os][:family] == 'RedHat'
 
         it { is_expected.to compile.with_all_deps }
 
         checks.each_value do |check|
-          it "sets #{check['settings']['parameter']}" do
-            klass, _, name = check['settings']['parameter'].rpartition('::')
-            is_expected.to contain_class(klass).with(name => check['settings']['value'])
+          if applies?(check, os_facts)
+            it "sets #{check['settings']['parameter']}" do
+              klass, _, name = check['settings']['parameter'].rpartition('::')
+              is_expected.to contain_class(klass).with(name => check['settings']['value'])
+            end
+          else
+            it "leaves #{check['settings']['parameter']} unset" do
+              klass, _, name = check['settings']['parameter'].rpartition('::')
+              expect(catalogue.resource('Class', klass)[name]).not_to eq(check['settings']['value'])
+            end
           end
         end
 
@@ -90,16 +109,29 @@ describe 'useradd' do
           is_expected.to contain_file('/etc/securetty').with_mode('0400')
         end
 
-        it 'restores the shells and purges the rest' do
-          is_expected.to contain_augeas('/etc/shells /bin/bash')
-          is_expected.to contain_augeas('/etc/shells purge')
-          is_expected.to contain_file('/etc/shells').with(owner: 'root', group: 'root', mode: '0644')
-        end
+        if redhat
+          it 'restores the shells and purges the rest' do
+            is_expected.to contain_augeas('/etc/shells /bin/bash')
+            is_expected.to contain_augeas('/etc/shells purge')
+            is_expected.to contain_file('/etc/shells').with(owner: 'root', group: 'root', mode: '0644')
+          end
 
-        it 'restores login.defs' do
-          is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS')
-          is_expected.to contain_augeas('/etc/login.defs purge 0')
-          is_expected.to contain_file('/etc/login.defs').with_mode('0640')
+          it 'restores login.defs' do
+            is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS')
+            is_expected.to contain_augeas('/etc/login.defs purge 0')
+            is_expected.to contain_file('/etc/login.defs').with_mode('0640')
+          end
+        else
+          it 'leaves the shells Ubuntu ships alone' do
+            expect(catalogue.resources.select { |r| r.type == 'Augeas' && r.title.start_with?('/etc/shells') }).to be_empty
+            is_expected.to contain_file('/etc/shells').with(owner: 'root', group: 'root', mode: '0644')
+          end
+
+          it 'restores login.defs without purging it' do
+            is_expected.to contain_augeas('/etc/login.defs PASS_MAX_DAYS')
+            is_expected.not_to contain_augeas('/etc/login.defs purge 0')
+            is_expected.to contain_file('/etc/login.defs').with_mode('0640')
+          end
         end
 
         it 'restores /etc/default/useradd' do
@@ -113,9 +145,16 @@ describe 'useradd' do
           is_expected.to contain_file('/etc/libuser.conf').with_mode('0644')
         end
 
-        it 'restores the passwd file permissions' do
-          is_expected.to contain_file('/etc/shadow').with(owner: 'root', group: 'root', mode: '0000')
-          is_expected.to contain_file('/etc/passwd').with(owner: 'root', group: 'root', mode: '0644')
+        if redhat
+          it 'restores the passwd file permissions' do
+            is_expected.to contain_file('/etc/shadow').with(owner: 'root', group: 'root', mode: '0000')
+            is_expected.to contain_file('/etc/passwd').with(owner: 'root', group: 'root', mode: '0644')
+          end
+        else
+          it 'leaves the passwd file permissions alone' do
+            is_expected.not_to contain_file('/etc/shadow')
+            is_expected.not_to contain_file('/etc/passwd')
+          end
         end
 
         it 'writes the login settings and removes the 3.x scripts' do
@@ -127,9 +166,18 @@ describe 'useradd' do
           is_expected.to contain_file('/etc/profile.d/simp.csh').with_ensure('absent')
         end
 
-        it 'restores the single-user login drop-ins' do
-          is_expected.to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf').with_content(%r{/sbin/sulogin})
-          is_expected.to contain_class('systemd')
+        if redhat
+          it 'restores the single-user login drop-ins' do
+            is_expected.to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf').with_content(%r{/sbin/sulogin})
+            is_expected.to contain_class('systemd')
+          end
+        else
+          it 'leaves /etc/sysconfig/init and the single-user login alone' do
+            expect(catalogue.resources.select { |r| r.type == 'Augeas' && r.title.start_with?('/etc/sysconfig/init') }).to be_empty
+            is_expected.not_to contain_file('/etc/sysconfig/init')
+            is_expected.not_to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf')
+            is_expected.not_to contain_class('systemd')
+          end
         end
       end
     end

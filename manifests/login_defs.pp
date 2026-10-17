@@ -73,6 +73,7 @@
 # @param uid_min
 #   Defaults to `simp_options::uid::min`, when set.
 # @param umask
+#   On Ubuntu, `pam_umask` applies it to login sessions.
 # @param ulimit
 # @param userdel_cmd
 # @param usergroups_enab
