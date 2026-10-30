@@ -6,6 +6,9 @@
 # leaves its key alone, and `absent` removes the key. Booleans are written as
 # `yes`/`no`.
 #
+# On Ubuntu, libuser isn't installed by default, and setting a key creates
+# `/etc/libuser.conf`, which only the optional `libuser` package reads.
+#
 # With both `defaults_modules` and `defaults_create_modules` set, as in 3.x,
 # the `files_*`, `shadow_*` and `ldap_*` keys are written only when their
 # section is in `defaults_create_modules` and not in `defaults_modules`.
