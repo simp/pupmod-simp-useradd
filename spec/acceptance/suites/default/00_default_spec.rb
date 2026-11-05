@@ -249,14 +249,16 @@ describe 'useradd class' do
         end
       end
 
-      # The drop-ins exactly as 3.x wrote them through systemd::dropin_file.
+      # The drop-ins exactly as 3.x wrote them through systemd::dropin_file,
+      # in directories with the mode puppet/systemd 11 enforces. `mkdir`
+      # alone would follow the runner's umask.
       context 'with the 3.x single-user login drop-ins' do
         let(:dropin) { '/etc/systemd/system/rescue.service.d/rescue_exec.conf' }
 
         before(:all) do
           ['emergency', 'rescue'].each do |unit|
             on(host, <<~CMD)
-              rm -rf /etc/systemd/system/#{unit}.service.d && mkdir /etc/systemd/system/#{unit}.service.d
+              rm -rf /etc/systemd/system/#{unit}.service.d && mkdir -m 0755 /etc/systemd/system/#{unit}.service.d
               printf '[Service]\\nExecStart=\\nExecStart=-/bin/sh -c "/sbin/sulogin; /usr/bin/systemctl --fail --no-block default"\\n' > /etc/systemd/system/#{unit}.service.d/#{unit}_exec.conf
               chmod 0444 /etc/systemd/system/#{unit}.service.d/#{unit}_exec.conf
             CMD
