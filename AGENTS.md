@@ -63,8 +63,10 @@ itself.
   removed.
 - **`useradd::sysconfig_init`** — `/etc/sysconfig/init`, per-key augeas
   (`Shellvars.lns`), `mode`, `purge`; plus the emergency/rescue drop-ins when
-  `single_user_login` is set on systemd hosts, with a refresh-only
-  `daemon-reload` exec. Includes `systemd` only when `systemd => true`.
+  `single_user_login` is set on systemd hosts. Includes `systemd` only when
+  `systemd => true`; then the drop-ins are `systemd::dropin_file` resources,
+  unless `purge_dropins` differs from `systemd::purge_dropin_dirs`. Otherwise
+  they're plain `file` resources with a refresh-only `daemon-reload` exec.
 - **`useradd::nss`** — `/etc/default/nss`, per-key augeas (`Shellvars.lns`),
   `mode`, `purge`.
 
@@ -92,8 +94,9 @@ itself.
 - **Deprecations use `deprecation(key, msg, false)`**, which never fails
   compilation under `strict=error`. Don't use `warning()` for them. The
   third argument needs stdlib 9.2.0.
-- **The drop-in directories are declared with `ensure_resource`** and the
-  same attributes as `systemd::dropin_file`, so both can declare them. Keep
+- **Without `systemd::dropin_file`, the drop-in directories are declared with
+  `ensure_resource`** and the same attributes as `systemd::dropin_file`
+  (`mode => '0755'` since puppet/systemd 11), so both can declare them. Keep
   them in sync with puppet/systemd.
 - **A type alias can't share a define's name.** `Useradd::Entry` would
   resolve to the `useradd::entry` resource type, hence `Useradd::ListEntry`.
@@ -122,7 +125,7 @@ Module dependencies (from `metadata.json`):
   `Simplib::Umask` type.
 - `puppetlabs/stdlib` `>= 9.2.0 < 11.0.0` — provides `Stdlib::AbsolutePath`,
   `Stdlib::Filemode`, `pick()`, and the 3-argument `deprecation()`.
-- `puppet/systemd` `>= 4.0.2 < 11.0.0` — the `systemd` class, included only
+- `puppet/systemd` `>= 4.0.2 < 12.0.0` — the `systemd` class, included only
   when `useradd::sysconfig_init::systemd` is true.
 
 There are **no optional dependencies** (`metadata.json` has no

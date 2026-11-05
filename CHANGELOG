@@ -1,3 +1,11 @@
+* Thu Nov 05 2026 Steven Pritchard <steve@sicura.us> - 4.2.0
+- Support puppet/systemd 11
+- With `useradd::sysconfig_init::systemd: true`, the emergency and rescue
+  drop-ins are written with `systemd::dropin_file`, unless `purge_dropins`
+  differs from `systemd::purge_dropin_dirs`
+- The drop-in directories useradd declares itself are set to mode `0755`, as
+  `systemd::dropin_file` declares them
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 4.1.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge

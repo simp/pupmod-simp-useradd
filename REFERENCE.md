@@ -6,13 +6,13 @@
 
 ### Classes
 
-* [`useradd`](#useradd): Manage settings regarding users and user creation  A bare `include useradd` manages nothing except removing the `/etc/profile.d/simp.sh` and
-* [`useradd::etc_profile`](#useradd--etc_profile): Manage login settings for all users with scripts in /etc/profile.d  Each setting is written to its own pair of `sh` and `csh` scripts, so it
+* [`useradd`](#useradd): Manage settings regarding users and user creation  A bare `include useradd` manages nothing except removing the `/etc/profile.d/simp.sh` and 
+* [`useradd::etc_profile`](#useradd--etc_profile): Manage login settings for all users with scripts in /etc/profile.d  Each setting is written to its own pair of `sh` and `csh` scripts, so it 
 * [`useradd::libuser_conf`](#useradd--libuser_conf): Manage settings in /etc/libuser.conf  See libuser.conf(5) for information on the various variables. Each parameter manages one key, editing t
 * [`useradd::login_defs`](#useradd--login_defs): Manage settings in /etc/login.defs  Each parameter manages the login.defs key of the same name, upper-cased, editing the file in place. An un
-* [`useradd::nss`](#useradd--nss): Manage settings in /etc/default/nss  Read by `libnss_nis`. Each parameter manages the key of the same name, upper-cased, editing the file in
+* [`useradd::nss`](#useradd--nss): Manage settings in /etc/default/nss  Read by `libnss_nis`. Each parameter manages the key of the same name, upper-cased, editing the file in 
 * [`useradd::passwd`](#useradd--passwd): Manage the ownership and permissions of shadow and passwd related files  author: SIMP Team <simp@simp-project.com>
-* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Manage settings in /etc/sysconfig/init, and the shell run by the emergency and rescue targets  Each display parameter manages the key of the
+* [`useradd::sysconfig_init`](#useradd--sysconfig_init): Manage settings in /etc/sysconfig/init, and the shell run by the emergency and rescue targets  Each display parameter manages the key of the 
 * [`useradd::useradd`](#useradd--useradd): Manage settings in /etc/default/useradd  See useradd(8) for more details. Each parameter manages the key of the same name, upper-cased, editi
 
 ### Defined types
@@ -1433,10 +1433,12 @@ Acts only while `single_user_login` is set to a command. Defaults to
 `systemd::purge_dropin_dirs` with `systemd => true`, and to `false`
 otherwise.
 
-The drop-in directories are declared the way `systemd::dropin_file`
-declares them, so both can add drop-ins to these units as long as they
-agree on the purge. Otherwise the catalog fails with a duplicate
-declaration.
+With `systemd => true`, the drop-ins are written with
+`systemd::dropin_file` unless this differs from
+`systemd::purge_dropin_dirs`. Otherwise the drop-in directories are
+declared the way `systemd::dropin_file` declares them, so both can add
+drop-ins to these units as long as they agree on the purge. If they don't,
+the catalog fails with a duplicate declaration.
 
 Default value: `undef`
 
@@ -1445,7 +1447,8 @@ Default value: `undef`
 Data type: `Boolean`
 
 Include the `systemd` class, which with its defaults keeps
-`systemd-journald` running.
+`systemd-journald` running, and write the drop-ins with
+`systemd::dropin_file`.
 
 Default value: `false`
 
@@ -1686,3 +1689,4 @@ Alias of `Pattern[/\A[^\s#'"\\]+\z/]`
 A tty name, as listed in `/etc/securetty`
 
 Alias of `Useradd::ListEntry`
+

@@ -16,14 +16,17 @@
 #   `systemd::purge_dropin_dirs` with `systemd => true`, and to `false`
 #   otherwise.
 #
-#   The drop-in directories are declared the way `systemd::dropin_file`
-#   declares them, so both can add drop-ins to these units as long as they
-#   agree on the purge. Otherwise the catalog fails with a duplicate
-#   declaration.
+#   With `systemd => true`, the drop-ins are written with
+#   `systemd::dropin_file` unless this differs from
+#   `systemd::purge_dropin_dirs`. Otherwise the drop-in directories are
+#   declared the way `systemd::dropin_file` declares them, so both can add
+#   drop-ins to these units as long as they agree on the purge. If they don't,
+#   the catalog fails with a duplicate declaration.
 #
 # @param systemd
 #   Include the `systemd` class, which with its defaults keeps
-#   `systemd-journald` running.
+#   `systemd-journald` running, and write the drop-ins with
+#   `systemd::dropin_file`.
 #
 # @param bootup
 # @param res_col
@@ -120,11 +123,32 @@ class useradd::sysconfig_init (
     $_purge_dropins = pick($purge_dropins, false)
   }
 
+  # With `systemd => true` and its purge setting, systemd::dropin_file manages
+  # the drop-ins, their directories and the daemon-reload, so they can't
+  # diverge from another module's drop-ins on these units.
+  $_use_dropin_file = $systemd and $_purge_dropins == $systemd::purge_dropin_dirs
+
   if $single_user_login and 'systemd' in pick($facts['init_systems'], []) {
     ['emergency', 'rescue'].each |$unit| {
       $_dir = "/etc/systemd/system/${unit}.service.d"
+      $_content = $single_user_login ? {
+        'absent' => undef,
+        default  => @("END"),
+          [Service]
+          ExecStart=
+          ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
+          | END
+      }
 
-      if $single_user_login == 'absent' {
+      if $_use_dropin_file {
+        systemd::dropin_file { "${unit}_exec.conf":
+          ensure  => ($single_user_login ? { 'absent' => 'absent', default => 'present' }),
+          unit    => "${unit}.service",
+          mode    => '0444',
+          content => $_content,
+        }
+      }
+      elsif $single_user_login == 'absent' {
         file { "${_dir}/${unit}_exec.conf":
           ensure => 'absent',
           notify => Exec['useradd systemctl daemon-reload'],
@@ -132,11 +156,12 @@ class useradd::sysconfig_init (
       }
       else {
         # The same attributes as `systemd::dropin_file`, so either can declare
-        # the directory first.
+        # the directory first while they agree on the purge.
         ensure_resource('file', $_dir, {
           ensure                  => 'directory',
           owner                   => 'root',
           group                   => 'root',
+          mode                    => '0755',
           recurse                 => $_purge_dropins,
           purge                   => $_purge_dropins,
           selinux_ignore_defaults => false,
@@ -147,20 +172,18 @@ class useradd::sysconfig_init (
           owner   => 'root',
           group   => 'root',
           mode    => '0444',
-          content => @("END"),
-            [Service]
-            ExecStart=
-            ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
-            | END
+          content => $_content,
           notify  => Exec['useradd systemctl daemon-reload'],
         }
       }
     }
 
-    exec { 'useradd systemctl daemon-reload':
-      command     => 'systemctl daemon-reload',
-      path        => ['/usr/bin', '/bin'],
-      refreshonly => true,
+    unless $_use_dropin_file {
+      exec { 'useradd systemctl daemon-reload':
+        command     => 'systemctl daemon-reload',
+        path        => ['/usr/bin', '/bin'],
+        refreshonly => true,
+      }
     }
   }
 }

@@ -65,7 +65,11 @@ already removed the value from Hiera, remove the line by hand, or every
 ### Single-user login drop-ins
 
 `useradd::sysconfig_init::single_user_login` writes the emergency and rescue
-drop-ins with plain `file` resources and its own `daemon-reload`.
+drop-ins. With `useradd::sysconfig_init::systemd: true`, it uses
+`systemd::dropin_file`, which also manages the drop-in directories and the
+`daemon-reload`. Otherwise, or when `purge_dropins` differs from
+`systemd::purge_dropin_dirs`, it uses plain `file` resources and its own
+`daemon-reload`.
 
 * The drop-in directories are purged only when `purge_dropins` is `true`, or,
   with `useradd::sysconfig_init::systemd: true`, when
@@ -73,7 +77,7 @@ drop-ins with plain `file` resources and its own `daemon-reload`.
   in 3.x.
 * If another module declares a `systemd::dropin_file` on `emergency.service`
   or `rescue.service`, set `useradd::sysconfig_init::systemd: true` so both
-  declare the directory the same way. Without `systemd: true`,
+  use `systemd::dropin_file`. Without `systemd: true`,
   `purge_dropins: true` also matches while `systemd::purge_dropin_dirs` is
   at its default; it removes the other drop-ins for those units, as
   `systemd::dropin_file` would.
