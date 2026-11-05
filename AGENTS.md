@@ -95,9 +95,12 @@ itself.
   compilation under `strict=error`. Don't use `warning()` for them. The
   third argument needs stdlib 9.2.0.
 - **Without `systemd::dropin_file`, the drop-in directories are declared with
-  `ensure_resource`** and the same attributes as `systemd::dropin_file`
-  (`mode => '0755'` since puppet/systemd 11), so both can declare them. Keep
-  them in sync with puppet/systemd.
+  `ensure_resource`** and the attributes `systemd::dropin_file` uses in the
+  installed puppet/systemd (`mode => '0755'` from 11.0.0, read with
+  `load_module_metadata`), so both can declare them while they agree on the
+  purge. Keep them in sync with puppet/systemd.
+- **`systemd::dropin_file` is declared with `notify_service => false`.**
+  Refreshing `rescue`/`emergency` would put the host in single-user mode.
 - **A type alias can't share a define's name.** `Useradd::Entry` would
   resolve to the `useradd::entry` resource type, hence `Useradd::ListEntry`.
 - **`useradd::setting` picks the quoting per value.** The augeas provider

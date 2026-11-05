@@ -65,22 +65,26 @@ already removed the value from Hiera, remove the line by hand, or every
 ### Single-user login drop-ins
 
 `useradd::sysconfig_init::single_user_login` writes the emergency and rescue
-drop-ins. With `useradd::sysconfig_init::systemd: true`, it uses
-`systemd::dropin_file`, which also manages the drop-in directories and the
-`daemon-reload`. Otherwise, or when `purge_dropins` differs from
-`systemd::purge_dropin_dirs`, it uses plain `file` resources and its own
-`daemon-reload`.
+drop-ins. With `useradd::sysconfig_init::systemd: true`, and `purge_dropins`
+unset or equal to `systemd::purge_dropin_dirs`, it uses `systemd::dropin_file`,
+which also manages the drop-in directories and the `daemon-reload`. Otherwise
+it uses plain `file` resources and its own `daemon-reload`. Either way, a
+change to the drop-ins never restarts or refreshes `emergency.service` or
+`rescue.service`.
 
 * The drop-in directories are purged only when `purge_dropins` is `true`, or,
   with `useradd::sysconfig_init::systemd: true`, when
   `systemd::purge_dropin_dirs` is. `simp:defaults` sets `systemd: true`, as
   in 3.x.
-* If another module declares a `systemd::dropin_file` on `emergency.service`
-  or `rescue.service`, set `useradd::sysconfig_init::systemd: true` so both
-  use `systemd::dropin_file`. Without `systemd: true`,
-  `purge_dropins: true` also matches while `systemd::purge_dropin_dirs` is
-  at its default; it removes the other drop-ins for those units, as
-  `systemd::dropin_file` would.
+* With puppet/systemd 11 or later, the drop-in directories are set to mode
+  `0755`, as `systemd::dropin_file` sets them.
+* Another module's `systemd::dropin_file` on `emergency.service` or
+  `rescue.service` declares the same directory, so it can coexist only while
+  both agree on the purge. That holds with `systemd: true` and `purge_dropins`
+  unset, or with `systemd: false` and `purge_dropins` equal to
+  `systemd::purge_dropin_dirs` (`true` by default, which removes the other
+  drop-ins for those units, as `systemd::dropin_file` would). Otherwise the
+  catalog fails with a duplicate declaration of the directory.
 
 ### UID/GID ranges
 

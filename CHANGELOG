@@ -3,8 +3,8 @@
 - With `useradd::sysconfig_init::systemd: true`, the emergency and rescue
   drop-ins are written with `systemd::dropin_file`, unless `purge_dropins`
   differs from `systemd::purge_dropin_dirs`
-- The emergency and rescue drop-in directories are set to mode `0755`, as
-  `systemd::dropin_file` in puppet/systemd 11 sets them
+- With puppet/systemd 11 or later, the emergency and rescue drop-in
+  directories are set to mode `0755`, as `systemd::dropin_file` sets them
 
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 4.1.0
 - Add support for OpenVox 9

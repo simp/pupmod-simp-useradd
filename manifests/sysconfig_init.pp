@@ -17,16 +17,19 @@
 #   otherwise.
 #
 #   With `systemd => true`, the drop-ins are written with
-#   `systemd::dropin_file` unless this differs from
-#   `systemd::purge_dropin_dirs`. Otherwise the drop-in directories are
-#   declared the way `systemd::dropin_file` declares them, so both can add
-#   drop-ins to these units as long as they agree on the purge. If they don't,
-#   the catalog fails with a duplicate declaration.
+#   `systemd::dropin_file` while this matches `systemd::purge_dropin_dirs`.
+#   Otherwise they're plain `file` resources, and their directories are
+#   declared with the attributes `systemd::dropin_file` uses in the installed
+#   puppet/systemd. Another module's `systemd::dropin_file` on these units can
+#   then declare the same directory only if it agrees on the purge. If it
+#   doesn't, the catalog fails with a duplicate declaration, since the two
+#   would disagree on whether to remove each other's drop-ins.
 #
 # @param systemd
 #   Include the `systemd` class, which with its defaults keeps
-#   `systemd-journald` running, and write the drop-ins with
-#   `systemd::dropin_file`.
+#   `systemd-journald` running. The drop-ins are then written with
+#   `systemd::dropin_file`, unless `purge_dropins` differs from
+#   `systemd::purge_dropin_dirs`.
 #
 # @param bootup
 # @param res_col
@@ -129,43 +132,59 @@ class useradd::sysconfig_init (
   $_use_dropin_file = $systemd and $_purge_dropins == $systemd::purge_dropin_dirs
 
   if $single_user_login and 'systemd' in pick($facts['init_systems'], []) {
+    if $single_user_login == 'absent' {
+      $_ensure = 'absent'
+      $_content = undef
+    }
+    else {
+      $_ensure = 'present'
+      $_content = @("END")
+        [Service]
+        ExecStart=
+        ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
+        | END
+    }
+
+    # The directory attributes `systemd::dropin_file` uses in the installed
+    # puppet/systemd, so either can declare the directory first while they
+    # agree on the purge. puppet/systemd 11 added the mode.
+    $_systemd_version = load_module_metadata('systemd', true)['version']
+    $_dir_mode = ($_systemd_version and versioncmp($_systemd_version, '11.0.0') >= 0) ? {
+      true    => { mode => '0755' },
+      default => {},
+    }
+
     ['emergency', 'rescue'].each |$unit| {
       $_dir = "/etc/systemd/system/${unit}.service.d"
-      $_content = $single_user_login ? {
-        'absent' => undef,
-        default  => @("END"),
-          [Service]
-          ExecStart=
-          ExecStart=-/bin/sh -c "${single_user_login}; /usr/bin/systemctl --fail --no-block default"
-          | END
-      }
 
       if $_use_dropin_file {
-        systemd::dropin_file { "${unit}_exec.conf":
-          ensure  => ($single_user_login ? { 'absent' => 'absent', default => 'present' }),
-          unit    => "${unit}.service",
-          mode    => '0444',
-          content => $_content,
+        # Namespaced, so the title can't collide with a site's own drop-ins.
+        # The drop-in never restarts or refreshes the unit: that would start
+        # the rescue or emergency target.
+        systemd::dropin_file { "useradd ${unit}_exec.conf":
+          ensure         => $_ensure,
+          unit           => "${unit}.service",
+          filename       => "${unit}_exec.conf",
+          mode           => '0444',
+          content        => $_content,
+          notify_service => false,
         }
       }
-      elsif $single_user_login == 'absent' {
+      elsif $_ensure == 'absent' {
         file { "${_dir}/${unit}_exec.conf":
           ensure => 'absent',
           notify => Exec['useradd systemctl daemon-reload'],
         }
       }
       else {
-        # The same attributes as `systemd::dropin_file`, so either can declare
-        # the directory first while they agree on the purge.
         ensure_resource('file', $_dir, {
           ensure                  => 'directory',
           owner                   => 'root',
           group                   => 'root',
-          mode                    => '0755',
           recurse                 => $_purge_dropins,
           purge                   => $_purge_dropins,
           selinux_ignore_defaults => false,
-        })
+        } + $_dir_mode)
 
         file { "${_dir}/${unit}_exec.conf":
           ensure  => 'file',

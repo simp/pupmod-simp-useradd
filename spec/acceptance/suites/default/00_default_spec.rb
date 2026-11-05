@@ -279,6 +279,36 @@ describe 'useradd class' do
         end
       end
 
+      # puppet/systemd 11 sets drop-in directories to 0755, so on upgrade a
+      # directory created with another mode changes once, and only its mode.
+      context 'with the 3.x single-user login drop-ins in 0700 directories' do
+        let(:dir_mode) do
+          version = JSON.parse(File.read(File.join(__dir__, '../../../fixtures/modules/systemd/metadata.json')))['version']
+          (Gem::Version.new(version) >= Gem::Version.new('11.0.0')) ? '755' : '700'
+        end
+
+        before(:all) do
+          ['emergency', 'rescue'].each do |unit|
+            on(host, "chmod 0700 /etc/systemd/system/#{unit}.service.d")
+          end
+        end
+
+        it 'changes only the directory modes under simp:defaults' do
+          # The state without the directories' own `ls -la` entries
+          state_without_dirs = -> { on(host, UseraddTestUtil::STATE_CMD).stdout.lines.grep_v(%r{ \.$}) }
+          before = state_without_dirs.call
+          with_simp_defaults_enforced(host) do
+            apply_manifest_on(host, manifest, catch_failures: true)
+            apply_manifest_on(host, manifest, catch_changes: true)
+          end
+          expect(state_without_dirs.call).to eq(before)
+          ['emergency', 'rescue'].each do |unit|
+            expect(on(host, "stat -c '%a' /etc/systemd/system/#{unit}.service.d").stdout.strip).to eq(dir_mode)
+            on(host, "grep -q /sbin/sulogin /etc/systemd/system/#{unit}.service.d/#{unit}_exec.conf")
+          end
+        end
+      end
+
       context 'after simp:defaults is no longer enforced' do
         it 'reverts nothing' do
           before = on(host, UseraddTestUtil::STATE_CMD).stdout
