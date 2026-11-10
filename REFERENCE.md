@@ -1433,10 +1433,14 @@ Acts only while `single_user_login` is set to a command. Defaults to
 `systemd::purge_dropin_dirs` with `systemd => true`, and to `false`
 otherwise.
 
-The drop-in directories are declared the way `systemd::dropin_file`
-declares them, so both can add drop-ins to these units as long as they
-agree on the purge. Otherwise the catalog fails with a duplicate
-declaration.
+With `systemd => true`, the drop-ins are written with
+`systemd::dropin_file` while this matches `systemd::purge_dropin_dirs`.
+Otherwise they're plain `file` resources, and their directories are
+declared with the attributes `systemd::dropin_file` uses in the installed
+puppet/systemd. Another module's `systemd::dropin_file` on these units can
+then declare the same directory only if it agrees on the purge. If it
+doesn't, the catalog fails with a duplicate declaration, since the two
+would disagree on whether to remove each other's drop-ins.
 
 Default value: `undef`
 
@@ -1445,7 +1449,9 @@ Default value: `undef`
 Data type: `Boolean`
 
 Include the `systemd` class, which with its defaults keeps
-`systemd-journald` running.
+`systemd-journald` running. The drop-ins are then written with
+`systemd::dropin_file`, unless `purge_dropins` differs from
+`systemd::purge_dropin_dirs`.
 
 Default value: `false`
 

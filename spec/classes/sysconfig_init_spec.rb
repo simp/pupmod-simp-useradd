@@ -72,11 +72,18 @@ describe 'useradd::sysconfig_init' do
   context 'with single_user_login' do
     let(:params) { { single_user_login: '/sbin/sulogin' } }
 
+    # The directory attributes systemd::dropin_file uses in the fixture's
+    # puppet/systemd, which added the mode in 11.0.0.
+    let(:dir_mode) do
+      version = JSON.parse(File.read(File.join(RSpec.configuration.module_path, 'systemd', 'metadata.json')))['version']
+      (Gem::Version.new(version) >= Gem::Version.new('11.0.0')) ? '0755' : nil
+    end
+
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to contain_augeas('/etc/sysconfig/init SINGLE').with_changes(['rm SINGLE[position() > 1]', 'set SINGLE "/sbin/sulogin"']) }
 
     ['emergency', 'rescue'].each do |unit|
-      it { is_expected.to contain_file("/etc/systemd/system/#{unit}.service.d").with(ensure: 'directory', recurse: false, purge: false) }
+      it { is_expected.to contain_file("/etc/systemd/system/#{unit}.service.d").with(ensure: 'directory', mode: dir_mode, recurse: false, purge: false) }
 
       it do
         is_expected.to contain_file("/etc/systemd/system/#{unit}.service.d/#{unit}_exec.conf").with(
@@ -102,15 +109,54 @@ describe 'useradd::sysconfig_init' do
   context 'with single_user_login and systemd => true' do
     let(:params) { { single_user_login: '/sbin/sulogin', systemd: true } }
 
+    it { is_expected.to compile.with_all_deps }
+
     it 'purges the drop-in directories as systemd does' do
       is_expected.to contain_file('/etc/systemd/system/rescue.service.d').with(recurse: true, purge: true)
     end
+
+    ['emergency', 'rescue'].each do |unit|
+      it do
+        is_expected.to contain_systemd__dropin_file("useradd #{unit}_exec.conf").with(
+          ensure: 'present',
+          unit: "#{unit}.service",
+          filename: "#{unit}_exec.conf",
+          mode: '0444',
+          notify_service: false,
+          content: <<~CONF,
+            [Service]
+            ExecStart=
+            ExecStart=-/bin/sh -c "/sbin/sulogin; /usr/bin/systemctl --fail --no-block default"
+          CONF
+        )
+      end
+
+      it { is_expected.to contain_file("/etc/systemd/system/#{unit}.service.d/#{unit}_exec.conf").that_notifies("Systemd::Daemon_reload[#{unit}.service]") }
+    end
+
+    it { is_expected.not_to contain_exec('useradd systemctl daemon-reload') }
+  end
+
+  # A drop-in change must never refresh the rescue or emergency service, which
+  # would put the host in single-user mode.
+  context 'with single_user_login, systemd => true and a managed rescue service' do
+    let(:pre_condition) { "service { 'rescue': enable => false }" }
+    let(:params) { { single_user_login: '/sbin/sulogin', systemd: true } }
+
+    it { is_expected.to compile.with_all_deps }
+
+    it { is_expected.to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf') }
+    it { is_expected.not_to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf').that_notifies('Service[rescue]') }
+    it { is_expected.not_to contain_systemd__daemon_reload('rescue.service').that_notifies('Service[rescue]') }
+    it { is_expected.not_to contain_systemd__daemon_reload('rescue.service').that_comes_before('Service[rescue]') }
   end
 
   context 'with single_user_login, systemd => true and purge_dropins => false' do
     let(:params) { { single_user_login: '/sbin/sulogin', systemd: true, purge_dropins: false } }
 
     it { is_expected.to contain_file('/etc/systemd/system/rescue.service.d').with(recurse: false, purge: false) }
+    it { is_expected.not_to contain_systemd__dropin_file('useradd rescue_exec.conf') }
+    it { is_expected.to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf').that_notifies('Exec[useradd systemctl daemon-reload]') }
   end
 
   # Another module's systemd::dropin_file on the same unit declares the same
@@ -159,6 +205,15 @@ describe 'useradd::sysconfig_init' do
   context 'with single_user_login absent' do
     let(:params) { { single_user_login: 'absent' } }
 
+    it { is_expected.to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf').with_ensure('absent') }
+    it { is_expected.not_to contain_file('/etc/systemd/system/rescue.service.d') }
+  end
+
+  context 'with single_user_login absent and systemd => true' do
+    let(:params) { { single_user_login: 'absent', systemd: true } }
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.to contain_systemd__dropin_file('useradd rescue_exec.conf').with(ensure: 'absent', unit: 'rescue.service', filename: 'rescue_exec.conf') }
     it { is_expected.to contain_file('/etc/systemd/system/rescue.service.d/rescue_exec.conf').with_ensure('absent') }
     it { is_expected.not_to contain_file('/etc/systemd/system/rescue.service.d') }
   end
